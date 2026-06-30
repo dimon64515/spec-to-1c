@@ -13,6 +13,7 @@ from typing import List, Optional
 
 import pandas as pd
 import streamlit as st
+from tempfile import NamedTemporaryFile
 
 from pdf_spec_extractor import (
     extract_tables_from_pdf,
@@ -39,8 +40,9 @@ DEFAULT_HEADER = {
 
 def load_tables_from_pdf(file_bytes: bytes, selected_pages: Optional[List[int]] = None):
     """Сохраняет PDF во временный файл и извлекает таблицы."""
-    tmp_path = Path("_tmp_uploaded.pdf")
-    tmp_path.write_bytes(file_bytes)
+    with NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+        tmp.write(file_bytes)
+        tmp_path = Path(tmp.name)
     try:
         tables_by_page = extract_tables_from_pdf(str(tmp_path), pages=selected_pages)
         if not any(tables_by_page.values()):
@@ -54,8 +56,9 @@ def load_tables_from_pdf(file_bytes: bytes, selected_pages: Optional[List[int]] 
 
 def extract_equipment_from_bytes(file_bytes: bytes, selected_pages: Optional[List[int]] = None):
     """Извлекает строки ведомости оборудования из PDF и мапит их на артикулы."""
-    tmp_path = Path("_tmp_equipment.pdf")
-    tmp_path.write_bytes(file_bytes)
+    with NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+        tmp.write(file_bytes)
+        tmp_path = Path(tmp.name)
     try:
         raw_rows = extract_equipment_from_pdf(str(tmp_path), pages=selected_pages)
         spec_rows, skipped_rows = map_equipment_rows(raw_rows)
