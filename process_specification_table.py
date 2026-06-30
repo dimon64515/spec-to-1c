@@ -29,35 +29,7 @@ from typing import List, Dict, Optional, Tuple
 import pandas as pd
 
 from generate_order_xml import generate_order_xml
-
-
-# --- Материал ---
-
-def material_to_code(material: str) -> str:
-    """Преобразует текстовое описание материала в цифровой код для 1С.
-
-    Коды в 1С (функция НахождениеМатериалаПоТипу):
-        1 — оцинкованная сталь
-        2 — нержавеющая сталь
-        3 — чёрная сталь
-    """
-    text = str(material or "").lower()
-    text = text.replace("ё", "е")
-
-    # Прямые цифровые коды
-    if text.strip() in ("1", "2", "3"):
-        return text.strip()
-
-    # По ключевым фрагментам (порядок важен: нерж/черн проверяем раньше оц)
-    if "нерж" in text:
-        return "2"
-    if "черн" in text:
-        return "3"
-    if "оц" in text or "оцинк" in text:
-        return "1"
-
-    # По умолчанию оцинкованная сталь — наиболее частый случай
-    return "1"
+from spec_common import material_to_code
 
 
 # Настройки по умолчанию

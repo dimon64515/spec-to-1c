@@ -16,6 +16,8 @@ from xml.dom import minidom
 from pathlib import Path
 from typing import List, Dict, Optional
 
+from spec_common import material_to_code as material_type_to_code, connection_to_code
+
 
 def load_article_mapping(path: str = "product_article_mapping.json") -> Dict[str, dict]:
     """Загружает сопоставление артикула → параметры и сечение."""
@@ -75,91 +77,6 @@ def build_characteristic(params: Dict[str, float], mapping: dict) -> str:
         val = format_parameter_value(p, merged[p])
         parts.append(f"{p}{val}{p}_")
     return "".join(parts)
-
-
-def material_type_to_code(material_type: str) -> str:
-    """Преобразует текстовый тип материала в цифровой код для XML.
-
-    Коды в 1С (функция НахождениеМатериалаПоТипу):
-        1 — оцинкованная сталь
-        2 — нержавеющая сталь
-        3 — чёрная сталь
-    """
-    text = str(material_type or "").lower()
-    text = text.replace("ё", "е")
-
-    # Прямые цифровые коды
-    if text.strip() in ("1", "2", "3"):
-        return text.strip()
-
-    # По ключевым фрагментам (порядок важен: нерж/черн проверяем раньше оц)
-    if "нерж" in text:
-        return "2"
-    if "черн" in text:
-        return "3"
-    if "оц" in text or "оцинк" in text:
-        return "1"
-
-    # По умолчанию оцинкованная сталь — наиболее частый случай
-    return "1"
-
-
-def connection_to_code(conn: Optional[str], section: str) -> str:
-    """Преобразует название соединения в цифровой код.
-
-    В 1С из XML берётся Лев(Значение, 1), поэтому на выходе всегда одна цифра.
-    Круглые соединения: 1=Бандаж, 2=Без соединения, 3=Ниппель, 4=Фланец.
-    Прямоугольные соединения: 5=Фланец, 6=Шина/уголок, 7=Рейка, 8=Без соединения.
-    0 — сторона не используется.
-    """
-    conn = str(conn or "").strip().lower()
-
-    # "0" или пусто означает "сторона не используется".
-    if conn in ("0", ""):
-        return "0"
-
-    # Если уже передан цифровой код (1..8) — пропускаем как есть.
-    if conn in ("1", "2", "3", "4", "5", "6", "7", "8"):
-        return conn
-
-    # Нормализуем разделители: "шина/уголок", "шина уголок", "шина / уголок" → "шина уголок"
-    normalized = conn.replace("/", " ").replace("\\", " ")
-    normalized = " ".join(normalized.split())
-
-    if section == "round":
-        mapping = {
-            "бандаж": "1",
-            "без соединения": "2",
-            "без соед": "2",
-            "без": "2",
-            "б/с": "2",
-            "ниппель": "3",
-            "фланец круглый": "4",
-            "фланец кр": "4",
-            "фланец (кр)": "4",
-            "фланец": "4",
-        }
-    else:
-        mapping = {
-            "фланец прямоугольный": "5",
-            "фланец пр": "5",
-            "фланец (пр)": "5",
-            "фланец": "5",
-            "шина уголок": "6",
-            "шина / уголок": "6",
-            "шина": "6",
-            "уголок": "6",
-            "рейка": "7",
-            "без соединения": "8",
-            "без соед": "8",
-            "без": "8",
-            "б/с": "8",
-        }
-
-    # Сначала ищем по нормализованной строке, затем по исходной
-    if normalized in mapping:
-        return mapping[normalized]
-    return mapping.get(conn, "0")
 
 
 def generate_order_xml(
