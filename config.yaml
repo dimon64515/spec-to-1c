@@ -22,5 +22,5 @@ mapping_files:
 
 # MCP server connection settings
 mcp:
-  url: "http://localhost:6003/mcp"
+  url: "https://1dca23dc-dcb2-49f6-87f6-7a80a8710e1a.tunnel4.com/mcp"
   timeout: 30
