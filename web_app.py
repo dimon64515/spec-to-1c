@@ -8,22 +8,18 @@ r"""
 """
 
 import json
-from pathlib import Path
 from typing import List, Optional
 
 import pandas as pd
 import streamlit as st
-from tempfile import NamedTemporaryFile
 
-from pdf_spec_extractor import (
-    extract_tables_from_pdf,
-    extract_text_lines_from_pdf,
-    df_to_spec_rows,
-    normalize_columns,
-    parse_text_fallback,
+from api import (
+    count_pdf_pages,
+    extract_equipment_from_bytes,
+    load_tables_from_pdf,
+    read_uploaded_csv_or_excel,
 )
-from equipment_pdf_extractor import extract_equipment_from_pdf
-from map_customer_equipment import map_equipment_rows
+from pdf_spec_extractor import df_to_spec_rows, normalize_columns, parse_text_fallback
 from process_specification_table import process_rows
 
 
@@ -36,44 +32,6 @@ DEFAULT_HEADER = {
     "phone": "",
     "contact": "",
 }
-
-
-def load_tables_from_pdf(file_bytes: bytes, selected_pages: Optional[List[int]] = None):
-    """Сохраняет PDF во временный файл и извлекает таблицы."""
-    with NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
-        tmp.write(file_bytes)
-        tmp_path = Path(tmp.name)
-    try:
-        tables_by_page = extract_tables_from_pdf(str(tmp_path), pages=selected_pages)
-        if not any(tables_by_page.values()):
-            # Fallback на текст, если таблицы не найдены
-            text_by_page = extract_text_lines_from_pdf(str(tmp_path), pages=selected_pages)
-            return {"text_fallback": text_by_page}
-        return {"tables": tables_by_page}
-    finally:
-        tmp_path.unlink(missing_ok=True)
-
-
-def extract_equipment_from_bytes(file_bytes: bytes, selected_pages: Optional[List[int]] = None):
-    """Извлекает строки ведомости оборудования из PDF и мапит их на артикулы."""
-    with NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
-        tmp.write(file_bytes)
-        tmp_path = Path(tmp.name)
-    try:
-        raw_rows = extract_equipment_from_pdf(str(tmp_path), pages=selected_pages)
-        spec_rows, skipped_rows = map_equipment_rows(raw_rows)
-        return spec_rows, skipped_rows
-    finally:
-        tmp_path.unlink(missing_ok=True)
-
-
-def read_uploaded_csv_or_excel(uploaded_file) -> pd.DataFrame:
-    """Читает загруженный CSV/Excel в DataFrame."""
-    name = uploaded_file.name.lower()
-    if name.endswith((".xlsx", ".xls", ".xlsm")):
-        return pd.read_excel(uploaded_file, dtype=str)
-    # CSV: разделитель ';' с поддержкой UTF-8 BOM
-    return pd.read_csv(uploaded_file, delimiter=";", dtype=str, encoding="utf-8-sig")
 
 
 def _prepare_row(raw: dict) -> dict:
@@ -131,16 +89,8 @@ def main():
 
     # --- PDF ---
     if file_name.lower().endswith(".pdf"):
-        import fitz
-
         # Определяем количество страниц
-        tmp_path = Path("_tmp_pages.pdf")
-        tmp_path.write_bytes(file_bytes)
-        try:
-            with fitz.open(str(tmp_path)) as doc:
-                total_pages = doc.page_count
-        finally:
-            tmp_path.unlink(missing_ok=True)
+        total_pages = count_pdf_pages(file_bytes)
 
         st.write(f"**Страниц в PDF:** {total_pages}")
         selected_pages = st.multiselect(
