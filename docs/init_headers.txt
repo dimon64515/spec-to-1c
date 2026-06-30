@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+mcp-session-id: 4f1eace1-bb4f-4e01-a291-1c6eb8f090f6
+Cache-Control: no-cache, no-transform
+Connection: keep-alive
+Content-Type: text/event-stream
+Keep-Alive: timeout=5, max=100
+

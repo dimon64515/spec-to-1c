@@ -1,0 +1,1 @@
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"execute_query","arguments":{"query":"ВЫБРАТЬ ПЕРВЫЕ 20 Код, Наименование, Артикул ИЗ Справочник.Номенклатура ГДЕ Наименование ПОДОБНО &Mask","params":{"Mask":"%Решетка Р-Гс%"},"limit":20}}}

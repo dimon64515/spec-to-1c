@@ -1,0 +1,2401 @@
+[
+  {
+    "article": "1-1-1",
+    "group_code": "1",
+    "comment": "1.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "name": "Воздуховод круглого сечения прямошовный",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "1-1-2",
+    "group_code": "1",
+    "comment": "1.1.2",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "name": "Воздуховод круглого сечения спирально-навивной",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "1-1-3",
+    "group_code": "1",
+    "comment": "1.1.3",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +L_+\"-\"+u",
+    "xml_parameters": [
+      "D0",
+      "L0",
+      "U0"
+    ],
+    "default_params": {
+      "U0": 90,
+      "L0": 100
+    }
+  },
+  {
+    "article": "1-2-1",
+    "group_code": "1",
+    "comment": "1.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+ \"x\" +B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Воздуховод прямоугольного сечения",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "1-2-2",
+    "group_code": "1",
+    "comment": "1.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+ \"x\" +B_+\"-\"+L_+\"-\"+u",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0",
+      "U0"
+    ],
+    "default_params": {
+      "U0": 90,
+      "L0": 100
+    }
+  },
+  {
+    "article": "2-1-1",
+    "group_code": "2",
+    "comment": "2.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +u+\"-\"+R_",
+    "xml_parameters": [
+      "D0",
+      "R0",
+      "U0"
+    ],
+    "name": "Отвод круглого сечения",
+    "default_params": {
+      "U0": 90,
+      "R0": "D0"
+    }
+  },
+  {
+    "article": "2-1-2",
+    "group_code": "2",
+    "comment": "2.1.2",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+ \"/\"+\"Ф\"+d1_+\"-\"+u+\"-\"+R_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "R0",
+      "U0"
+    ],
+    "name": "Отвод круглого сечения конический",
+    "default_params": {
+      "U0": 90,
+      "R0": "D0",
+      "D1": "D0"
+    }
+  },
+  {
+    "article": "2-1-3",
+    "group_code": "2",
+    "comment": "2.1.3",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+ \"-\"+u+\"-\"+R_",
+    "xml_parameters": [
+      "D0",
+      "R0",
+      "U0"
+    ],
+    "name": "Отвод круглого сечения гофрированный",
+    "default_params": {
+      "U0": 90,
+      "R0": "D0"
+    }
+  },
+  {
+    "article": "2-2-1",
+    "group_code": "2",
+    "comment": "2.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+ \"x\" +B_+\"-\"+u+\"-\"+R_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "R0",
+      "U0"
+    ],
+    "name": "Отвод прямоугольного сечения радиусный",
+    "default_params": {
+      "U0": 90,
+      "R0": "max(A0,B0)/2"
+    }
+  },
+  {
+    "article": "2-2-2",
+    "group_code": "2",
+    "comment": "2.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+ \"x\" +B_+\"-\"+u+\"-\"+l1_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L1",
+      "L2",
+      "U0"
+    ],
+    "name": "Отвод прямоугольного сечения прямой",
+    "default_params": {
+      "L2": 0,
+      "U0": 90,
+      "L1": 0
+    }
+  },
+  {
+    "article": "2-2-3",
+    "group_code": "2",
+    "comment": "2.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+ \"x\" +B_+\"-\"+u+\"-\"+l1_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L1",
+      "L2",
+      "U0"
+    ],
+    "name": "Отвод прямоугольного сечения косой",
+    "default_params": {
+      "L2": 0,
+      "U0": 90,
+      "L1": 0
+    }
+  },
+  {
+    "article": "2-2-4",
+    "group_code": "2",
+    "comment": "2.2.4",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+ \"x\" +B_+\"/\"+a1_+\"x\"+b1_+\"-\"+u+\"-\"+R_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "R0",
+      "U0"
+    ],
+    "name": "Отвод прямоугольного сечения пирамидальный",
+    "default_params": {
+      "U0": 90,
+      "A1": "A0",
+      "B1": "B0",
+      "R0": "max(A0,B0)/2"
+    }
+  },
+  {
+    "article": "3-1-1",
+    "group_code": "3",
+    "comment": "3.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/\"+\"Ф\"+d1_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "L0"
+    ],
+    "name": "Переход круглого сечения центральный",
+    "default_params": {
+      "D1": "D0",
+      "L0": 100
+    }
+  },
+  {
+    "article": "3-1-2",
+    "group_code": "3",
+    "comment": "3.1.2",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/\"+\"Ф\"+d1_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "L0"
+    ],
+    "name": "Переход круглого сечения односторонний",
+    "default_params": {
+      "D1": "D0",
+      "L0": 100
+    }
+  },
+  {
+    "article": "3-1-3",
+    "group_code": "3",
+    "comment": "3.1.3",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/\"+\"Ф\"+d1_+\"-\"+L_+\"-\"+l1_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "L0",
+      "L1"
+    ],
+    "name": "Переход круглого сечения со смещением",
+    "default_params": {
+      "L1": 0,
+      "D1": "D0",
+      "L0": 100
+    }
+  },
+  {
+    "article": "3-2-1",
+    "group_code": "3",
+    "comment": "3.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "L0"
+    ],
+    "name": "Переход прямоугольного сечения тип 1",
+    "default_params": {
+      "L0": 100,
+      "A1": "A0",
+      "B1": "B0"
+    }
+  },
+  {
+    "article": "3-2-2",
+    "group_code": "3",
+    "comment": "3.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "L0"
+    ],
+    "name": "Переход прямоугольного сечения тип 2",
+    "default_params": {
+      "L0": 100,
+      "A1": "A0",
+      "B1": "B0"
+    }
+  },
+  {
+    "article": "3-2-3",
+    "group_code": "3",
+    "comment": "3.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "L0"
+    ],
+    "name": "Переход прямоугольного сечения тип 3",
+    "default_params": {
+      "L0": 100,
+      "A1": "A0",
+      "B1": "B0"
+    }
+  },
+  {
+    "article": "3-2-4",
+    "group_code": "3",
+    "comment": "3.2.4",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "L0"
+    ],
+    "name": "Переход прямоугольного сечения тип 4",
+    "default_params": {
+      "L0": 100,
+      "A1": "A0",
+      "B1": "B0"
+    }
+  },
+  {
+    "article": "3-2-5",
+    "group_code": "3",
+    "comment": "3.2.5",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "L0"
+    ],
+    "name": "Переход прямоугольного сечения тип 5",
+    "default_params": {
+      "L0": 100,
+      "A1": "A0",
+      "B1": "B0"
+    }
+  },
+  {
+    "article": "3-2-6",
+    "group_code": "3",
+    "comment": "3.2.6",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_+\"-\"+l1_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Переход прямоугольного сечения тип 6",
+    "default_params": {
+      "L0": 100,
+      "L2": 0,
+      "A1": "A0",
+      "B1": "B0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "3-3-1",
+    "group_code": "3",
+    "comment": "",
+    "section": "round",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Переход с прямоугольного на круглое сечения тип 1",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "3-3-2",
+    "group_code": "3",
+    "comment": "",
+    "section": "round",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Переход с прямоугольного на круглое сечения тип 2",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "3-3-3",
+    "group_code": "3",
+    "comment": "",
+    "section": "round",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Переход с прямоугольного на круглое сечения тип 3",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "3-3-4",
+    "group_code": "3",
+    "comment": "",
+    "section": "round",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Переход с прямоугольного на круглое сечения тип 4",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "3-3-5",
+    "group_code": "3",
+    "comment": "",
+    "section": "round",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Переход с прямоугольного на круглое сечения тип 5",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "3-3-6",
+    "group_code": "3",
+    "comment": "",
+    "section": "round",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_+\"-\"+l1_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Переход с прямоугольного на круглое сечения тип 6",
+    "default_params": {
+      "L1": 0,
+      "L0": 100,
+      "L2": 0
+    }
+  },
+  {
+    "article": "4-1-1",
+    "group_code": "4",
+    "comment": "4.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_",
+    "xml_parameters": [
+      "D0",
+      "D2",
+      "L0",
+      "L2"
+    ],
+    "name": "Тройник круглого сечения с круглой прямой врезкой",
+    "default_params": {
+      "L0": 100,
+      "L2": 0,
+      "D2": "D0"
+    }
+  },
+  {
+    "article": "4-1-2",
+    "group_code": "4",
+    "comment": "4.1.2",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"-\"+u",
+    "xml_parameters": [
+      "D0",
+      "D2",
+      "L0",
+      "L2",
+      "U0"
+    ],
+    "name": "Тройник круглого сечения с круглой косой врезкой",
+    "default_params": {
+      "L0": 100,
+      "L2": 0,
+      "D2": "D0",
+      "U0": 90
+    }
+  },
+  {
+    "article": "4-1-3",
+    "group_code": "4",
+    "comment": "-4.1.3",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_",
+    "xml_parameters": [
+      "A2",
+      "B2",
+      "D0",
+      "L0",
+      "L2"
+    ],
+    "name": "Тройник круглого сечения с прямоугольной прямой врезкой",
+    "default_params": {
+      "A2": 100,
+      "L0": 100,
+      "L2": 0,
+      "B2": 100
+    }
+  },
+  {
+    "article": "4-1-4",
+    "group_code": "4",
+    "comment": "4.1.4",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"-45°\"",
+    "xml_parameters": [
+      "A2",
+      "B2",
+      "D0",
+      "L0",
+      "L2"
+    ],
+    "name": "Тройник круглого сечения с прямоугольной косой врезкой",
+    "default_params": {
+      "A2": 100,
+      "L0": 100,
+      "L2": 0,
+      "B2": 100
+    }
+  },
+  {
+    "article": "4-1-5",
+    "group_code": "4",
+    "comment": "--4.1.5",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"/Ф\"+d2_+\"-\"+L_+\"-\"+u",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "D2",
+      "L0",
+      "U0"
+    ],
+    "name": "Тройник круглого сечения аспирационный",
+    "default_params": {
+      "D1": "D0",
+      "L0": 100,
+      "D2": "D0",
+      "U0": 90
+    }
+  },
+  {
+    "article": "4-1-6",
+    "group_code": "4",
+    "comment": "-4.1.6",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"/Ф\"+d2_+\"-\"+L_+\"-\"+u",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "D2",
+      "L0",
+      "U0"
+    ],
+    "name": "Тройник круглого сечения штаны",
+    "default_params": {
+      "D1": "D0",
+      "L0": 100,
+      "D2": "D0",
+      "U0": 90
+    }
+  },
+  {
+    "article": "4-1-7",
+    "group_code": "4",
+    "comment": "-4.1.7",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "D2",
+      "L0",
+      "L2"
+    ],
+    "name": "Тройник круглого сечения конический с прямой врезкой",
+    "default_params": {
+      "D1": "D0",
+      "L2": 0,
+      "L0": 100,
+      "D2": "D0"
+    }
+  },
+  {
+    "article": "4-1-8",
+    "group_code": "4",
+    "comment": "-4.1.8",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"-\"+u",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "D2",
+      "L0",
+      "L2",
+      "U0"
+    ],
+    "name": "Тройник круглого сечения конический с косой врезкой",
+    "default_params": {
+      "D1": "D0",
+      "L2": 0,
+      "L0": 100,
+      "D2": "D0",
+      "U0": 90
+    }
+  },
+  {
+    "article": "4-1-9",
+    "group_code": "4",
+    "comment": "-4.1.9",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"-\"+u",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "D2",
+      "L0",
+      "L2",
+      "U0"
+    ],
+    "default_params": {
+      "D1": "D0",
+      "L2": 0,
+      "L0": 100,
+      "D2": "D0",
+      "U0": 90
+    }
+  },
+  {
+    "article": "4-1-10",
+    "group_code": "4",
+    "comment": "-4.1.10",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "4-2-1",
+    "group_code": "4",
+    "comment": "--4.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D2",
+      "L0",
+      "L2"
+    ],
+    "name": "Тройник прямоугольного сечения с круглой прямой врезкой",
+    "default_params": {
+      "L0": 100,
+      "L2": 0,
+      "D2": 100
+    }
+  },
+  {
+    "article": "4-2-2",
+    "group_code": "4",
+    "comment": "--4.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"-\"+u",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D2",
+      "L0",
+      "L2",
+      "U0"
+    ],
+    "name": "Тройник прямоугольного сечения с круглой косой врезкой",
+    "default_params": {
+      "L0": 100,
+      "L2": 0,
+      "D2": 100,
+      "U0": 90
+    }
+  },
+  {
+    "article": "4-2-3",
+    "group_code": "4",
+    "comment": "-4.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "A2",
+      "B0",
+      "B2",
+      "L0",
+      "L2"
+    ],
+    "name": "Тройник прямоугольного сечения с прямоугольной прямой врезкой",
+    "default_params": {
+      "A2": "A0",
+      "L0": 100,
+      "L2": 0,
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "4-2-4",
+    "group_code": "4",
+    "comment": "--4.2.4",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"-45°\"",
+    "xml_parameters": [
+      "A0",
+      "A2",
+      "B0",
+      "B2",
+      "L0",
+      "L2"
+    ],
+    "name": "Тройник прямоугольного сечения с прямоугольной косой врезкой",
+    "default_params": {
+      "A2": "A0",
+      "L0": 100,
+      "L2": 0,
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "4-2-5",
+    "group_code": "4",
+    "comment": "4.2.5",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+B_+\"/\"+a1_+\"x\"+B_+\"-180°\"",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "L0"
+    ],
+    "name": "Тройник прямоугольного сечения штаны 180",
+    "default_params": {
+      "L0": 100,
+      "A1": "A0"
+    }
+  },
+  {
+    "article": "4-2-6",
+    "group_code": "4",
+    "comment": "4.2.6",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+B_+\"/\"+a1_+\"x\"+B_+\"-90°\"",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "L0"
+    ],
+    "name": "Тройник прямоугольного сечения штаны 90",
+    "default_params": {
+      "L0": 100,
+      "A1": "A0"
+    }
+  },
+  {
+    "article": "4-2-7",
+    "group_code": "4",
+    "comment": "4.2.7",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"/\"+a2_+\"x\"+b1_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "A2",
+      "B0",
+      "B1",
+      "L0"
+    ],
+    "name": "Тройник прямоугольного сечения штаны 0",
+    "default_params": {
+      "A2": "A0",
+      "L0": 100,
+      "A1": "A0",
+      "B1": "B0"
+    }
+  },
+  {
+    "article": "4-2-8",
+    "group_code": "4",
+    "comment": "4.2.8",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+B_+\"-\"+l1_+\"/\"+a2_+\"x\"+B_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "A2",
+      "B0",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Тройник прямоугольного сечения переходный с прямой врезкой",
+    "default_params": {
+      "A2": "A0",
+      "L0": 100,
+      "L2": 0,
+      "A1": "A0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "4-2-9",
+    "group_code": "4",
+    "comment": "4.2.9",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+B_+\"-\"+l1_+\"/\"+a2_+\"x\"+B_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "A2",
+      "B0",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Тройник прямоугольного сечения переходный с радиусной врезкой",
+    "default_params": {
+      "A2": "A0",
+      "L0": 100,
+      "L2": 0,
+      "A1": "A0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "5-1-1",
+    "group_code": "5",
+    "comment": "5.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"/Ф\"+d3_+\"-\"+l3_",
+    "xml_parameters": [
+      "D0",
+      "D2",
+      "D3",
+      "L0",
+      "L2",
+      "L3"
+    ],
+    "name": "Крестовина круглого сечения центральная",
+    "default_params": {
+      "D3": "D0",
+      "L0": 100,
+      "L2": 0,
+      "D2": "D0",
+      "L3": 0
+    }
+  },
+  {
+    "article": "5-1-2",
+    "group_code": "5",
+    "comment": "5.1.2",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"-\"+l1_+\"/Ф\"+d2_+\"-\"+l2_+\"/Ф\"+d3_+\"-\"+l3_",
+    "xml_parameters": [
+      "D0",
+      "D2",
+      "D3",
+      "L0",
+      "L1",
+      "L2",
+      "L3"
+    ],
+    "name": "Крестовина круглого сечения со смещением",
+    "default_params": {
+      "D3": "D0",
+      "L0": 100,
+      "L2": 0,
+      "D2": "D0",
+      "L3": 0,
+      "L1": 0
+    }
+  },
+  {
+    "article": "5-1-3",
+    "group_code": "5",
+    "comment": "5.1.3",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"/Ф\"+d2_+\"/Ф\"+d3_+\"-\"+L_+\"-\"+u",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "D2",
+      "D3",
+      "L0",
+      "U0"
+    ],
+    "name": "Крестовина круглого сечения аспирационная",
+    "default_params": {
+      "D3": "D0",
+      "D1": "D0",
+      "L0": 100,
+      "D2": "D0",
+      "U0": 90
+    }
+  },
+  {
+    "article": "5-1-4",
+    "group_code": "5",
+    "comment": "5.1.4",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"/\"+a3_+\"x\"+b3_+\"-\"+l3_",
+    "xml_parameters": [
+      "A2",
+      "A3",
+      "B2",
+      "B3",
+      "D0",
+      "L0",
+      "L2",
+      "L3"
+    ],
+    "name": "Крестовина круглого сечения с прямоугольной врезкой",
+    "default_params": {
+      "A2": 100,
+      "B3": 100,
+      "L0": 100,
+      "L2": 0,
+      "A3": 100,
+      "L3": 0,
+      "B2": 100
+    }
+  },
+  {
+    "article": "5-1-5",
+    "group_code": "5",
+    "comment": "5.1.5",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"/Ф\"+d3_+\"-\"+l3_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "D2",
+      "D3",
+      "L0",
+      "L2",
+      "L3"
+    ],
+    "name": "Крестовина круглого сечения конусная с прямыми круглыми врезками",
+    "default_params": {
+      "D3": "D0",
+      "D1": "D0",
+      "L0": 100,
+      "L2": 0,
+      "D2": "D0",
+      "L3": 0
+    }
+  },
+  {
+    "article": "5-1-6",
+    "group_code": "5",
+    "comment": "5.1.6",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"/Ф\"+d3_+\"-\"+l3_+\"-\"+u",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "D2",
+      "D3",
+      "L0",
+      "L2",
+      "L3",
+      "U0"
+    ],
+    "name": "Крестовина круглого сечения конусная с косыми круглыми врезками",
+    "default_params": {
+      "D3": "D0",
+      "D1": "D0",
+      "L0": 100,
+      "L2": 0,
+      "D2": "D0",
+      "L3": 0,
+      "U0": 90
+    }
+  },
+  {
+    "article": "5-2-1",
+    "group_code": "5",
+    "comment": "5.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"/\"+a3_+\"x\"+b3_+\"-\"+l3_",
+    "xml_parameters": [
+      "A0",
+      "A2",
+      "A3",
+      "B0",
+      "B2",
+      "B3",
+      "L0",
+      "L2",
+      "L3"
+    ],
+    "name": "Крестовина прямоугольного сечения центральная",
+    "default_params": {
+      "A2": "A0",
+      "B3": "B0",
+      "L0": 100,
+      "L2": 0,
+      "A3": "A0",
+      "L3": 0,
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "5-2-2",
+    "group_code": "5",
+    "comment": "5.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+l1_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"/\"+a3_+\"x\"+b3_+\"-\"+l3_",
+    "xml_parameters": [
+      "A0",
+      "A2",
+      "A3",
+      "B0",
+      "B2",
+      "B3",
+      "L0",
+      "L1",
+      "L2",
+      "L3"
+    ],
+    "name": "Крестовина прямоугольного сечения со смещением",
+    "default_params": {
+      "A2": "A0",
+      "B3": "B0",
+      "L1": 0,
+      "L0": 100,
+      "L2": 0,
+      "A3": "A0",
+      "L3": 0,
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "5-2-3",
+    "group_code": "5",
+    "comment": "5.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"/\"+a3_+\"x\"+b3_+\"-\"+l3_+\"-45°\"",
+    "xml_parameters": [
+      "A0",
+      "A2",
+      "A3",
+      "B0",
+      "B2",
+      "B3",
+      "L0",
+      "L2",
+      "L3"
+    ],
+    "name": "Крестовина прямоугольного сечения с прямоугольной косой врезкой",
+    "default_params": {
+      "A2": "A0",
+      "B3": "B0",
+      "L0": 100,
+      "L2": 0,
+      "A3": "A0",
+      "L3": 0,
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "5-2-4",
+    "group_code": "5",
+    "comment": "5.2.4",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"/Ф\"+d3_+\"-\"+l3_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D2",
+      "D3",
+      "L0",
+      "L2",
+      "L3"
+    ],
+    "name": "Крестовина прямоугольного сечения с круглой врезкой",
+    "default_params": {
+      "D3": 100,
+      "L0": 100,
+      "L2": 0,
+      "D2": 100,
+      "L3": 0
+    }
+  },
+  {
+    "article": "6-1-1",
+    "group_code": "6",
+    "comment": "6.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +p",
+    "xml_parameters": [
+      "D0",
+      "P0"
+    ],
+    "name": "Заглушка круглого сечения",
+    "default_params": {
+      "P0": 100
+    }
+  },
+  {
+    "article": "6-1-2",
+    "group_code": "6",
+    "comment": "6.1.2",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +p",
+    "xml_parameters": [
+      "D0",
+      "P0"
+    ],
+    "name": "Заглушка круглого сечения с сеткой",
+    "default_params": {
+      "P0": 100
+    }
+  },
+  {
+    "article": "6-2-1",
+    "group_code": "6",
+    "comment": "6.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+p",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "P0"
+    ],
+    "name": "Заглушка прямоугольного сечения",
+    "default_params": {
+      "P0": 100
+    }
+  },
+  {
+    "article": "6-2-2",
+    "group_code": "6",
+    "comment": "6.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+p",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "P0"
+    ],
+    "name": "Заглушка прямоугольного сечения с сеткой",
+    "default_params": {
+      "P0": 100
+    }
+  },
+  {
+    "article": "7-1-1",
+    "group_code": "7",
+    "comment": "7.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"-\"+l1_",
+    "xml_parameters": [
+      "D0",
+      "L0",
+      "L1"
+    ],
+    "name": "Утка круглого сечения",
+    "default_params": {
+      "L1": 0,
+      "L0": 100
+    }
+  },
+  {
+    "article": "7-1-2",
+    "group_code": "7",
+    "comment": "7.1.2",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"-\"+l1_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "L0",
+      "L1"
+    ],
+    "name": "Утка круглого сечения с переходом",
+    "default_params": {
+      "L1": 0,
+      "D1": "D0",
+      "L0": 100
+    }
+  },
+  {
+    "article": "7-2-1",
+    "group_code": "7",
+    "comment": "7.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+a2_+\"-\"+l1_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "A2",
+      "B0",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Утка прямоугольного сечения косая",
+    "default_params": {
+      "A2": "A0",
+      "L0": 100,
+      "L2": 0,
+      "L1": 0
+    }
+  },
+  {
+    "article": "7-2-2",
+    "group_code": "7",
+    "comment": "7.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+a2_+\"-\"+l1_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "A2",
+      "B0",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Утка прямоугольного сечения радиусная",
+    "default_params": {
+      "A2": "A0",
+      "L0": 100,
+      "L2": 0,
+      "L1": 0
+    }
+  },
+  {
+    "article": "7-2-3",
+    "group_code": "7",
+    "comment": "7.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_+\"-\"+a2_+\"/\"+b2_+\"-\"+l1_+\"-\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "A2",
+      "B0",
+      "B1",
+      "B2",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Утка прямоугольного сечения со смещением в 2-х плоскостях",
+    "default_params": {
+      "A2": "A0",
+      "L1": 0,
+      "L0": 100,
+      "L2": 0,
+      "A1": "A0",
+      "B1": "B0",
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "8-1-1",
+    "group_code": "8",
+    "comment": "8.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+D2_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "D2",
+      "L0"
+    ],
+    "name": "Врезка круглого сечения прямая в круглый воздуховод",
+    "default_params": {
+      "L0": 100,
+      "D2": "D0"
+    }
+  },
+  {
+    "article": "8-1-2",
+    "group_code": "8",
+    "comment": "8.1.2",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+D2_+\"-\"+L_+\"-\"+u",
+    "xml_parameters": [
+      "D0",
+      "D2",
+      "L0",
+      "U0"
+    ],
+    "name": "Врезка круглого сечения косая в круглый воздуховод",
+    "default_params": {
+      "U0": 90,
+      "L0": 100,
+      "D2": "D0"
+    }
+  },
+  {
+    "article": "8-1-3",
+    "group_code": "8",
+    "comment": "8.1.3",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "name": "Врезка круглого сечения прямая в прямоугольный воздуховод",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "8-1-4",
+    "group_code": "8",
+    "comment": "8.1.4",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"-\"+u",
+    "xml_parameters": [
+      "D0",
+      "L0",
+      "U0"
+    ],
+    "name": "Врезка круглого сечения косая в прямоугольный воздуховод",
+    "default_params": {
+      "U0": 90,
+      "L0": 100
+    }
+  },
+  {
+    "article": "8-1-5",
+    "group_code": "8",
+    "comment": "8.1.5",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+D2_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "D2",
+      "L0"
+    ],
+    "name": "Врезка круглого сечения воротниковая",
+    "default_params": {
+      "L0": 100,
+      "D2": "D0"
+    }
+  },
+  {
+    "article": "8-1-6",
+    "group_code": "8",
+    "comment": "8.1.6",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Врезка круглого сечения в плоскость",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "8-2-1",
+    "group_code": "8",
+    "comment": "8.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Врезка прямоугольного сечения прямая в прямоугольный воздуховод",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "8-2-2",
+    "group_code": "8",
+    "comment": "8.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Врезка прямоугольного сечения косая в прямоугольный воздуховод",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "8-2-3",
+    "group_code": "8",
+    "comment": "8.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Врезка прямоугольного сечения радиусная в прямоугольный воздуховод",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "8-2-4",
+    "group_code": "8",
+    "comment": "8.2.4",
+    "section": "round",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Врезка прямоугольного сечения прямая в круглый воздуховод",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "8-2-5",
+    "group_code": "8",
+    "comment": "8.2.5",
+    "section": "round",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Врезка прямоугольного сечения косая в круглый воздуховод",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "8-2-6",
+    "group_code": "8",
+    "comment": "8.2.6",
+    "section": "round",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Врезка прямоугольного сечения радиусная в круглый воздуховод",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "8-2-7",
+    "group_code": "8",
+    "comment": "8.2.7",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a2_+\"x\"+b2_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "A2",
+      "B0",
+      "B2",
+      "L0"
+    ],
+    "name": "Врезка прямоугольного сечения в плоскость",
+    "default_params": {
+      "A2": "A0",
+      "L0": 100,
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "9-1-1",
+    "group_code": "9",
+    "comment": "9.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_",
+    "xml_parameters": [
+      "D0",
+      "D1"
+    ],
+    "name": "Зонт крышный круглого сечения",
+    "default_params": {
+      "D1": "D0"
+    }
+  },
+  {
+    "article": "9-1-2",
+    "group_code": "9",
+    "comment": "9.1.2",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_",
+    "xml_parameters": [
+      "D0"
+    ],
+    "name": "Зонт крышный круглого сечения (дефлектор)"
+  },
+  {
+    "article": "9-2-1",
+    "group_code": "9",
+    "comment": "9.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1"
+    ],
+    "name": "Зонт прямоугольного сечения с коньком",
+    "default_params": {
+      "A1": "A0",
+      "B1": "B0"
+    }
+  },
+  {
+    "article": "9-2-2",
+    "group_code": "9",
+    "comment": "9.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1"
+    ],
+    "name": "Зонт прямоугольного сечения скошеный",
+    "default_params": {
+      "A1": "A0",
+      "B1": "B0"
+    }
+  },
+  {
+    "article": "9-2-3",
+    "group_code": "9",
+    "comment": "9.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "L0",
+      "L1"
+    ],
+    "name": "Зонт прямоугольного сечения с прямым коньком",
+    "default_params": {
+      "L0": 100,
+      "A1": "A0",
+      "B1": "B0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "10-1-1",
+    "group_code": "10",
+    "comment": "10.1.1",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "L0",
+      "L1"
+    ],
+    "name": "КСД кр. сечения для круглого диффузора с пр. врезкой",
+    "default_params": {
+      "L1": 0,
+      "D1": "D0",
+      "L0": 100
+    }
+  },
+  {
+    "article": "10-1-2",
+    "group_code": "10",
+    "comment": "10.1.2",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A1",
+      "B1",
+      "D0",
+      "L0",
+      "L1"
+    ],
+    "name": "КСД кр. сечения для круглого диффузора с кр. врезкой",
+    "default_params": {
+      "L0": 100,
+      "A1": 100,
+      "B1": 100,
+      "L1": 0
+    }
+  },
+  {
+    "article": "10-2-1",
+    "group_code": "10",
+    "comment": "10.2.1",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"-\"+l2_+\"/\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "D1",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "КСД пр. сечения для кр. диффузора с кр. врезкой",
+    "default_params": {
+      "L1": 0,
+      "D1": "D0",
+      "L0": 100,
+      "L2": 0
+    }
+  },
+  {
+    "article": "10-2-2",
+    "group_code": "10",
+    "comment": "10.2.2",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"-\"+l2_+\"/\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "D0",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "КСД пр. сечения для кр. диффузора с пр. врезкой",
+    "default_params": {
+      "L1": 0,
+      "L0": 100,
+      "L2": 0,
+      "A1": "A0",
+      "B1": "B0"
+    }
+  },
+  {
+    "article": "10-2-3",
+    "group_code": "10",
+    "comment": "10.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D1",
+      "L0",
+      "L1"
+    ],
+    "name": "КСД пр. сечения для пр. диффузора с кр. врезкой",
+    "default_params": {
+      "D1": 100,
+      "L0": 100,
+      "L1": 0
+    }
+  },
+  {
+    "article": "10-2-4",
+    "group_code": "10",
+    "comment": "10.2.4",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "L0",
+      "L1"
+    ],
+    "name": "КСД пр. сечения для пр. диффузора с пр. врезкой",
+    "default_params": {
+      "L0": 100,
+      "A1": "A0",
+      "B1": "B0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "10-3-1",
+    "group_code": "10",
+    "comment": "10.3.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_+\"/\"+b2_+\"x\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "B2",
+      "D1",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "КСД для настенного щелевого диффузора 1",
+    "default_params": {
+      "L1": 0,
+      "D1": 100,
+      "L0": 100,
+      "L2": 0,
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "10-3-2",
+    "group_code": "10",
+    "comment": "10.3.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_+\"/\"+b2_+\"x\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "B2",
+      "D1",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "КСД для настенного щелевого диффузора 2",
+    "default_params": {
+      "L1": 0,
+      "D1": 100,
+      "L0": 100,
+      "L2": 0,
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "10-3-3",
+    "group_code": "10",
+    "comment": "10.3.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_+\"/\"+b2_+\"x\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "B2",
+      "D1",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "КСД для потолочного щелевого диффузора 1",
+    "default_params": {
+      "L1": 0,
+      "D1": 100,
+      "L0": 100,
+      "L2": 0,
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "10-3-4",
+    "group_code": "10",
+    "comment": "10.3.4",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_+\"/\"+b2_+\"x\"+l2_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "B2",
+      "D1",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "КСД для потолочного щелевого диффузора 2",
+    "default_params": {
+      "L1": 0,
+      "D1": 100,
+      "L0": 100,
+      "L2": 0,
+      "B2": "B0"
+    }
+  },
+  {
+    "article": "12-1-1",
+    "group_code": "12",
+    "comment": "",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "name": "Ниппель",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "12-2-4",
+    "group_code": "12",
+    "comment": "",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Ниппель прямоугольный",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "12-2-3",
+    "group_code": "12",
+    "comment": "12.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Рейка",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "12-2-1",
+    "group_code": "12",
+    "comment": "",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_",
+    "xml_parameters": [
+      "A0",
+      "B0"
+    ],
+    "name": "Шина и УГФ"
+  },
+  {
+    "article": "12-1-3",
+    "group_code": "12",
+    "comment": "",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_",
+    "xml_parameters": [
+      "D0",
+      "P0"
+    ],
+    "name": "Фланец (кр)",
+    "default_params": {
+      "P0": 100
+    }
+  },
+  {
+    "article": "12-2-2",
+    "group_code": "12",
+    "comment": "",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_",
+    "xml_parameters": [
+      "A0",
+      "B0"
+    ],
+    "name": "Фланец (пр)"
+  },
+  {
+    "article": "17-1-1",
+    "group_code": "17",
+    "comment": "17.1.1",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"/\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Фильтр круглого сечения кассетный",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "17-1-2",
+    "group_code": "17",
+    "comment": "17.1.2",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"/\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Фильтр круглого сечения карманный",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "17-1-3",
+    "group_code": "17",
+    "comment": "17.1.3",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"-\"+L_+\"/\"+A_+\"x\"+B_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "D0",
+      "L0"
+    ],
+    "name": "Корпус фильтра для круглых каналов",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "17-1-4",
+    "group_code": "17",
+    "comment": "17.1.4",
+    "section": null,
+    "designation_expression": "\"\"+b1_+\"x\"+l1_+\"/\"+z_",
+    "xml_parameters": [
+      "B1",
+      "L1",
+      "z"
+    ],
+    "name": "Фильтровальный элемент для круглых каналов",
+    "default_params": {
+      "z": 0,
+      "L1": 0,
+      "B1": 100
+    }
+  },
+  {
+    "article": "17-2-1",
+    "group_code": "17",
+    "comment": "17.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Фильтр прямоугольного сечения кассетный",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "17-2-2",
+    "group_code": "17",
+    "comment": "17.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Фильтр прямоугольного сечения карманный",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "17-2-3",
+    "group_code": "17",
+    "comment": "17.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Корпус фильтра для прямоугольных каналов",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "17-2-4",
+    "group_code": "17",
+    "comment": "17.2.4",
+    "section": null,
+    "designation_expression": "\"\"+a1_+\"x\"+b1_+\"-\"+l1_+\"/\"+z_",
+    "xml_parameters": [
+      "A1",
+      "B1",
+      "L1",
+      "z"
+    ],
+    "name": "Фильтровальный элемент для прямоугольных каналов",
+    "default_params": {
+      "z": 0,
+      "L1": 0,
+      "A1": 100,
+      "B1": 100
+    }
+  },
+  {
+    "article": "18-1-1",
+    "group_code": "18",
+    "comment": "18.1.1",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "name": "Обратный клапан круглого сечения лепестковый (5.904-41)",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "18-1-3",
+    "group_code": "18",
+    "comment": "18.1.3",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "name": "Обратный клапан круглого сечения бабочка (RSK)",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "18-2-1",
+    "group_code": "18",
+    "comment": "18.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Обратный клапан прямоугольного сечения лепестковый",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "19-1-1",
+    "group_code": "19",
+    "comment": "19.1.1",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "L0",
+      "L1"
+    ],
+    "name": "Зонт вытяжной круглого сечения тип 1",
+    "default_params": {
+      "L1": 0,
+      "D1": "D0",
+      "L0": 100
+    }
+  },
+  {
+    "article": "19-1-2",
+    "group_code": "19",
+    "comment": "19.1.2",
+    "section": "round",
+    "designation_expression": "\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_+\"/\"+l2_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Зонт вытяжной круглого сечения тип 2",
+    "default_params": {
+      "D1": "D0",
+      "L2": 0,
+      "L0": 100,
+      "L1": 0
+    }
+  },
+  {
+    "article": "19-2-1",
+    "group_code": "19",
+    "comment": "19.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "D1",
+      "L0",
+      "L1"
+    ],
+    "name": "Зонт вытяжной прямоугольного сечения тип 1",
+    "default_params": {
+      "D1": 100,
+      "L0": 100,
+      "A1": "A0",
+      "B1": "B0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "19-2-2",
+    "group_code": "19",
+    "comment": "",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+l2_+\"/\"+a1_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "A1",
+      "B0",
+      "B1",
+      "D1",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Зонт вытяжной прямоугольного сечения тип 2",
+    "default_params": {
+      "D1": 100,
+      "L0": 100,
+      "L2": 0,
+      "A1": "A0",
+      "B1": "B0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "19-2-3",
+    "group_code": "19",
+    "comment": "",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+A_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "B1",
+      "D1",
+      "L0",
+      "L1"
+    ],
+    "name": "Зонт вытяжной прямоугольного сечения тип 3",
+    "default_params": {
+      "D1": 100,
+      "L0": 100,
+      "B1": "B0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "19-2-4",
+    "group_code": "19",
+    "comment": "",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+l2_+\"/\"+A_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "B1",
+      "D1",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Зонт вытяжной прямоугольного сечения тип 4",
+    "default_params": {
+      "D1": 100,
+      "L0": 100,
+      "L2": 0,
+      "B1": "B0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "19-2-5",
+    "group_code": "19",
+    "comment": "",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+A_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "B1",
+      "D1",
+      "L0",
+      "L1"
+    ],
+    "name": "Зонт вытяжной прямоугольного сечения тип 5",
+    "default_params": {
+      "D1": 100,
+      "L0": 100,
+      "B1": "B0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "19-2-6",
+    "group_code": "19",
+    "comment": "",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+l2_+\"/\"+A_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "B1",
+      "D1",
+      "L0",
+      "L1",
+      "L2"
+    ],
+    "name": "Зонт вытяжной прямоугольного сечения тип 6",
+    "default_params": {
+      "D1": 100,
+      "L0": 100,
+      "L2": 0,
+      "B1": "B0",
+      "L1": 0
+    }
+  },
+  {
+    "article": "19-2-7",
+    "group_code": "19",
+    "comment": "",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"x\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Кассета жироуловителя (сетка)",
+    "default_params": {
+      "L0": 100
+    }
+  },
+  {
+    "article": "19-2-8",
+    "group_code": "19",
+    "comment": "",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_",
+    "xml_parameters": [
+      "A0",
+      "B0"
+    ],
+    "name": "Кассета жироуловителя (лабиринт)"
+  },
+  {
+    "article": "15-1-1",
+    "group_code": "15",
+    "comment": "15.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/\"+\"Ф\"+D1_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "L0"
+    ],
+    "name": "Шумоглушитель трубчатый круглый ГТК",
+    "default_params": {
+      "D1": "D0",
+      "L0": 1000
+    }
+  },
+  {
+    "article": "15-2-1",
+    "group_code": "15",
+    "comment": "15.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "A1",
+      "B1",
+      "L0"
+    ],
+    "name": "Шумоглушитель трубчатый прямоугольный ГТП",
+    "default_params": {
+      "A1": "A0",
+      "B1": "B0",
+      "L0": 1000
+    }
+  },
+  {
+    "article": "16-1-1",
+    "group_code": "16",
+    "comment": "16.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "name": "Дроссель круглого сечения",
+    "default_params": {
+      "L0": 200
+    }
+  },
+  {
+    "article": "16-2-1",
+    "group_code": "16",
+    "comment": "16.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Дроссель прямоугольного сечения",
+    "default_params": {
+      "L0": 200
+    }
+  }
+]

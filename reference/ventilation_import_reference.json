@@ -1,0 +1,126 @@
+{
+  "meta": {
+    "description": "Справочные данные для автоматического импорта вентиляционных заказов через XML",
+    "created": "2026-06-18",
+    "actual_for": "1С:Комплексная автоматизация 2, конфигурация с asВводНовогоЗаказа",
+    "tested_file": "D:\\project\\order_example.xml"
+  },
+  "xml_structure": {
+    "root_element": "Order (любое имя допустимо)",
+    "encoding": "UTF-8",
+    "header_fields": [
+      {"xml": "numberDate", "target": "Объект.ДатаЗаказа__Загрузка", "format": "ДД.ММ.ГГГГ"},
+      {"xml": "numberOrder", "target": "Объект.НомерЗаказа__Загрузка", "format": "string"},
+      {"xml": "INN", "target": "Объект.ИНН_Загрузка", "format": "string"},
+      {"xml": "customer", "target": "Объект.Контрагент_Загрузка_Строковая", "format": "string"},
+      {"xml": "email", "target": "Объект.Почта", "format": "string"},
+      {"xml": "phone", "target": "Объект.Телефон", "format": "string"},
+      {"xml": "contact", "target": "Объект.Контакт", "format": "string"}
+    ],
+    "row_fields": [
+      {"xml": "article", "target": "Артикул_Продукта", "note": "Видимый артикул, например 1-1-1"},
+      {"xml": "name", "target": "НаименованиеССайта", "note": "Наименование с сайта"},
+      {"xml": "characteristic", "target": "Характеристика_Продукта", "note": "Формат: ПАРАМЕТР<значение>ПАРАМЕТР_"},
+      {"xml": "quantity", "target": "n", "note": "Количество"},
+      {"xml": "material", "target": "Артикул_Материала", "note": "Код типа материала: 1/2/3"},
+      {"xml": "thickness", "target": "t, t2", "note": "Толщина в мм; 0 если не применима"},
+      {"xml": "connection_0", "target": "СоединениеВоздуховода_c0/r0", "note": "Только первый символ"},
+      {"xml": "connection_1", "target": "СоединениеВоздуховода_c1/r1", "note": "Только первый символ"},
+      {"xml": "connection_2", "target": "СоединениеВоздуховода_c2/r2", "note": "Только первый символ"},
+      {"xml": "connection_3", "target": "СоединениеВоздуховода_c3/r3", "note": "Только первый символ"},
+      {"xml": "system", "target": "асСистема", "note": "Система"},
+      {"xml": "comment", "target": "КомментарийКПродукцииИзOnLine", "note": "Комментарий"}
+    ]
+  },
+  "characteristic_format": {
+    "parser": "Определение_Значения",
+    "pattern": "ПАРАМЕТР<значение>ПАРАМЕТР_",
+    "separator": "_",
+    "pad_with_leading_zeros": true,
+    "examples": {
+      "round_d160_l100": "D0160D0_L0100L0_",
+      "rect_300x200_l100": "A0300A0_B0200B0_L0100L0_",
+      "flange_d160_p4": "D0160D0_P004P0_"
+    },
+    "parameters": [
+      {"name": "D0", "description": "Диаметр круглого сечения"},
+      {"name": "D1..D4", "description": "Дополнительные диаметры (переходы, тройники)"},
+      {"name": "A0..A5", "description": "Сторона A прямоугольного сечения"},
+      {"name": "B0..B5", "description": "Сторона B прямоугольного сечения"},
+      {"name": "L0..L6", "description": "Длина изделия"},
+      {"name": "R, R1..R3", "description": "Радиусы поворота"},
+      {"name": "U0, u1, u2", "description": "Углы поворота"},
+      {"name": "P0..P3", "description": "Количество отверстий / прочее"}
+    ]
+  },
+  "material_types": {
+    "1": {"name": "Оцинкованная сталь", "default_group": "01-02-01-01"},
+    "2": {"name": "Нержавеющая сталь", "default_group": "01-01-02-16 / 01-01-02-09"},
+    "3": {"name": "Чёрная сталь", "default_group": "01-01-03-17"}
+  },
+  "connections": {
+    "round": {
+      "id_field": "cN",
+      "values": {
+        "1": {"name": "Бандаж", "code": "000000001"},
+        "2": {"name": "Без соединения", "code": "000000002"},
+        "3": {"name": "Ниппель", "code": "000000003"},
+        "4": {"name": "Фланец (кр)", "code": "000000004"}
+      }
+    },
+    "rectangular": {
+      "id_field": "rN",
+      "values": {
+        "5": {"name": "Фланец (пр)", "code": "000000005"},
+        "6": {"name": "Шина / уголок", "code": "000000006"},
+        "7": {"name": "Рейка", "code": "000000007"},
+        "8": {"name": "Без соединения", "code": "000000008"}
+      }
+    },
+    "empty_value": "0"
+  },
+  "products": [
+    {
+      "article": "1-1-1",
+      "name": "Воздуховод круглого сечения прямошовный",
+      "section": "Круглое",
+      "parameters": ["D0", "L0"],
+      "active_connections": ["c0", "c1"],
+      "default_no_connection": "2"
+    },
+    {
+      "article": "1-1-2",
+      "name": "Воздуховод круглого сечения спирально-навивной",
+      "section": "Круглое",
+      "parameters": ["D0", "L0"],
+      "active_connections": ["c0", "c1"],
+      "default_no_connection": "2"
+    },
+    {
+      "article": "1-2-1",
+      "name": "Воздуховод прямоугольного сечения",
+      "section": "Прямоугольное",
+      "parameters": ["A0", "B0", "L0"],
+      "active_connections": ["r0", "r1"],
+      "default_no_connection": "8",
+      "common_connection": "6"
+    },
+    {
+      "article": "12-1-3",
+      "name": "Фланец (кр)",
+      "section": "Круглое",
+      "parameters": ["D0", "P0"],
+      "active_connections": [],
+      "default_no_connection": "0"
+    }
+  ],
+  "important_notes": [
+    "В <material> передаётся только код типа материала: 1, 2 или 3.",
+    "В <thickness> всегда должно быть число; для товаров без толщины указывайте 0.",
+    "В connection_N передаётся только первый символ значения.",
+    "Для неиспользуемых сторон соединений указывайте 0.",
+    "Характеристика строго формата ПАРАМЕТР<значение>ПАРАМЕТР_ с ведущими нулями.",
+    "Перед загрузкой необходимо снять галочку 'Авторасчёт' в форме обработки.",
+    "Имя реквизита галочки 'Авторасчёт' в форме пока не установлено — требуется доработка."
+  ]
+}

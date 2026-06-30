@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+
+# Environment / secrets
+.env
+
+# Logs and local runtime
+*.log
+*.pid
+server.pid
+
+# Playwright MCP local logs
+.playwright-mcp/
+
+# Temporary / generated files (for later deletion)
+_to_delete/
+output/
+
+# External tooling / vendored dependencies (not part of project source)
+1c-mcp/
+mcp-bsl-platform-context/
+jdk-17.0.19+10/
+jdk17.zip
+_mcp_toolkit_extract/
+
+# Personal conversation exports (not project source)
+docs/kimi_exports/

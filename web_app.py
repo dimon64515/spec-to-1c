@@ -1,0 +1,334 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+r"""
+Веб-приложение «PDF/CSV/XLSX спецификация → XML для 1С».
+
+Запуск:
+    venv\Scripts\streamlit run web_app.py
+"""
+
+import json
+from pathlib import Path
+from typing import List, Optional
+
+import pandas as pd
+import streamlit as st
+
+from pdf_spec_extractor import (
+    extract_tables_from_pdf,
+    extract_text_lines_from_pdf,
+    df_to_spec_rows,
+    normalize_columns,
+    parse_text_fallback,
+)
+from equipment_pdf_extractor import extract_equipment_from_pdf
+from map_customer_equipment import map_equipment_rows
+from process_specification_table import process_rows
+
+
+DEFAULT_HEADER = {
+    "numberDate": "",
+    "numberOrder": "",
+    "INN": "",
+    "customer": "",
+    "email": "",
+    "phone": "",
+    "contact": "",
+}
+
+
+def load_tables_from_pdf(file_bytes: bytes, selected_pages: Optional[List[int]] = None):
+    """Сохраняет PDF во временный файл и извлекает таблицы."""
+    tmp_path = Path("_tmp_uploaded.pdf")
+    tmp_path.write_bytes(file_bytes)
+    try:
+        tables_by_page = extract_tables_from_pdf(str(tmp_path), pages=selected_pages)
+        if not any(tables_by_page.values()):
+            # Fallback на текст, если таблицы не найдены
+            text_by_page = extract_text_lines_from_pdf(str(tmp_path), pages=selected_pages)
+            return {"text_fallback": text_by_page}
+        return {"tables": tables_by_page}
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def extract_equipment_from_bytes(file_bytes: bytes, selected_pages: Optional[List[int]] = None):
+    """Извлекает строки ведомости оборудования из PDF и мапит их на артикулы."""
+    tmp_path = Path("_tmp_equipment.pdf")
+    tmp_path.write_bytes(file_bytes)
+    try:
+        raw_rows = extract_equipment_from_pdf(str(tmp_path), pages=selected_pages)
+        spec_rows, skipped_rows = map_equipment_rows(raw_rows)
+        return spec_rows, skipped_rows
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+def read_uploaded_csv_or_excel(uploaded_file) -> pd.DataFrame:
+    """Читает загруженный CSV/Excel в DataFrame."""
+    name = uploaded_file.name.lower()
+    if name.endswith((".xlsx", ".xls", ".xlsm")):
+        return pd.read_excel(uploaded_file, dtype=str)
+    # CSV: разделитель ';' с поддержкой UTF-8 BOM
+    return pd.read_csv(uploaded_file, delimiter=";", dtype=str, encoding="utf-8-sig")
+
+
+def _prepare_row(raw: dict) -> dict:
+    """Нормализует строку перед передачей в process_rows."""
+    row = {str(k).strip().lower(): v if not isinstance(v, str) else v.strip() for k, v in raw.items()}
+
+    # Восстанавливаем params из JSON-строки, если data_editor сериализовал dict
+    params_raw = row.get("params")
+    if isinstance(params_raw, str) and params_raw:
+        try:
+            row["params"] = json.loads(params_raw)
+        except json.JSONDecodeError:
+            row["params"] = {}
+
+    quantity_raw = str(row.get("quantity", "0")).replace(" ", "").replace(",", ".")
+    try:
+        row["quantity"] = float(quantity_raw)
+    except ValueError:
+        row["quantity"] = 0.0
+
+    thickness_raw = str(row.get("thickness", "0.8")).replace(" ", "").replace(",", ".")
+    try:
+        row["thickness"] = float(thickness_raw)
+    except ValueError:
+        row["thickness"] = 0.8
+
+    return row
+
+
+def main():
+    st.set_page_config(page_title="Спецификация → XML для 1С", layout="wide")
+    st.title("📄 Спецификация → XML для 1С")
+    st.markdown(
+        "Загрузите PDF, CSV или Excel со спецификацией вентиляции. "
+        "Выберите страницы/таблицы, отредактируйте данные и сгенерируйте XML."
+    )
+
+    # --- Загрузка файла ---
+    uploaded_file = st.file_uploader(
+        "Загрузите файл",
+        type=["pdf", "csv", "xlsx", "xls"],
+        accept_multiple_files=False,
+    )
+
+    if uploaded_file is None:
+        st.info("Загрузите файл для начала работы.")
+        return
+
+    file_name = uploaded_file.name
+    file_bytes = uploaded_file.getvalue()
+
+    combined_df: Optional[pd.DataFrame] = None
+    equipment_skipped: Optional[List[dict]] = None
+    is_equipment_mode = False
+
+    # --- PDF ---
+    if file_name.lower().endswith(".pdf"):
+        import fitz
+
+        # Определяем количество страниц
+        tmp_path = Path("_tmp_pages.pdf")
+        tmp_path.write_bytes(file_bytes)
+        try:
+            with fitz.open(str(tmp_path)) as doc:
+                total_pages = doc.page_count
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+        st.write(f"**Страниц в PDF:** {total_pages}")
+        selected_pages = st.multiselect(
+            "Выберите страницы для обработки",
+            options=list(range(1, total_pages + 1)),
+            default=list(range(1, total_pages + 1)),
+        )
+
+        if not selected_pages:
+            st.warning("Выберите хотя бы одну страницу.")
+            return
+
+        is_equipment_mode = st.checkbox(
+            "Это ведомость оборудования заказчика (автомаппинг брендовых позиций)",
+            value=False,
+            help=(
+                "Если включено, PDF будет разобран как ведомость оборудования: "
+                "шумоглушители, фильтры, клапаны и т.п. будут сопоставлены с артикулами 1С."
+            ),
+        )
+
+        if is_equipment_mode:
+            with st.spinner("Извлекаю оборудование из PDF и сопоставляю с артикулами..."):
+                spec_rows, equipment_skipped = extract_equipment_from_bytes(
+                    file_bytes, selected_pages=selected_pages
+                )
+
+            if not spec_rows:
+                st.error("Не удалось распознать производимые позиции в ведомости оборудования.")
+            else:
+                combined_df = pd.DataFrame(spec_rows)
+                # params в виде dict не всегда корректно сохраняется в data_editor,
+                # поэтому сериализуем его в JSON-строку и восстановим при генерации XML.
+                if "params" in combined_df.columns:
+                    combined_df["params"] = combined_df["params"].apply(
+                        lambda x: json.dumps(x, ensure_ascii=False) if isinstance(x, dict) else x
+                    )
+
+            if equipment_skipped:
+                with st.expander(f"Пропущено оборудования ({len(equipment_skipped)})"):
+                    st.json(equipment_skipped)
+        else:
+            with st.spinner("Извлекаю таблицы из PDF..."):
+                result = load_tables_from_pdf(file_bytes, selected_pages=selected_pages)
+
+            rows: List[dict] = []
+
+            if "tables" in result:
+                tables_by_page = result["tables"]
+                selected_tables = []
+                for page_num, tables in tables_by_page.items():
+                    if not tables:
+                        continue
+                    st.subheader(f"Страница {page_num}")
+                    for idx, df in enumerate(tables, start=1):
+                        st.write(f"**Таблица {idx}** ({len(df)} строк)")
+                        st.dataframe(df, width="stretch")
+                        if st.checkbox(
+                            f"Включить таблицу {idx} со страницы {page_num}",
+                            value=True,
+                            key=f"tbl_{page_num}_{idx}",
+                        ):
+                            selected_tables.append(df)
+
+                if not selected_tables:
+                    st.warning("Не выбрано ни одной таблицы.")
+                    return
+
+                for df in selected_tables:
+                    rows.extend(df_to_spec_rows(df))
+
+            else:
+                # Fallback: текст
+                text_by_page = result["text_fallback"]
+                for page_num, lines in text_by_page.items():
+                    st.subheader(f"Текст страницы {page_num}")
+                    st.text("\n".join(lines[:50]))
+                    rows.extend(parse_text_fallback(lines))
+
+            if not rows:
+                st.error("Не удалось извлечь строки из PDF.")
+                return
+
+            combined_df = pd.DataFrame(rows)
+
+    # --- CSV / Excel ---
+    else:
+        with st.spinner("Читаю файл..."):
+            df = read_uploaded_csv_or_excel(uploaded_file)
+        st.write(f"**Строк в файле:** {len(df)}")
+        combined_df = normalize_columns(df)
+
+    # --- Редактирование таблицы ---
+    if combined_df is None or combined_df.empty:
+        st.error("Не удалось получить данные для редактирования.")
+        return
+
+    st.subheader("Редактирование спецификации")
+    if is_equipment_mode:
+        st.caption(
+            "Колонки name, size, unit, quantity, material, thickness заполнены автоматически. "
+            "Колонки article и params содержат выбранный артикул и параметры для 1С."
+        )
+        disabled_cols = [
+            "name",
+            "size",
+            "article",
+            "params",
+            "detected_category",
+            "detected_article",
+            "source_raw_name",
+            "source_model",
+        ]
+        # Оставляем видимыми только полезные колонки в первую очередь
+        display_df = combined_df.copy()
+    else:
+        st.caption(
+            "Колонки: name (наименование), size (размер), unit (ед.изм), "
+            "quantity (количество), material (материал), thickness (толщина)."
+        )
+        disabled_cols = []
+        display_df = combined_df
+
+    edited_df = st.data_editor(
+        display_df,
+        num_rows="dynamic",
+        width="stretch",
+        disabled=[c for c in disabled_cols if c in display_df.columns],
+        column_config={
+            "quantity": st.column_config.NumberColumn(format="%.2f"),
+            "thickness": st.column_config.NumberColumn(format="%.2f"),
+        },
+    )
+
+    # --- Заголовок заказа ---
+    with st.expander("Заголовок заказа (необязательно)"):
+        header = {
+            "numberDate": st.text_input("Дата заказа", value=""),
+            "numberOrder": st.text_input("Номер заказа", value=""),
+            "INN": st.text_input("ИНН", value=""),
+            "customer": st.text_input("Заказчик", value=""),
+            "email": st.text_input("Email", value=""),
+            "phone": st.text_input("Телефон", value=""),
+            "contact": st.text_input("Контактное лицо", value=""),
+        }
+
+    # --- Генерация XML ---
+    if st.button("⚙️ Сгенерировать XML", type="primary"):
+        # Преобразуем DataFrame в список dict
+        raw_rows = edited_df.to_dict("records")
+        rows = [_prepare_row(raw) for raw in raw_rows]
+
+        with st.spinner("Генерирую XML..."):
+            xml_text, skipped = process_rows(rows, header=header)
+
+        # Учитываем уже пропущенное оборудование
+        all_skipped = list(skipped)
+        if equipment_skipped:
+            all_skipped.extend(equipment_skipped)
+
+        st.success(
+            f"Готово! Загружено строк: {len(rows) - len(skipped)}, "
+            f"пропущено в XML: {len(skipped)}"
+        )
+        if equipment_skipped:
+            st.info(f"Пропущено оборудования (не производится/нет артикула): {len(equipment_skipped)}")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.download_button(
+                label="⬇️ Скачать order.xml",
+                data=xml_text,
+                file_name="order.xml",
+                mime="application/xml",
+            )
+        with col2:
+            skipped_json = json.dumps(all_skipped, ensure_ascii=False, indent=2)
+            st.download_button(
+                label="⬇️ Скачать skipped.json",
+                data=skipped_json,
+                file_name="skipped.json",
+                mime="application/json",
+            )
+
+        if all_skipped:
+            with st.expander(f"Пропущенные позиции ({len(all_skipped)})"):
+                st.json(all_skipped)
+
+        with st.expander("Предпросмотр XML"):
+            st.code(xml_text, language="xml")
+
+
+if __name__ == "__main__":
+    main()

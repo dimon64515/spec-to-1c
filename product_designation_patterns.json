@@ -1,0 +1,1641 @@
+{
+  "source": "модуль ввод нового заказа.txt",
+  "function": "ОбозначениеПродукции",
+  "count": 120,
+  "products": [
+    {
+      "product_ref": "ВоздуховодКруглогоСеченияПрямошовный",
+      "comment": "1.1.1",
+      "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +L_",
+      "article": "1-1-1",
+      "group_code": "1",
+      "xml_parameters": [
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВоздуховодКруглогоСеченияСпиральноНавивной",
+      "comment": "1.1.2",
+      "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +L_",
+      "article": "1-1-2",
+      "group_code": "1",
+      "xml_parameters": [
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВоздуховодКруглогоСеченияКосой",
+      "comment": "1.1.3",
+      "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +L_+\"-\"+u",
+      "article": "1-1-3",
+      "group_code": "1",
+      "xml_parameters": [
+        "D0",
+        "L0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ВоздуховодПрямоугольногоСечения",
+      "comment": "1.2.1",
+      "designation_expression": "\"\"+A_+ \"x\" +B_+\"-\"+L_",
+      "article": "1-2-1",
+      "group_code": "1",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВоздуховодПрямоугольногоСеченияКосой",
+      "comment": "1.2.2",
+      "designation_expression": "\"\"+A_+ \"x\" +B_+\"-\"+L_+\"-\"+u",
+      "article": "1-2-2",
+      "group_code": "1",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ОтводКруглогоСечения",
+      "comment": "2.1.1",
+      "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +u+\"-\"+R_",
+      "article": "2-1-1",
+      "group_code": "2",
+      "xml_parameters": [
+        "D0",
+        "R0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ОтводКруглогоСеченияКонический",
+      "comment": "2.1.2",
+      "designation_expression": "\"\"+\"Ф\"+D_+ \"/\"+\"Ф\"+d1_+\"-\"+u+\"-\"+R_",
+      "article": "2-1-2",
+      "group_code": "2",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "R0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ОтводКруглогоСеченияГофрированный",
+      "comment": "2.1.3",
+      "designation_expression": "\"\"+\"Ф\"+D_+ \"-\"+u+\"-\"+R_",
+      "article": "2-1-3",
+      "group_code": "2",
+      "xml_parameters": [
+        "D0",
+        "R0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ОтводПрямоугольногоСеченияРадиусный",
+      "comment": "2.2.1",
+      "designation_expression": "\"\"+A_+ \"x\" +B_+\"-\"+u+\"-\"+R_",
+      "article": "2-2-1",
+      "group_code": "2",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "R0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ОтводПрямоугольногоСеченияПрямой",
+      "comment": "2.2.2",
+      "designation_expression": "\"\"+A_+ \"x\" +B_+\"-\"+u+\"-\"+l1_+\"-\"+l2_",
+      "article": "2-2-2",
+      "group_code": "2",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L1",
+        "L2",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ОтводПрямоугольногоСеченияКосой",
+      "comment": "2.2.3",
+      "designation_expression": "\"\"+A_+ \"x\" +B_+\"-\"+u+\"-\"+l1_+\"-\"+l2_",
+      "article": "2-2-3",
+      "group_code": "2",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L1",
+        "L2",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ОтводПрямоугольногоСеченияПереходный",
+      "comment": "2.2.4",
+      "designation_expression": "\"\"+A_+ \"x\" +B_+\"/\"+a1_+\"x\"+b1_+\"-\"+u+\"-\"+R_",
+      "article": "2-2-4",
+      "group_code": "2",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "R0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ПереходКруглогоСеченияЦентральный",
+      "comment": "3.1.1",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/\"+\"Ф\"+d1_+\"-\"+L_",
+      "article": "3-1-1",
+      "group_code": "3",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходКруглогоСеченияОдносторонний",
+      "comment": "3.1.2",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/\"+\"Ф\"+d1_+\"-\"+L_",
+      "article": "3-1-2",
+      "group_code": "3",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходКруглогоСеченияСоСмещением",
+      "comment": "3.1.3",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/\"+\"Ф\"+d1_+\"-\"+L_+\"-\"+l1_",
+      "article": "3-1-3",
+      "group_code": "3",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "ПереходПрямоугольногоСеченияТип1",
+      "comment": "3.2.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+      "article": "3-2-1",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходПрямоугольногоСеченияТип2",
+      "comment": "3.2.2",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+      "article": "3-2-2",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходПрямоугольногоСеченияТип3",
+      "comment": "3.2.3",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+      "article": "3-2-3",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходПрямоугольногоСеченияТип4",
+      "comment": "3.2.4",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+      "article": "3-2-4",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходПрямоугольногоСеченияТип5",
+      "comment": "3.2.5",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+      "article": "3-2-5",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходПрямоугольногоСеченияТип6",
+      "comment": "3.2.6",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_+\"-\"+l1_+\"-\"+l2_",
+      "article": "3-2-6",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ПереходСПрямоугольногоНаКруглоеСеченияТип1",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_",
+      "article": "3-3-1",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходСПрямоугольногоНаКруглоеСеченияТип2",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_",
+      "article": "3-3-2",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходСПрямоугольногоНаКруглоеСеченияТип3",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_",
+      "article": "3-3-3",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходСПрямоугольногоНаКруглоеСеченияТип4",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_",
+      "article": "3-3-4",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходСПрямоугольногоНаКруглоеСеченияТип5",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_",
+      "article": "3-3-5",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ПереходСПрямоугольногоНаКруглоеСеченияТип6",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+\"Ф\"+D_+\"-\"+L_+\"-\"+l1_+\"-\"+l2_",
+      "article": "3-3-6",
+      "group_code": "3",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ТройникКруглогоСеченияСКруглойПрямойВрезкой",
+      "comment": "4.1.1",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_",
+      "article": "4-1-1",
+      "group_code": "4",
+      "xml_parameters": [
+        "D0",
+        "D2",
+        "L0",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ТройникКруглогоСеченияСКруглойКосойВрезкой",
+      "comment": "4.1.2",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"-\"+u",
+      "article": "4-1-2",
+      "group_code": "4",
+      "xml_parameters": [
+        "D0",
+        "D2",
+        "L0",
+        "L2",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ТройникКруглогоСеченияСПрямоугольнойПрямойВрезкой",
+      "comment": "-4.1.3",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_",
+      "article": "4-1-3",
+      "group_code": "4",
+      "xml_parameters": [
+        "A2",
+        "B2",
+        "D0",
+        "L0",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ТройникКруглогоСеченияСПрямоугольнойКосойВрезкой",
+      "comment": "4.1.4",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"-45°\"",
+      "article": "4-1-4",
+      "group_code": "4",
+      "xml_parameters": [
+        "A2",
+        "B2",
+        "D0",
+        "L0",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ТройникКруглогоСеченияАспирационный",
+      "comment": "--4.1.5",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"/Ф\"+d2_+\"-\"+L_+\"-\"+u",
+      "article": "4-1-5",
+      "group_code": "4",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "D2",
+        "L0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ТройникКруглогоСеченияШтаны",
+      "comment": "-4.1.6",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"/Ф\"+d2_+\"-\"+L_+\"-\"+u",
+      "article": "4-1-6",
+      "group_code": "4",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "D2",
+        "L0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ТройникКруглогоСеченияКоническийСПрямойВрезкой",
+      "comment": "-4.1.7",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_",
+      "article": "4-1-7",
+      "group_code": "4",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "D2",
+        "L0",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ТройникКруглогоСеченияКоническийСКосойВрезкой",
+      "comment": "-4.1.8",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"-\"+u",
+      "article": "4-1-8",
+      "group_code": "4",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "D2",
+        "L0",
+        "L2",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ТройникКруглогоСеченияШтаны0",
+      "comment": "-4.1.9",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"-\"+u",
+      "article": "4-1-9",
+      "group_code": "4",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "D2",
+        "L0",
+        "L2",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ТройникКруглогоСеченияYобразный",
+      "comment": "-4.1.10",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_",
+      "article": "4-1-10",
+      "group_code": "4",
+      "xml_parameters": [
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ТройникПрямоугольногоСеченияСКруглойПрямойВрезкой",
+      "comment": "--4.2.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_",
+      "article": "4-2-1",
+      "group_code": "4",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D2",
+        "L0",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ТройникПрямоугольногоСеченияСКруглойКосойВрезкой",
+      "comment": "--4.2.2",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"-\"+u",
+      "article": "4-2-2",
+      "group_code": "4",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D2",
+        "L0",
+        "L2",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ТройникПрямоугольногоСеченияСПрямоугольнойПрямойВрезкой",
+      "comment": "-4.2.3",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_",
+      "article": "4-2-3",
+      "group_code": "4",
+      "xml_parameters": [
+        "A0",
+        "A2",
+        "B0",
+        "B2",
+        "L0",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ТройникПрямоугольногоСеченияСПрямоугольнойСКосойВрезкой",
+      "comment": "--4.2.4",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"-45°\"",
+      "article": "4-2-4",
+      "group_code": "4",
+      "xml_parameters": [
+        "A0",
+        "A2",
+        "B0",
+        "B2",
+        "L0",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ТройникПрямоугольногоСеченияШтаны180",
+      "comment": "4.2.5",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+B_+\"/\"+a1_+\"x\"+B_+\"-180°\"",
+      "article": "4-2-5",
+      "group_code": "4",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ТройникПрямоугольногоСеченияШтаны90",
+      "comment": "4.2.6",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+B_+\"/\"+a1_+\"x\"+B_+\"-90°\"",
+      "article": "4-2-6",
+      "group_code": "4",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ТройникПрямоугольногоСеченияШтаны0",
+      "comment": "4.2.7",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"/\"+a2_+\"x\"+b1_",
+      "article": "4-2-7",
+      "group_code": "4",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "A2",
+        "B0",
+        "B1",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ТройникПрямоугольногоСеченияПереходныйСПрямойВрезкой",
+      "comment": "4.2.8",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+B_+\"-\"+l1_+\"/\"+a2_+\"x\"+B_+\"-\"+l2_",
+      "article": "4-2-8",
+      "group_code": "4",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "A2",
+        "B0",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ТройникПрямоугольногоСеченияПереходныйСРадиуснойВрезкой",
+      "comment": "4.2.9",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+B_+\"-\"+l1_+\"/\"+a2_+\"x\"+B_+\"-\"+l2_",
+      "article": "4-2-9",
+      "group_code": "4",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "A2",
+        "B0",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "КрестовинаКруглогоСеченияЦентральная",
+      "comment": "5.1.1",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"/Ф\"+d3_+\"-\"+l3_",
+      "article": "5-1-1",
+      "group_code": "5",
+      "xml_parameters": [
+        "D0",
+        "D2",
+        "D3",
+        "L0",
+        "L2",
+        "L3"
+      ]
+    },
+    {
+      "product_ref": "КрестовинаКруглогоСеченияСоСмещением",
+      "comment": "5.1.2",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"-\"+l1_+\"/Ф\"+d2_+\"-\"+l2_+\"/Ф\"+d3_+\"-\"+l3_",
+      "article": "5-1-2",
+      "group_code": "5",
+      "xml_parameters": [
+        "D0",
+        "D2",
+        "D3",
+        "L0",
+        "L1",
+        "L2",
+        "L3"
+      ]
+    },
+    {
+      "product_ref": "КрестовинаКруглогоСеченияАспирационная",
+      "comment": "5.1.3",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"/Ф\"+d2_+\"/Ф\"+d3_+\"-\"+L_+\"-\"+u",
+      "article": "5-1-3",
+      "group_code": "5",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "D2",
+        "D3",
+        "L0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "КрестовинаКруглогоСеченияСПрямоугольнойВрезкой",
+      "comment": "5.1.4",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"/\"+a3_+\"x\"+b3_+\"-\"+l3_",
+      "article": "5-1-4",
+      "group_code": "5",
+      "xml_parameters": [
+        "A2",
+        "A3",
+        "B2",
+        "B3",
+        "D0",
+        "L0",
+        "L2",
+        "L3"
+      ]
+    },
+    {
+      "product_ref": "КрестовинаКруглогоСеченияКонуснаяСПрямымиКруглымиВрезками",
+      "comment": "5.1.5",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"/Ф\"+d3_+\"-\"+l3_",
+      "article": "5-1-5",
+      "group_code": "5",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "D2",
+        "D3",
+        "L0",
+        "L2",
+        "L3"
+      ]
+    },
+    {
+      "product_ref": "КрестовинаКруглогоСеченияКонуснаяСКосымиКруглымиВрезками",
+      "comment": "5.1.6",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"/Ф\"+d3_+\"-\"+l3_+\"-\"+u",
+      "article": "5-1-6",
+      "group_code": "5",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "D2",
+        "D3",
+        "L0",
+        "L2",
+        "L3",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "КрестовинаПрямоугольногоСеченияЦентральная",
+      "comment": "5.2.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"/\"+a3_+\"x\"+b3_+\"-\"+l3_",
+      "article": "5-2-1",
+      "group_code": "5",
+      "xml_parameters": [
+        "A0",
+        "A2",
+        "A3",
+        "B0",
+        "B2",
+        "B3",
+        "L0",
+        "L2",
+        "L3"
+      ]
+    },
+    {
+      "product_ref": "КрестовинаПрямоугольногоСеченияСоСмещением",
+      "comment": "5.2.2",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+l1_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"/\"+a3_+\"x\"+b3_+\"-\"+l3_",
+      "article": "5-2-2",
+      "group_code": "5",
+      "xml_parameters": [
+        "A0",
+        "A2",
+        "A3",
+        "B0",
+        "B2",
+        "B3",
+        "L0",
+        "L1",
+        "L2",
+        "L3"
+      ]
+    },
+    {
+      "product_ref": "КрестовинаПрямоугольногоСеченияСПрямоугольнойКосойВрезкой",
+      "comment": "5.2.3",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a2_+\"x\"+b2_+\"-\"+l2_+\"/\"+a3_+\"x\"+b3_+\"-\"+l3_+\"-45°\"",
+      "article": "5-2-3",
+      "group_code": "5",
+      "xml_parameters": [
+        "A0",
+        "A2",
+        "A3",
+        "B0",
+        "B2",
+        "B3",
+        "L0",
+        "L2",
+        "L3"
+      ]
+    },
+    {
+      "product_ref": "КрестовинаПрямоугольногоСеченияСКруглойВрезкой",
+      "comment": "5.2.4",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d2_+\"-\"+l2_+\"/Ф\"+d3_+\"-\"+l3_",
+      "article": "5-2-4",
+      "group_code": "5",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D2",
+        "D3",
+        "L0",
+        "L2",
+        "L3"
+      ]
+    },
+    {
+      "product_ref": "ЗаглушкаКруглогоСечения",
+      "comment": "6.1.1",
+      "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +p",
+      "article": "6-1-1",
+      "group_code": "6",
+      "xml_parameters": [
+        "D0",
+        "P0"
+      ]
+    },
+    {
+      "product_ref": "ЗаглушкаКруглогоСеченияССеткой",
+      "comment": "6.1.2",
+      "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +p",
+      "article": "6-1-2",
+      "group_code": "6",
+      "xml_parameters": [
+        "D0",
+        "P0"
+      ]
+    },
+    {
+      "product_ref": "ЗаглушкаПрямоугольногоСечения",
+      "comment": "6.2.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+p",
+      "article": "6-2-1",
+      "group_code": "6",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "P0"
+      ]
+    },
+    {
+      "product_ref": "ЗаглушкаПрямоугольногоСеченияССеткой",
+      "comment": "6.2.2",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+p",
+      "article": "6-2-2",
+      "group_code": "6",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "P0"
+      ]
+    },
+    {
+      "product_ref": "УткаКруглогоСечения",
+      "comment": "7.1.1",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"-\"+l1_",
+      "article": "7-1-1",
+      "group_code": "7",
+      "xml_parameters": [
+        "D0",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "УткаКруглогоСеченияСПереходом",
+      "comment": "7.1.2",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_+\"-\"+L_+\"-\"+l1_",
+      "article": "7-1-2",
+      "group_code": "7",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "УткаПрямоугольногоСеченияСмещениеВ1йПлоскости",
+      "comment": "7.2.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+a2_+\"-\"+l1_+\"-\"+l2_",
+      "article": "7-2-1",
+      "group_code": "7",
+      "xml_parameters": [
+        "A0",
+        "A2",
+        "B0",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "УткаПрямоугольногоСеченияСмещениеВ2хПлоскостях",
+      "comment": "7.2.2",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+a2_+\"-\"+l1_+\"-\"+l2_",
+      "article": "7-2-2",
+      "group_code": "7",
+      "xml_parameters": [
+        "A0",
+        "A2",
+        "B0",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "УткаПрямоугольногоСеченияСоСмещениемВ2хПлоскостях",
+      "comment": "7.2.3",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_+\"-\"+a2_+\"/\"+b2_+\"-\"+l1_+\"-\"+l2_",
+      "article": "7-2-3",
+      "group_code": "7",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "A2",
+        "B0",
+        "B1",
+        "B2",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаКруглогоСеченияПрямаяВКруглыйВоздуховод",
+      "comment": "8.1.1",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+D2_+\"-\"+L_",
+      "article": "8-1-1",
+      "group_code": "8",
+      "xml_parameters": [
+        "D0",
+        "D2",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаКруглогоСеченияКосаяВКруглыйВоздуховод",
+      "comment": "8.1.2",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+D2_+\"-\"+L_+\"-\"+u",
+      "article": "8-1-2",
+      "group_code": "8",
+      "xml_parameters": [
+        "D0",
+        "D2",
+        "L0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаКруглогоСеченияПрямаяВПрямоугольныйВоздуховод",
+      "comment": "8.1.3",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_",
+      "article": "8-1-3",
+      "group_code": "8",
+      "xml_parameters": [
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаКруглогоСеченияКосаяВПрямоугольныйВоздуховод",
+      "comment": "8.1.4",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_+\"-\"+u",
+      "article": "8-1-4",
+      "group_code": "8",
+      "xml_parameters": [
+        "D0",
+        "L0",
+        "U0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаКруглогоСеченияВоротниковая",
+      "comment": "8.1.5",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+D2_+\"-\"+L_",
+      "article": "8-1-5",
+      "group_code": "8",
+      "xml_parameters": [
+        "D0",
+        "D2",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаКруглогоСеченияВПлоскость",
+      "comment": "8.1.6",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "8-1-6",
+      "group_code": "8",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаПрямоугольногоСеченияПрямаяВПрямоугольныйВоздуховод",
+      "comment": "8.2.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "8-2-1",
+      "group_code": "8",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаПрямоугольногоСеченияКосаяВПрямоугольныйВоздуховод",
+      "comment": "8.2.2",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "8-2-2",
+      "group_code": "8",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаПрямоугольногоСеченияРадиуснаяВПрямоугольныйВоздуховод",
+      "comment": "8.2.3",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "8-2-3",
+      "group_code": "8",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаПрямоугольногоСеченияПрямаяВКруглыйВоздуховод",
+      "comment": "8.2.4",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/Ф\"+D_+\"-\"+L_",
+      "article": "8-2-4",
+      "group_code": "8",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаПрямоугольногоСеченияКосаяВКруглыйВоздуховод",
+      "comment": "8.2.5",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/Ф\"+D_+\"-\"+L_",
+      "article": "8-2-5",
+      "group_code": "8",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаПрямоугольногоСеченияРадиуснаяВКруглыйВоздуховод",
+      "comment": "8.2.6",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/Ф\"+D_+\"-\"+L_",
+      "article": "8-2-6",
+      "group_code": "8",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ВрезкаПрямоугольногоСеченияВПлоскость",
+      "comment": "8.2.7",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a2_+\"x\"+b2_+\"-\"+L_",
+      "article": "8-2-7",
+      "group_code": "8",
+      "xml_parameters": [
+        "A0",
+        "A2",
+        "B0",
+        "B2",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ЗонтКрышныйКруглогоСечения",
+      "comment": "9.1.1",
+      "designation_expression": "\"\"+\"Ф\"+D_+\"/Ф\"+d1_",
+      "article": "9-1-1",
+      "group_code": "9",
+      "xml_parameters": [
+        "D0",
+        "D1"
+      ]
+    },
+    {
+      "product_ref": "ЗонтКрышныйКруглогоСеченияДефлектор",
+      "comment": "9.1.2",
+      "designation_expression": "\"\"+\"Ф\"+D_",
+      "article": "9-1-2",
+      "group_code": "9",
+      "xml_parameters": [
+        "D0"
+      ]
+    },
+    {
+      "product_ref": "ЗонтПрямоугольногоСеченияКвадрат",
+      "comment": "9.2.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_",
+      "article": "9-2-1",
+      "group_code": "9",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1"
+      ]
+    },
+    {
+      "product_ref": "ЗонтПрямоугольногоСечения",
+      "comment": "9.2.2",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_",
+      "article": "9-2-2",
+      "group_code": "9",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1"
+      ]
+    },
+    {
+      "product_ref": "ЗонтПрямоугольногоСеченияСПрямымКоньком",
+      "comment": "9.2.3",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"-\"+l1_",
+      "article": "9-2-3",
+      "group_code": "9",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "КСДКрСеченияДляКрДиффузораСКрВрезкой",
+      "comment": "10.1.1",
+      "designation_expression": "\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_",
+      "article": "10-1-1",
+      "group_code": "10",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "КСДКрСеченияДляКрДиффузораСПрВрезкой",
+      "comment": "10.1.2",
+      "designation_expression": "\"Ф\"+D_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"-\"+l1_",
+      "article": "10-1-2",
+      "group_code": "10",
+      "xml_parameters": [
+        "A1",
+        "B1",
+        "D0",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "КСДПрСеченияДляКрДиффузораСКрВрезкой",
+      "comment": "10.2.1",
+      "designation_expression": "\"Ф\"+D_+\"-\"+l2_+\"/\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_",
+      "article": "10-2-1",
+      "group_code": "10",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "D1",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "КСДПрСеченияДляКрДиффузораСПрВрезкой",
+      "comment": "10.2.2",
+      "designation_expression": "\"Ф\"+D_+\"-\"+l2_+\"/\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"-\"+l1_",
+      "article": "10-2-2",
+      "group_code": "10",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "D0",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "КСДПрСеченияДляПрДиффузораСКрВрезкой",
+      "comment": "10.2.3",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_",
+      "article": "10-2-3",
+      "group_code": "10",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D1",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "КСДПрСеченияДляПрДиффузораСПрВрезкой",
+      "comment": "10.2.4",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"-\"+l1_",
+      "article": "10-2-4",
+      "group_code": "10",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "КСДДляЩелевогоДиффузораНастенногоС1Входом",
+      "comment": "10.3.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_+\"/\"+b2_+\"x\"+l2_",
+      "article": "10-3-1",
+      "group_code": "10",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "B2",
+        "D1",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "КСДДляЩелевогоДиффузораНастенногоС2Входами",
+      "comment": "10.3.2",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_+\"/\"+b2_+\"x\"+l2_",
+      "article": "10-3-2",
+      "group_code": "10",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "B2",
+        "D1",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "КСДДляЩелевогоДиффузораПотолочногоС1Входом",
+      "comment": "10.3.3",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_+\"/\"+b2_+\"x\"+l2_",
+      "article": "10-3-3",
+      "group_code": "10",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "B2",
+        "D1",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "КСДДляЩелевогоДиффузораПотолочногоС2Входами",
+      "comment": "10.3.4",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_+\"/\"+b2_+\"x\"+l2_",
+      "article": "10-3-4",
+      "group_code": "10",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "B2",
+        "D1",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "Ниппель",
+      "comment": "",
+      "designation_expression": "\"\"+\"Ф\"+D_+ \"-\" +L_",
+      "article": "12-1-1",
+      "group_code": "12",
+      "xml_parameters": [
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "НиппельПрямоугольный",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "12-2-4",
+      "group_code": "12",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "Рейка",
+      "comment": "12.2.3",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "12-2-3",
+      "group_code": "12",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ШинаУГФ",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_",
+      "article": "12-2-1",
+      "group_code": "12",
+      "xml_parameters": [
+        "A0",
+        "B0"
+      ]
+    },
+    {
+      "product_ref": "ФланецКруглый",
+      "comment": "",
+      "designation_expression": "\"\"+\"Ф\"+D_",
+      "article": "12-1-3",
+      "group_code": "12",
+      "xml_parameters": [
+        "D0"
+      ]
+    },
+    {
+      "product_ref": "ФланецПрямоугольный",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_",
+      "article": "12-2-2",
+      "group_code": "12",
+      "xml_parameters": [
+        "A0",
+        "B0"
+      ]
+    },
+    {
+      "product_ref": "ФильтрКруглогоСеченияКассетный",
+      "comment": "17.1.1",
+      "designation_expression": "\"Ф\"+D_+\"/\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "17-1-1",
+      "group_code": "17",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ФильтрКруглогоСеченияКарманый",
+      "comment": "17.1.2",
+      "designation_expression": "\"Ф\"+D_+\"/\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "17-1-2",
+      "group_code": "17",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "КорпусФильтраДляКруглыхКаналов",
+      "comment": "17.1.3",
+      "designation_expression": "\"Ф\"+D_+\"-\"+L_+\"/\"+A_+\"x\"+B_",
+      "article": "17-1-3",
+      "group_code": "17",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ФильтровальныйЭлементДляКруглыхКаналов",
+      "comment": "17.1.4",
+      "designation_expression": "\"\"+b1_+\"x\"+l1_+\"/\"+z_",
+      "article": "17-1-4",
+      "group_code": "17",
+      "xml_parameters": [
+        "B1",
+        "L1",
+        "z"
+      ]
+    },
+    {
+      "product_ref": "ФильтрПрямоугольногоСеченияКассетный",
+      "comment": "17.2.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "17-2-1",
+      "group_code": "17",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ФильтрПрямоугольногоСеченияКарманный",
+      "comment": "17.2.2",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "17-2-2",
+      "group_code": "17",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "КорпусФильтраДляПрямоугольныхКаналов",
+      "comment": "17.2.3",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "17-2-3",
+      "group_code": "17",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ФильтровальныйЭлементДляПрямоугольныхКаналов",
+      "comment": "17.2.4",
+      "designation_expression": "\"\"+a1_+\"x\"+b1_+\"-\"+l1_+\"/\"+z_",
+      "article": "17-2-4",
+      "group_code": "17",
+      "xml_parameters": [
+        "A1",
+        "B1",
+        "L1",
+        "z"
+      ]
+    },
+    {
+      "product_ref": "ОбратныйКлапанКруглогоСеченияЛепестковый_5_904_41",
+      "comment": "18.1.1",
+      "designation_expression": "\"Ф\"+D_+\"-\"+L_",
+      "article": "18-1-1",
+      "group_code": "18",
+      "xml_parameters": [
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ОбратныйКлапанБабочка",
+      "comment": "18.1.3",
+      "designation_expression": "\"Ф\"+D_+\"-\"+L_",
+      "article": "18-1-3",
+      "group_code": "18",
+      "xml_parameters": [
+        "D0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "ОбратныйКлапанПрямоугольногоСеченияЛепестковый",
+      "comment": "18.2.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+      "article": "18-2-1",
+      "group_code": "18",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "МестныйОтсосКруглогоСеченияТип1",
+      "comment": "19.1.1",
+      "designation_expression": "\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_",
+      "article": "19-1-1",
+      "group_code": "19",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "МестныйОтсосКруглогоСеченияТип2",
+      "comment": "19.1.2",
+      "designation_expression": "\"Ф\"+D_+\"-\"+L_+\"/Ф\"+d1_+\"-\"+l1_+\"/\"+l2_",
+      "article": "19-1-2",
+      "group_code": "19",
+      "xml_parameters": [
+        "D0",
+        "D1",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "МестныйОтсосПрямоугольногоСеченияТип1",
+      "comment": "19.2.1",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+a1_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+      "article": "19-2-1",
+      "group_code": "19",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "D1",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "МестныйОтсосПрямоугольногоСеченияТип2",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+l2_+\"/\"+a1_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+      "article": "19-2-2",
+      "group_code": "19",
+      "xml_parameters": [
+        "A0",
+        "A1",
+        "B0",
+        "B1",
+        "D1",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "МестныйОтсосПрямоугольногоСеченияТип3",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+A_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+      "article": "19-2-3",
+      "group_code": "19",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "B1",
+        "D1",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "МестныйОтсосПрямоугольногоСеченияТип4",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+l2_+\"/\"+A_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+      "article": "19-2-4",
+      "group_code": "19",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "B1",
+        "D1",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "МестныйОтсосПрямоугольногоСеченияТип5",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"/\"+A_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+      "article": "19-2-5",
+      "group_code": "19",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "B1",
+        "D1",
+        "L0",
+        "L1"
+      ]
+    },
+    {
+      "product_ref": "МестныйОтсосПрямоугольногоСеченияТип6",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_+\"-\"+l2_+\"/\"+A_+\"x\"+b1_+\"/Ф\"+d1_+\"-\"+l1_",
+      "article": "19-2-6",
+      "group_code": "19",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "B1",
+        "D1",
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    {
+      "product_ref": "КассетаЖироуловителя",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_+\"x\"+L_",
+      "article": "19-2-7",
+      "group_code": "19",
+      "xml_parameters": [
+        "A0",
+        "B0",
+        "L0"
+      ]
+    },
+    {
+      "product_ref": "КассетаЖироуловителяЛабиринт",
+      "comment": "",
+      "designation_expression": "\"\"+A_+\"x\"+B_",
+      "article": "19-2-8",
+      "group_code": "19",
+      "xml_parameters": [
+        "A0",
+        "B0"
+      ]
+    }
+  ]
+}

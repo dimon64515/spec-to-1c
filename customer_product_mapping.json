@@ -1,0 +1,160 @@
+{
+  "version": "1.1",
+  "description": "Сопоставление оборудования из PDF-ведомостей заказчиков с артикулами 1С",
+  "defaults": {
+    "material": "оцинкованная",
+    "thickness": 0.7,
+    "unit": "шт"
+  },
+  "categories": [
+    {
+      "id": "silencer",
+      "name": "Шумоглушитель",
+      "keywords": ["шумоглуш", "звукопоглотитель", "silencer"],
+      "aliases": ["NKD", "MSN", "KNK"],
+      "article_round": "15-1-1",
+      "article_rect": "15-2-1",
+      "dimension_patterns": [
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})",
+        "\\b(?:NKD|MSN|KNK)[-\\s]?(?<D>\\d{2,4})(?:/\\d+)?\\b"
+      ],
+      "default_params": {
+        "L0": 1000
+      }
+    },
+    {
+      "id": "filter_cassette",
+      "name": "Фильтр кассетный",
+      "keywords": ["фильтр кассетный", "вставка кассетная фильтрующая"],
+      "aliases": ["KFC", "KVC"],
+      "article_round": "17-1-1",
+      "article_rect": "17-2-1",
+      "dimension_patterns": [
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})",
+        "\\b(?:KFC|KVC)[-\\s]?(?<D>\\d{2,4})\\b"
+      ],
+      "default_params": {
+        "L0": 100
+      },
+      "round_derived_params": {
+        "A0": "D0",
+        "B0": "D0"
+      }
+    },
+    {
+      "id": "filter_pocket",
+      "name": "Фильтр карманный",
+      "keywords": ["вставка карманная фильтрующая", "фильтр карманный"],
+      "aliases": ["DFPM", "DFUM", "FWP"],
+      "article_round": "17-1-2",
+      "article_rect": "17-2-2",
+      "dimension_patterns": [
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})",
+        "\\b(?:DFPM|DFUM|FWP)[-\\s]?(?<D>\\d{2,4})\\b"
+      ],
+      "default_params": {
+        "L0": 300
+      },
+      "round_derived_params": {
+        "A0": "D0",
+        "B0": "D0"
+      }
+    },
+    {
+      "id": "filter_housing",
+      "name": "Корпус фильтра",
+      "keywords": ["корпус фильтра"],
+      "aliases": ["FRPM", "FRUM", "KFP"],
+      "article_round": "17-1-3",
+      "article_rect": "17-2-3",
+      "dimension_patterns": [
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})",
+        "\\b(?:FRPM|FRUM|KFP)[-\\s]?(?<D>\\d{2,4})\\b"
+      ],
+      "default_params": {
+        "L0": 300
+      },
+      "round_derived_params": {
+        "A0": "D0",
+        "B0": "D0"
+      }
+    },
+    {
+      "id": "check_valve",
+      "name": "Клапан обратный",
+      "keywords": ["клапан обратный", "обратный клапан"],
+      "aliases": ["RVN", "RVC", "RSK", "RVS", "KON"],
+      "article_round": "18-1-3",
+      "article_rect": "18-2-1",
+      "dimension_patterns": [
+        "\\b(?:RV[NCS]|RSK|KON)[-\\s]?(?<D>\\d{2,4})\\b",
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})"
+      ],
+      "default_params": {
+        "L0": 200
+      }
+    },
+    {
+      "id": "damper",
+      "name": "Заслонка",
+      "keywords": ["заслонка", "дроссель"],
+      "aliases": ["CHR", "KCH"],
+      "article_round": "16-1-1",
+      "article_rect": "16-2-1",
+      "dimension_patterns": [
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})",
+        "\\b(?:CHR|KCH)[-\\s]?(?<D>\\d{2,4})\\b"
+      ],
+      "default_params": {
+        "L0": 200
+      }
+    },
+    {
+      "id": "grille",
+      "name": "Решетка",
+      "keywords": ["решетка"],
+      "aliases": ["АМР", "AMP"],
+      "article_round": null,
+      "article_rect": null,
+      "dimension_patterns": [
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})"
+      ]
+    },
+    {
+      "id": "diffuser",
+      "name": "Диффузор",
+      "keywords": ["диффузор", "воздухораспределитель"],
+      "aliases": ["ДПУ", "DPU"],
+      "article_round": null,
+      "article_rect": null,
+      "dimension_patterns": [
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})",
+        "\\b(?:ДПУ|DPU)[-\\s]?(?<D>\\d{2,4})\\b"
+      ]
+    }
+  ],
+  "skip_keywords": [
+    "вентилятор",
+    "воздухонагреватель",
+    "калорифер",
+    "насос",
+    "привод",
+    "вставка гибкая",
+    "комплект",
+    "датчик",
+    "термостат",
+    "частотный преобразователь",
+    "блок управления",
+    "установка",
+    "кран",
+    "вентиль",
+    "ограждение",
+    "лестница",
+    "ограждение кровли",
+    "хомут",
+    "кронштейн",
+    "смесительный узел",
+    "регулятор скорости",
+    "подставка"
+  ]
+}
