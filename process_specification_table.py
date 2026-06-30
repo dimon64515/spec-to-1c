@@ -28,19 +28,24 @@ from typing import List, Dict, Optional, Tuple
 
 import pandas as pd
 
+from config import get_config, mapping_file
 from generate_order_xml import generate_order_xml
 from spec_common import material_to_code
 
 
-# Настройки по умолчанию
-DEFAULT_ROUND_ARTICLE = "1-1-2"       # спирально-навивной
-DEFAULT_RECT_ARTICLE = "1-2-1"        # прямоугольный
-DEFAULT_ROUND_LENGTH_MM = 3000        # стандартная длина круглого воздуховода
-DEFAULT_RECT_LENGTH_MM = 1250         # стандартная длина прямоугольного воздуховода
-DEFAULT_ADAPTER_L1_MM = 50            # стандартная длина выступающего патрубка КСД
+# Short-lived aliases for backwards compatibility and readability.
+# Values are read from config.yaml via config.get_config().
+_DEFAULTS = get_config()
+DEFAULT_ROUND_ARTICLE = _DEFAULTS["default_round_article"]
+DEFAULT_RECT_ARTICLE = _DEFAULTS["default_rect_article"]
+DEFAULT_ROUND_LENGTH_MM = _DEFAULTS["default_round_length_mm"]
+DEFAULT_RECT_LENGTH_MM = _DEFAULTS["default_rect_length_mm"]
+DEFAULT_ADAPTER_L1_MM = _DEFAULTS["default_adapter_l1_mm"]
 
 
-def load_allowed_articles(path: str = "articles_all.txt") -> set:
+def load_allowed_articles(path: str = None) -> set:
+    if path is None:
+        path = mapping_file("allowed_articles")
     """Загружает множество артикулов, разрешённых к выгрузке в XML."""
     allowed = set()
     p = Path(path)
@@ -64,7 +69,9 @@ def load_allowed_articles(path: str = "articles_all.txt") -> set:
 ALLOWED_ARTICLES = load_allowed_articles()
 
 
-def load_article_materials(path: str = "article_materials.json") -> Dict[str, List[str]]:
+def load_article_materials(path: str = None) -> Dict[str, List[str]]:
+    if path is None:
+        path = mapping_file("materials")
     """Загружает разрешённые коды материала (1/2/3) для каждого артикула.
 
     Если файл отсутствует — возвращает пустой словарь, и валидация не выполняется.

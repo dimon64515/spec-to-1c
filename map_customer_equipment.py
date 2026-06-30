@@ -12,11 +12,12 @@ import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+from config import mapping_file
 
-DEFAULT_MAPPING_PATH = "customer_product_mapping.json"
 
-
-def load_mapping(path: str = DEFAULT_MAPPING_PATH) -> dict:
+def load_mapping(path: str = None) -> dict:
+    if path is None:
+        path = mapping_file("equipment")
     """Загружает JSON с правилами сопоставления категорий."""
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)

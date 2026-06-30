@@ -1,0 +1,26 @@
+# Configuration for spec-to-1c
+# Recommended Python version: 3.12
+
+# Default articles for duct types
+default_round_article: "1-1-2"       # спирально-навивной
+default_rect_article: "1-2-1"        # прямоугольный
+
+# Standard duct lengths used to convert meters to pieces
+default_round_length_mm: 3000
+default_rect_length_mm: 1250
+
+# Standard adapter protrusion length for KSD adapters
+default_adapter_l1_mm: 50
+
+# Mapping/reference file paths
+mapping_files:
+  products: "product_article_mapping.json"
+  products_designation: "product_designation_patterns.json"
+  materials: "article_materials.json"
+  equipment: "customer_product_mapping.json"
+  allowed_articles: "articles_all.txt"
+
+# MCP server connection settings
+mcp:
+  url: "http://localhost:6003/mcp"
+  timeout: 30

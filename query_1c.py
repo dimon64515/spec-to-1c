@@ -6,7 +6,9 @@ from mcp.client.session import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 from mcp.types import Implementation
 
-URL = "http://localhost:6003/mcp"
+from config import get_config
+
+URL = get_config()["mcp"]["url"]
 
 async def execute(query: str, params=None, limit=100, include_schema=False):
     async with streamable_http_client(URL) as (read_stream, write_stream, get_session_id):
