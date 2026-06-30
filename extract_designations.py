@@ -1,5 +1,8 @@
 import re
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 input_file = "модуль ввод нового заказа.txt"
 output_file = "product_designation_patterns.json"
@@ -84,4 +87,4 @@ with open(output_file, "w", encoding="utf-8") as f:
         "products": products
     }, f, ensure_ascii=False, indent=2)
 
-print(f"Saved {len(products)} products to {output_file}")
+logger.info("Saved %d products to %s", len(products), output_file)

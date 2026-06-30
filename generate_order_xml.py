@@ -11,12 +11,16 @@ generate_order_xml.py
 
 import ast
 import json
+import logging
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from pathlib import Path
 from typing import List, Dict, Optional
 
 from spec_common import material_to_code as material_type_to_code, connection_to_code
+
+
+logger = logging.getLogger(__name__)
 
 
 def load_article_mapping(path: str = "product_article_mapping.json") -> Dict[str, dict]:
@@ -234,7 +238,7 @@ def main():
     xml_text = generate_order_xml(header, rows)
     out_path = Path("generated_order_example.xml")
     out_path.write_text(xml_text, encoding="utf-8")
-    print(f"Сохранён файл: {out_path.resolve()}")
+    logger.info("Сохранён файл: %s", out_path.resolve())
 
 
 if __name__ == "__main__":

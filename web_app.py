@@ -8,6 +8,7 @@ r"""
 """
 
 import json
+import logging
 from typing import List, Optional
 
 import pandas as pd
@@ -19,8 +20,13 @@ from api import (
     load_tables_from_pdf,
     read_uploaded_csv_or_excel,
 )
+from logging_config import configure_logging
 from pdf_spec_extractor import df_to_spec_rows, normalize_columns, parse_text_fallback
 from process_specification_table import process_rows
+
+
+configure_logging()
+logger = logging.getLogger(__name__)
 
 
 DEFAULT_HEADER = {

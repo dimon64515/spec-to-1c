@@ -9,12 +9,16 @@ pdf_spec_extractor.py
 Предоставляет fallback на построчный текст, если таблицы не найдены.
 """
 
+import logging
 import re
 from glob import glob
 from pathlib import Path
 from typing import Dict, List, Optional
 
 import pandas as pd
+
+
+logger = logging.getLogger(__name__)
 
 
 def extract_tables_from_pdf(
@@ -312,11 +316,11 @@ def main():
     """Простой тест: ищет PDF в рабочей директории и выводит статистику по таблицам."""
     pdf_files = glob("*.pdf")
     if not pdf_files:
-        print("PDF-файлы в рабочей директории не найдены. Тест пропущен.")
+        logger.warning("PDF-файлы в рабочей директории не найдены. Тест пропущен.")
         return
 
     pdf_path = pdf_files[0]
-    print(f"Тестовый файл: {pdf_path}")
+    logger.info("Тестовый файл: %s", pdf_path)
 
     try:
         tables_by_page = extract_tables_from_pdf(pdf_path)
@@ -324,16 +328,16 @@ def main():
         total_rows = 0
 
         for page_num, tables in tables_by_page.items():
-            print(f"Страница {page_num}: найдено таблиц — {len(tables)}")
+            logger.info("Страница %s: найдено таблиц — %d", page_num, len(tables))
             for i, df in enumerate(tables, start=1):
                 rows = df_to_spec_rows(df)
                 total_rows += len(rows)
-                print(f"  Таблица {i}: {len(df)} строк, {len(rows)} распознано")
+                logger.info("  Таблица %d: %d строк, %d распознано", i, len(df), len(rows))
 
-        print(f"Всего таблиц: {total_tables}, распознано строк: {total_rows}")
+        logger.info("Всего таблиц: %d, распознано строк: %d", total_tables, total_rows)
 
     except Exception as exc:  # pragma: no cover
-        print(f"Ошибка при извлечении таблиц: {exc}")
+        logger.exception("Ошибка при извлечении таблиц: %s", exc)
 
 
 if __name__ == "__main__":

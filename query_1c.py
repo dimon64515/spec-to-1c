@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import sys
 from pathlib import Path
 from mcp.client.session import ClientSession
@@ -7,6 +8,9 @@ from mcp.client.streamable_http import streamable_http_client
 from mcp.types import Implementation
 
 from config import get_config
+
+
+logger = logging.getLogger(__name__)
 
 URL = get_config()["mcp"]["url"]
 
@@ -32,4 +36,4 @@ if __name__ == "__main__":
     out_file = sys.argv[3] if len(sys.argv) > 3 else "query_result.json"
     res = asyncio.run(execute(query, limit=limit, include_schema=True))
     Path(out_file).write_text(res, encoding="utf-8")
-    print(f"Saved {out_file}")
+    logger.info("Saved %s", out_file)

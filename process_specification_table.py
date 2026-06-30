@@ -21,6 +21,7 @@ process_specification_table.py
 """
 
 import json
+import logging
 import re
 import sys
 from pathlib import Path
@@ -31,6 +32,9 @@ import pandas as pd
 from config import get_config, mapping_file
 from generate_order_xml import generate_order_xml
 from spec_common import material_to_code
+
+
+logger = logging.getLogger(__name__)
 
 
 # Short-lived aliases for backwards compatibility and readability.
@@ -903,7 +907,7 @@ def process_csv(
             success_rows.append(parsed)
 
     if not success_rows:
-        print("Не удалось распознать ни одной строки.")
+        logger.warning("Не удалось распознать ни одной строки.")
         return success_rows, skipped
 
     Path(output_xml).write_text(xml_text, encoding="utf-8")
@@ -913,21 +917,21 @@ def process_csv(
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(skipped, f, ensure_ascii=False, indent=2)
 
-    print(f"Сгенерировано строк: {len(success_rows)}")
-    print(f"Пропущено строк: {len(skipped)}")
+    logger.info("Сгенерировано строк: %d", len(success_rows))
+    logger.info("Пропущено строк: %d", len(skipped))
     if skipped:
-        print("\nПропущенные позиции:")
+        logger.info("Пропущенные позиции:")
         for s in skipped:
-            print(f"  - {s['name']} {s['size']} ({s['unit']}): {s['reason']}")
-    print(f"XML сохранён: {output_xml}")
-    print(f"Отчёт по пропускам: {report_path}")
+            logger.info("  - %s %s (%s): %s", s["name"], s["size"], s["unit"], s["reason"])
+    logger.info("XML сохранён: %s", output_xml)
+    logger.info("Отчёт по пропускам: %s", report_path)
 
     return success_rows, skipped
 
 
 def main():
     if len(sys.argv) < 2:
-        print("Использование: python process_specification_table.py <input.csv> [output.xml]")
+        logger.error("Использование: python process_specification_table.py <input.csv> [output.xml]")
         sys.exit(1)
 
     input_path = sys.argv[1]

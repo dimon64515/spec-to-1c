@@ -12,11 +12,15 @@ equipment_pdf_extractor.py
 - фильтрует служебные строки ("ОБОРУДОВАНИЕ", "КИПиА", названия систем и т.п.).
 """
 
+import logging
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
+
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -332,14 +336,14 @@ def main():
     from glob import glob
     pdf_files = glob("*.pdf")
     if not pdf_files:
-        print("PDF-файлы в рабочей директории не найдены.")
+        logger.warning("PDF-файлы в рабочей директории не найдены.")
         return
 
     pdf_path = pdf_files[0]
     rows = extract_equipment_from_pdf(pdf_path)
-    print(f"Извлечено строк оборудования из {pdf_path}: {len(rows)}")
+    logger.info("Извлечено строк оборудования из %s: %d", pdf_path, len(rows))
     for row in rows[:20]:
-        print(row)
+        logger.info("%s", row)
 
 
 if __name__ == "__main__":

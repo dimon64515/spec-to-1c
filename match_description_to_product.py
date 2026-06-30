@@ -10,11 +10,15 @@ match_description_to_product.py
 """
 
 import json
+import logging
 import re
 import sys
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import List, Dict, Tuple
+
+
+logger = logging.getLogger(__name__)
 
 
 def load_products(path: str = "product_article_mapping.json") -> List[dict]:
@@ -152,8 +156,8 @@ def match_description(
 
 def main():
     if len(sys.argv) < 2:
-        print("Использование: python match_description_to_product.py \"<описание>\"")
-        print("Пример: python match_description_to_product.py \"Воздуховод круглый прямошовный D160 L1000\"")
+        logger.error("Использование: python match_description_to_product.py \"<описание>\"")
+        logger.error("Пример: python match_description_to_product.py \"Воздуховод круглый прямошовный D160 L1000\"")
         sys.exit(1)
 
     text = " ".join(sys.argv[1:])
@@ -161,16 +165,20 @@ def main():
     dims = extract_dimensions(text)
     matches = match_description(text, products, top_n=5)
 
-    print("=" * 60)
-    print(f"Описание: {text}")
-    print(f"Извлечённые размеры: {dims}")
-    print("=" * 60)
-    print("Топ совпадений:")
+    logger.info("=" * 60)
+    logger.info("Описание: %s", text)
+    logger.info("Извлечённые размеры: %s", dims)
+    logger.info("=" * 60)
+    logger.info("Топ совпадений:")
     for i, (p, score) in enumerate(matches, 1):
-        print(
-            f"{i}. [{p['article']}] {p.get('name', '')}  "
-            f"(сечение: {p.get('section')}, параметры: {', '.join(p.get('xml_parameters', []))}, "
-            f"балл: {score:.2f})"
+        logger.info(
+            "%d. [%s] %s  (сечение: %s, параметры: %s, балл: %.2f)",
+            i,
+            p["article"],
+            p.get("name", ""),
+            p.get("section"),
+            ", ".join(p.get("xml_parameters", [])),
+            score,
         )
 
 

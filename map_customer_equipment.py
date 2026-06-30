@@ -8,11 +8,15 @@ map_customer_equipment.py
 """
 
 import json
+import logging
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from config import mapping_file
+
+
+logger = logging.getLogger(__name__)
 
 
 def load_mapping(path: str = None) -> dict:
@@ -237,10 +241,15 @@ def main():
     pdf_path = input("Введите путь к PDF: ").strip()
     rows = extract_equipment_from_pdf(pdf_path)
     spec_rows, skipped = map_equipment_rows(rows)
-    print(f"Извлечено: {len(rows)}, в спецификацию: {len(spec_rows)}, пропущено: {len(skipped)}")
-    print("\nПримеры спецификации:")
+    logger.info(
+        "Извлечено: %d, в спецификацию: %d, пропущено: %d",
+        len(rows),
+        len(spec_rows),
+        len(skipped),
+    )
+    logger.info("Примеры спецификации:")
     for r in spec_rows[:20]:
-        print(r)
+        logger.info("%s", r)
 
 
 if __name__ == "__main__":
