@@ -42,13 +42,45 @@ def format_parameter_value(name: str, value) -> str:
     return str(value)
 
 
+# AST node types allowed in default expressions.
+_ALLOWED_EXPR_NODES = (
+    ast.Expression,
+    ast.BinOp,
+    ast.UnaryOp,
+    ast.Call,
+    ast.Name,
+    ast.Constant,
+    ast.Load,
+    ast.Add,
+    ast.Sub,
+    ast.Mult,
+    ast.Div,
+    ast.FloorDiv,
+    ast.Mod,
+    ast.Pow,
+    ast.USub,
+    ast.UAdd,
+    ast.keyword,
+)
+
+
 def _eval_default_expression(expr: str, params: dict) -> float:
     """Безопасно вычисляет строковое выражение умолчания на основе уже известных параметров."""
     allowed_names = set(params) | {"max", "min", "round"}
     tree = ast.parse(expr, mode="eval")
+
     for node in ast.walk(tree):
+        if not isinstance(node, _ALLOWED_EXPR_NODES):
+            raise ValueError(f"Запрещённая конструкция в выражении умолчания: {type(node).__name__}")
+
         if isinstance(node, ast.Name) and node.id not in allowed_names:
             raise ValueError(f"Запрещённое имя в выражении умолчания: {node.id}")
+
+        if isinstance(node, ast.Call):
+            func = node.func
+            if not isinstance(func, ast.Name) or func.id not in allowed_names:
+                raise ValueError("В выражении умолчания разрешены только вызовы max/min/round")
+
     env = {"__builtins__": {}, "max": max, "min": min, "round": round, **params}
     return eval(compile(tree, "<string>", "eval"), env)
 
