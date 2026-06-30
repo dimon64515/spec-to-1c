@@ -22,5 +22,5 @@ mapping_files:
 
 # MCP server connection settings
 mcp:
-  url: "https://doug-desktop-referenced-soundtrack.trycloudflare.com/mcp"
+  url: "http://localhost:6003/mcp"
   timeout: 30
