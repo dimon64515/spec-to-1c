@@ -614,7 +614,13 @@ def try_parse_fitting(
         article = "6-1-1" if round_ else "6-2-1"
         params = {k: v for k, v in dims.items() if k in ("D0", "A0", "B0")}
         if "P0" not in params:
-            params["P0"] = 0
+            # Стандартная глубина заглушки:
+            # для A/D 100..950 мм -> 25 мм, для 1000 мм и выше -> 35 мм
+            if "D0" in params:
+                size = params["D0"]
+            else:
+                size = max(params.get("A0", 0), params.get("B0", 0))
+            params["P0"] = 25 if size <= 950 else 35
 
     # Врезка
     elif ptype == "saddle":
