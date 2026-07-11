@@ -52,6 +52,7 @@ EQUIPMENT_PTYPES = {
     "filter",
     "throttle",
     "roof_cap",
+    "fan",
 }
 
 
