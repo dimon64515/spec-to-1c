@@ -14,14 +14,14 @@ class CheapSource(BasePriceSource):
     name = "cheap"
 
     async def search(self, query: str):
-        return [PriceOffer(source=self.name, query=query, title="Cheap Клапан RVN-560", price=Decimal("100"), currency="RUB", supplier="s", url="u")]
+        return [PriceOffer(source=self.name, query=query, title=f"Cheap {query}", price=Decimal("100"), currency="RUB", supplier="s", url="u")]
 
 
 class ExpensiveSource(BasePriceSource):
     name = "expensive"
 
     async def search(self, query: str):
-        return [PriceOffer(source=self.name, query=query, title="Expensive Клапан RVN-560", price=Decimal("200"), currency="RUB", supplier="s", url="u")]
+        return [PriceOffer(source=self.name, query=query, title=f"Expensive {query}", price=Decimal("200"), currency="RUB", supplier="s", url="u")]
 
 
 @pytest.mark.asyncio
@@ -38,3 +38,23 @@ async def test_engine_returns_min_price():
         results = await engine.search(items)
         assert len(results) == 1
         assert results[0].min_price == Decimal("100")
+
+
+@pytest.mark.asyncio
+async def test_engine_end_to_end():
+    with tempfile.TemporaryDirectory() as tmp:
+        db_path = os.path.join(tmp, "test.db")
+        storage = PriceStorage(db_path)
+        registry = SourceRegistry()
+        registry.register(CheapSource())
+        registry.register(ExpensiveSource())
+        engine = AsyncPriceEngine(storage, registry, min_offers=1)
+
+        items = [
+            {"name": "Клапан обратный", "size": "RVN-560"},
+            {"name": "Вентилятор крышный", "size": "VDNV-NT-56H"},
+        ]
+        results = await engine.search(items)
+        assert len(results) == 2
+        for r in results:
+            assert r.min_price is not None
