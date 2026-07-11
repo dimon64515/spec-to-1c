@@ -130,18 +130,8 @@ def _normalize_skipped_for_prices(skipped_rows: List[dict]) -> List[dict]:
     return normalized
 
 
-def main():
-    st.set_page_config(page_title="Спецификация → XML для 1С", layout="wide")
-    st.title("📄 Спецификация → XML для 1С")
-    st.markdown(
-        "Загрузите PDF, CSV или Excel со спецификацией вентиляции. "
-        "Выберите страницы/таблицы, отредактируйте данные и сгенерируйте XML."
-    )
-
-    tab_main, tab_prices = st.tabs(
-        ["Спецификация → XML", "Цены на перекупное оборудование"]
-    )
-
+def _render_main_tab(tab_main):
+    """Render the specification → XML tab. Early returns here do not stop the app."""
     with tab_main:
         # --- Загрузка файла ---
         uploaded_file = st.file_uploader(
@@ -358,6 +348,21 @@ def main():
 
             with st.expander("Предпросмотр XML"):
                 st.code(xml_text, language="xml")
+
+
+def main():
+    st.set_page_config(page_title="Спецификация → XML для 1С", layout="wide")
+    st.title("📄 Спецификация → XML для 1С")
+    st.markdown(
+        "Загрузите PDF, CSV или Excel со спецификацией вентиляции. "
+        "Выберите страницы/таблицы, отредактируйте данные и сгенерируйте XML."
+    )
+
+    tab_main, tab_prices = st.tabs(
+        ["Спецификация → XML", "Цены на перекупное оборудование"]
+    )
+
+    _render_main_tab(tab_main)
 
     with tab_prices:
         skipped_for_prices = st.session_state.get("skipped_for_prices", [])

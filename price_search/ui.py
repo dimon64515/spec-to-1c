@@ -4,7 +4,7 @@
 
 import asyncio
 import json
-from datetime import datetime
+from io import BytesIO
 
 import pandas as pd
 import streamlit as st
@@ -106,10 +106,12 @@ def render_price_search_tab(skipped_items: list[dict]):
     with col1:
         if st.button("Выбрать все", key="price_select_all"):
             st.session_state["price_search_select_all"] = True
+            st.session_state.pop("price_skipped_editor", None)
             st.rerun()
     with col2:
         if st.button("Снять выделение", key="price_deselect_all"):
             st.session_state["price_search_select_all"] = False
+            st.session_state.pop("price_skipped_editor", None)
             st.rerun()
 
     if st.button("Найти цены", type="primary", key="price_search_btn"):
@@ -178,9 +180,11 @@ def _download_results(results: list[SearchResult]):
             )
     df = pd.DataFrame(data)
     if not df.empty:
+        buf = BytesIO()
+        df.to_excel(buf, index=False)
         st.download_button(
             "Скачать prices.xlsx",
-            data=df.to_excel(index=False),
+            data=buf.getvalue(),
             file_name="equipment_prices.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="price_download_xlsx",
