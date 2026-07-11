@@ -6,6 +6,8 @@ from price_search.sources.aggregators.blizko import BlizkoSource
 from price_search.sources.aggregators.pulscen import PulscenSource
 from price_search.sources.aggregators.tiu import TiuSource
 from price_search.sources.base import BasePriceSource, SourceRegistry
+from price_search.sources.hvac.generic import GenericHvacSource
+from price_search.fallback.search_engines import SearchEngineFallback
 
 
 class FakeSource(BasePriceSource):
@@ -111,3 +113,40 @@ def test_blizko_parse_html():
     assert len(offers) == 2
     assert offers[0].price == Decimal("12500")
     assert offers[0].supplier == "ООО ВентПрофи"
+
+
+def test_generic_hvac_parse():
+    html = """
+    <html><body>
+    <div class="product">
+        <a class="title" href="/p/1">Клапан обратный RVN-560</a>
+        <span class="price">12 500 ₽</span>
+        <span class="company">ООО ВентПрофи</span>
+    </div>
+    </body></html>
+    """
+    source = GenericHvacSource(
+        base_url="https://example.com",
+        search_path="/search",
+        item_selector=".product",
+        title_selector=".title",
+        price_selector=".price",
+        supplier_selector=".company",
+    )
+    offers = source._parse_html(html, "query")
+    assert len(offers) == 1
+    assert offers[0].price == Decimal("12500")
+
+
+def test_search_engine_fallback_parse():
+    html = """
+    <html><body>
+    <div class="serp-item">
+        <h3><a href="https://example.com/1">Клапан обратный RVN-560 — цена 12500</a></h3>
+    </div>
+    </body></html>
+    """
+    fallback = SearchEngineFallback()
+    offers = fallback._parse_html(html, "query", "yandex")
+    assert len(offers) == 1
+    assert offers[0].source == "yandex_search"
