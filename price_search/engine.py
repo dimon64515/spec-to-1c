@@ -54,16 +54,17 @@ class AsyncPriceEngine:
             for query in queries:
                 try:
                     fallback_offers = await self.fallback_source.search(query)
+                    for offer in fallback_offers:
+                        offer.is_fallback = True
                     all_offers.extend(self._filter_relevant(fallback_offers, query))
                 except Exception:
                     continue
                 if len(all_offers) >= self.min_offers:
                     break
 
-        all_offers.sort(key=lambda o: o.price)
-        top_offers = all_offers[:3]
+        top_offers = self._select_top_offers(all_offers)
 
-        self.storage.save_offers(name, size, top_offers, is_fallback=False)
+        self.storage.save_offers(name, size, top_offers)
 
         return SearchResult(
             item_name=name,
@@ -74,10 +75,15 @@ class AsyncPriceEngine:
         )
 
     async def _run_source(self, source: BasePriceSource, query: str) -> list[PriceOffer]:
-        try:
-            return await source.search(query)
-        except Exception:
-            return []
+        last_exception: Exception | None = None
+        for attempt in range(3):
+            try:
+                return await source.search(query)
+            except Exception as exc:
+                last_exception = exc
+                if attempt < 2:
+                    await asyncio.sleep(1)
+        return []
 
     def _build_queries(self, item: dict) -> list[str]:
         name = item.get("name", "").strip()
@@ -100,3 +106,9 @@ class AsyncPriceEngine:
             if all(kw in title_lower for kw in keywords):
                 relevant.append(offer)
         return relevant
+
+    def _select_top_offers(self, all_offers: list[PriceOffer]) -> list[PriceOffer]:
+        """Return up to 3 cheapest offers with a non-zero price."""
+        priced_offers = [o for o in all_offers if o.price > 0]
+        priced_offers.sort(key=lambda o: o.price)
+        return priced_offers[:3]

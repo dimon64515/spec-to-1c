@@ -13,6 +13,8 @@ venv/
 *.log
 *.pid
 server.pid
+*.db
+price_search.db
 
 # Playwright MCP local logs
 .playwright-mcp/

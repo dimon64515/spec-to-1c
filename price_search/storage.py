@@ -65,7 +65,7 @@ class PriceStorage:
                         offer.supplier,
                         offer.url,
                         offer.scraped_at,
-                        int(is_fallback),
+                        int(getattr(offer, "is_fallback", is_fallback)),
                     ),
                 )
 
@@ -91,6 +91,7 @@ class PriceStorage:
                 supplier=row[5],
                 url=row[6],
                 scraped_at=row[7],
+                is_fallback=bool(row[8]),
             )
             for row in rows
         ]
@@ -99,7 +100,7 @@ class PriceStorage:
         with self._connection() as conn:
             rows = conn.execute(
                 """
-                SELECT query, source, title, price, currency, supplier, url, scraped_at
+                SELECT query, source, title, price, currency, supplier, url, scraped_at, is_fallback
                 FROM price_offers
                 WHERE item_name = ? AND item_size = ?
                 ORDER BY scraped_at DESC
@@ -116,6 +117,7 @@ class PriceStorage:
                 supplier=row[5],
                 url=row[6],
                 scraped_at=row[7],
+                is_fallback=bool(row[8]),
             )
             for row in rows
         ]

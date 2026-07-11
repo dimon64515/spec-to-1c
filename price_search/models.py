@@ -14,6 +14,7 @@ class PriceOffer(BaseModel):
     supplier: Optional[str] = None
     url: str
     scraped_at: datetime = Field(default_factory=datetime.now)
+    is_fallback: bool = False
 
 
 class SearchResult(BaseModel):

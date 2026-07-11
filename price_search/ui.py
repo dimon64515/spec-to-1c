@@ -94,13 +94,19 @@ def render_price_search_tab(skipped_items: list[dict]):
     edited = st.data_editor(
         filtered,
         num_rows="dynamic",
-        use_container_width=True,
+        width="stretch",
         key="price_skipped_editor",
     )
 
     if "search" not in edited.columns:
         edited["search"] = True
     selected = edited[edited["search"] == True]
+
+    if "include_in_report" in edited.columns:
+        included = edited[edited["include_in_report"] == True]
+        included_keys = set(zip(included["name"].astype(str), included["size"].astype(str)))
+    else:
+        included_keys = set(zip(edited["name"].astype(str), edited["size"].astype(str)))
 
     col1, col2 = st.columns(2)
     with col1:
@@ -114,6 +120,12 @@ def render_price_search_tab(skipped_items: list[dict]):
             st.session_state.pop("price_skipped_editor", None)
             st.rerun()
 
+    force_refresh = st.checkbox(
+        "Искать заново (игнорировать кэш)",
+        value=False,
+        key="price_force_refresh",
+    )
+
     if st.button("Найти цены", type="primary", key="price_search_btn"):
         items = selected[["name", "size", "category"]].to_dict("records")
         if not items:
@@ -125,7 +137,7 @@ def render_price_search_tab(skipped_items: list[dict]):
         results: list[SearchResult] = []
         for i, item in enumerate(items):
             try:
-                batch = asyncio.run(engine.search([item]))
+                batch = asyncio.run(engine.search([item], force_refresh=force_refresh))
                 results.extend(batch)
             except Exception as exc:
                 st.error(f"Ошибка при поиске «{item.get('name', '')}»: {exc}")
@@ -159,12 +171,14 @@ def render_price_search_tab(skipped_items: list[dict]):
                 )
         st.markdown("</div>", unsafe_allow_html=True)
 
-        _download_results(results)
+        _download_results(results, included_keys)
 
 
-def _download_results(results: list[SearchResult]):
+def _download_results(results: list[SearchResult], included_keys: set[tuple[str, str]] | None = None):
     data = []
     for r in results:
+        if included_keys is not None and (r.item_name, r.item_size) not in included_keys:
+            continue
         for offer in r.offers:
             data.append(
                 {

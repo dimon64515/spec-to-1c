@@ -1,4 +1,3 @@
-import asyncio
 from decimal import Decimal
 from urllib.parse import urlencode, urljoin
 
