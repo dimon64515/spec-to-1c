@@ -11,10 +11,8 @@ import streamlit as st
 
 from price_search.engine import AsyncPriceEngine
 from price_search.models import SearchResult
-from price_search.sources.aggregators import BlizkoSource, PulscenSource, TiuSource
 from price_search.sources.base import SourceRegistry
-from price_search.sources.hvac import GenericHvacSource
-from price_search.fallback.search_engines import SearchEngineFallback
+from price_search.sources.hvac import AirvekSource, UmClimatSource
 from price_search.storage import PriceStorage
 
 
@@ -22,27 +20,15 @@ DEFAULT_DB_PATH = "price_search.db"
 
 
 def get_engine() -> AsyncPriceEngine:
-    """Build the default async price engine with all configured sources."""
+    """Build the default async price engine with working dealer sources."""
     storage = PriceStorage(DEFAULT_DB_PATH)
     registry = SourceRegistry()
-    registry.register(PulscenSource())
-    registry.register(TiuSource())
-    registry.register(BlizkoSource())
-    # Generic HVAC source configured for ventportal.ru selectors from the plan.
-    registry.register(
-        GenericHvacSource(
-            base_url="https://ventportal.ru",
-            search_path="/search",
-            item_selector=".product",
-            title_selector=".title",
-            price_selector=".price",
-        )
-    )
-    fallback = SearchEngineFallback()
+    registry.register(UmClimatSource())
+    registry.register(AirvekSource())
     return AsyncPriceEngine(
         storage,
         registry,
-        fallback_source=fallback,
+        fallback_source=None,
         min_offers=3,
         max_age_days=7,
     )

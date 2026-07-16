@@ -31,6 +31,7 @@ import pandas as pd
 
 from config import get_config, mapping_file
 from generate_order_xml import generate_order_xml
+from project_spec_xlsx import is_project_spec_xlsx, parse_project_spec_xlsx
 from spec_common import material_to_code
 
 
@@ -65,12 +66,28 @@ def load_allowed_articles(path: str = None) -> set:
         if not parts:
             continue
         candidate = parts[0]
-        if re.fullmatch(r"\d+-\d+-\d+", candidate):
+        if re.fullmatch(r"\d+-\d+(?:-\d+)?", candidate):
             allowed.add(candidate)
     return allowed
 
 
 ALLOWED_ARTICLES = load_allowed_articles()
+
+
+# Справочник модельных кодов LITENED NK(NKD/NKK) → сечение и длина.
+# Код X-Y означает сечение (X*100) × (Y*100) мм.
+# Источник: https://air-ned.com/tovar-271.html
+LITENED_SILENCER_SIZES = {
+    "40-20": (400, 200),
+    "50-25": (500, 250),
+    "50-30": (500, 300),
+    "60-30": (600, 300),
+    "60-35": (600, 350),
+    "70-40": (700, 400),
+    "80-50": (800, 500),
+    "90-50": (900, 500),
+    "100-50": (1000, 500),
+}
 
 
 def load_article_materials(path: str = None) -> Dict[str, List[str]]:
@@ -152,11 +169,12 @@ PRODUCT_TYPE_PATTERNS = [
     (r"\bдиффузор\b", "diffuser"),
     (r"\bксд\b", "ksd"),
     (r"\bрешетка\b", "grille"),
-    (r"\bшумоглушитель\b", "silencer"),
+    (r"\bшумоглушител", "silencer"),
     (r"\bклапан\b", "damper"),
     (r"\bшибер\b", "shutter"),
     (r"\bфильтр\b", "filter"),
     (r"\bдроссель\b", "throttle"),
+    (r"\bстакан\b", "mounting_cup"),
     (r"\bвентилятор\b", "fan"),
     # Воздуховоды — самый общий случай
     (r"воздуховод", "duct"),
@@ -209,9 +227,18 @@ def normalize_dimension_prefix(token: str) -> str:
     return token
 
 
+def _collapse_size_spaces(text: str) -> str:
+    """Убирает пробелы внутри чисел, которые появляются при OCR (например, '7 00' -> '700')."""
+    text = text.replace("х", "x").replace("×", "x").replace("*", "x")
+    # Повторяем, пока пробелы между цифрами не закончатся
+    while re.search(r"(\d)\s+(\d)", text):
+        text = re.sub(r"(\d)\s+(\d)", r"\1\2", text)
+    return text
+
+
 def extract_size_token(text: str) -> str:
     """Ищет в тексте размер в формате AxB[-L], AxBxL или D/DN/Ф/Ø/⌀D[-L]."""
-    text = text.replace("х", "x").replace("×", "x").replace("*", "x")
+    text = _collapse_size_spaces(text)
     # Прямоугольное сечение с длиной через x: AxBxL
     m = re.search(r"\b(\d{2,5}\s*x\s*\d{2,5}\s*x\s*\d{2,5})\b", text, re.IGNORECASE)
     if m:
@@ -292,6 +319,59 @@ def extract_material_thickness_from_name(name: str) -> Tuple[str, Optional[float
     material = _material_from_name(name)
     thickness = _thickness_from_name(name)
     return material, thickness
+
+
+# --- Исправление OCR-ошибок в размерах ---
+
+# Сторона прямоугольного воздуховода/фасонки менее 100 мм в проектной
+# спецификации почти всегда означает потерянный ноль при распознавании.
+_OCR_MIN_RECT_SIDE = 100
+
+
+def _is_rectangular_product(name: str) -> bool:
+    """Определяет, относится ли позиция к прямоугольным изделиям."""
+    n = name.lower()
+    if "кругл" in n:
+        return False
+    if "прямоугольн" in n:
+        return True
+    return any(word in n for word in (
+        "воздуховод", "отвод", "переход", "тройник", "врезка",
+        "заглушка", "крестовина", "фланец", "утка", "диффузор",
+        "решетка", "шумоглушител",
+    ))
+
+
+def correct_ocr_size(name: str, size: str) -> Tuple[str, List[str]]:
+    """Исправляет типичные OCR-ошибки в размерах (потерянный ноль).
+
+    Возвращает исправленный размер и список предупреждений.
+    Применяется только к прямоугольным изделиям и только к сторонам < 100 мм.
+    """
+    warnings: List[str] = []
+    if not size or not _is_rectangular_product(name):
+        return size, warnings
+
+    normalized = _collapse_size_spaces(size)
+
+    def repl(match: re.Match) -> str:
+        a = int(match.group(1))
+        b = int(match.group(2))
+        orig_a, orig_b = a, b
+        if 10 <= a < _OCR_MIN_RECT_SIDE:
+            a *= 10
+        if 10 <= b < _OCR_MIN_RECT_SIDE:
+            b *= 10
+        if a != orig_a or b != orig_b:
+            return f"{a}x{b}"
+        return match.group(0)
+
+    corrected, count = re.subn(r"(\d{2,5})\s*x\s*(\d{2,5})", repl, normalized, flags=re.IGNORECASE)
+    if count and corrected != normalized:
+        warnings.append(f"OCR: размер исправлен '{size}' -> '{corrected}'")
+        size = corrected
+
+    return size, warnings
 
 
 # --- Извлечение размеров ---
@@ -400,6 +480,13 @@ def extract_dimensions(text: str) -> Dict[str, float]:
         dims["D0"] = float(m.group(1))
         dims["D1"] = float(m.group(2))
 
+    # Длина: L=900, L 1000, 1000 мм и т.п.
+    m = re.search(r"(?:l\s*=?\s*|длина\s*)(\d{3,5})", text, re.IGNORECASE)
+    if not m:
+        m = re.search(r"\b(\d{3,5})\s*мм\b", text, re.IGNORECASE)
+    if m:
+        dims["L0"] = float(m.group(1))
+
     # Угол для отводов
     m = re.search(r"(\d{2,3})\s*°?\s*град", text, re.IGNORECASE)
     if not m:
@@ -411,6 +498,30 @@ def extract_dimensions(text: str) -> Dict[str, float]:
     m = re.search(r"r\s*(\d{2,4})", text, re.IGNORECASE)
     if m:
         dims["R0"] = float(m.group(1))
+
+    # LITENED NKD / NKK: модельный код X-Y → сечение (X*100)×(Y*100) мм.
+    m = re.search(r"\bLITENED\s+(\d{1,3}-\d{1,3})\s+(NKD|NKK)\b", text, re.IGNORECASE)
+    if m:
+        code = m.group(1)
+        variant = m.group(2).upper()
+        if code in LITENED_SILENCER_SIZES:
+            a0, b0 = LITENED_SILENCER_SIZES[code]
+            dims["A0"] = a0
+            dims["B0"] = b0
+            dims["L0"] = 1100 if variant == "NKD" else 510
+
+    # Оборудование по псевдонимам: MSN, KPN-S, PPK, ГЕРМИК, NKD, KNK, CHR, KCH
+    if "D0" not in dims and "A0" not in dims:
+        m = re.search(r"\b(?:MSN|KPN-S|PPK|ГЕРМИК|NKD|KNK|CHR|KCH|RV[NCS]|RSK|KON)[-\s]?(\d{2,4})\b", text, re.IGNORECASE)
+        if m:
+            dims["D0"] = float(m.group(1))
+
+    # KNK D/L: L — длина ×100 мм (например, KNK 250/6 → L0=600).
+    if "D0" not in dims or ("D0" in dims and "L0" not in dims):
+        m = re.search(r"\bKNK[-\s]?(\d{2,4})\s*/\s*(\d)\b", text, re.IGNORECASE)
+        if m:
+            dims["D0"] = float(m.group(1))
+            dims["L0"] = float(m.group(2)) * 100
 
     return dims
 
@@ -432,7 +543,7 @@ def classify_skip(name: str, size: str, unit: str, ptype: Optional[str]) -> str:
         return "Агрегатная строка фасонных изделий без детализации (требуется список: отводы, переходы, тройники и т.д.)"
     if ptype == "diffuser":
         return "Диффузор без артикула в каталоге асПродукция (нужна ручная загрузка или доработка 1С)"
-    if ptype in ("damper", "shutter", "filter", "throttle", "grille", "roof_cap"):
+    if ptype in ("shutter", "filter", "grille", "roof_cap"):
         return f"{ptype}: оборудование/арматура — требуется проверка наличия артикула"
     if not size:
         return "Отсутствует размер"
@@ -506,7 +617,7 @@ def try_parse_fitting(
 ) -> Optional[dict]:
     """Пытается распознать фасонное изделие."""
     ptype = detect_product_type(name)
-    if ptype not in ("elbow", "transition", "tee", "cross", "cap", "saddle", "offset", "flange", "silencer"):
+    if ptype not in ("elbow", "transition", "tee", "cross", "cap", "saddle", "offset", "flange", "silencer", "damper", "throttle", "mounting_cup"):
         return None
 
     dims = extract_dimensions(name + " " + size)
@@ -516,6 +627,16 @@ def try_parse_fitting(
     rectangular = is_rectangular(name + " " + size)
     round_ = is_round(name + " " + size)
     connections = ["0", "0", "0", "0"]
+
+    # Для шумоглушителей модельный код LITENED NK даёт A0/B0,
+    # но в тексте нет ни "прямоугольный", ни AxB — всё равно считаем прямоугольным.
+    if ptype == "silencer":
+        if "A0" in dims and "B0" in dims:
+            rectangular = True
+            round_ = False
+        elif "D0" in dims:
+            rectangular = False
+            round_ = True
 
     # Отвод
     if ptype == "elbow":
@@ -639,14 +760,105 @@ def try_parse_fitting(
 
     # Шумоглушитель
     elif ptype == "silencer":
+        name_lower = name.lower()
         if rectangular:
-            article = "15-2-1"
-            params = {k: v for k, v in dims.items() if k in ("A0", "B0", "L0")}
+            if "пластина шумоглушителя" in name_lower or "пластинчатый тип 4" in name_lower:
+                article = "15-2-4"
+                # Обозначение в 1С: B x L x a2.
+                # Во входном тексте обычно "B x L x a2", поэтому первое число → B0,
+                # второе → L0, третье → A2.
+                a0 = dims.get("A0", 0)
+                b0 = dims.get("B0", a0)
+                a2 = dims.get("A2")
+                if a2 is None:
+                    m = re.search(r"(\d{2,5})\s*x\s*(\d{2,5})\s*x\s*(\d{2,5})", name + " " + size, re.IGNORECASE)
+                    if m:
+                        a0 = float(m.group(1))
+                        b0 = float(m.group(2))
+                        a2 = float(m.group(3))
+                params = {"B0": a0, "L0": b0, "A2": a2 if a2 is not None else 200}
+            elif "обтекатель шумоглушителя" in name_lower or "с обтекателем тип 5" in name_lower:
+                article = "15-2-5"
+                # Обозначение в 1С: B x a2.
+                # Во входном тексте обычно "B x a2", первое число → B0, второе → A2.
+                a0 = dims.get("A0", 0)
+                b0 = dims.get("B0", a0)
+                a2 = dims.get("A2")
+                if a2 is None:
+                    m = re.search(r"(\d{2,5})\s*x\s*(\d{2,5})", name + " " + size, re.IGNORECASE)
+                    if m and not re.search(r"(\d{2,5})\s*x\s*(\d{2,5})\s*x\s*(\d{2,5})", name + " " + size, re.IGNORECASE):
+                        a0 = float(m.group(1))
+                        a2 = float(m.group(2))
+                params = {"B0": a0, "A2": a2 if a2 is not None else 200}
+            elif "пластинчатый" in name_lower:
+                article = "15-2-2"
+                params = {k: v for k, v in dims.items() if k in ("A0", "B0", "L0")}
+                if "A0" not in params or "B0" not in params:
+                    return None
+            elif "с круглыми врезками" in name_lower:
+                article = "15-2-6"
+                params = {k: v for k, v in dims.items() if k in ("A0", "B0", "L0")}
+                if "A0" not in params or "B0" not in params:
+                    return None
+            elif "канальный" in name_lower:
+                article = "15-2-7"
+                params = {k: v for k, v in dims.items() if k in ("A0", "B0", "L0")}
+                if "A0" not in params or "B0" not in params:
+                    return None
+            elif "с обтекателем" in name_lower:
+                article = "15-2-3"
+                params = {k: v for k, v in dims.items() if k in ("A0", "B0", "L0")}
+                if "A0" not in params or "B0" not in params:
+                    return None
+            else:
+                article = "15-2-1"
+                params = {k: v for k, v in dims.items() if k in ("A0", "B0", "L0")}
+                if "A0" not in params or "B0" not in params:
+                    return None
         else:
-            article = "15-1-1"
+            if "спиральный" in name_lower:
+                article = "15-1-2"
+            else:
+                article = "15-1-1"
             params = {k: v for k, v in dims.items() if k in ("D0", "L0")}
+            if "D0" not in params:
+                return None
         if "L0" not in params:
             params["L0"] = 1000
+
+    # Монтажный стакан
+    elif ptype == "mounting_cup":
+        article = "29-1-3"
+        params = {k: v for k, v in dims.items() if k in ("D0", "L0")}
+        if "D0" not in params:
+            return None
+        if "L0" not in params:
+            params["L0"] = 200
+
+    # Клапаны / дроссели / заслонки
+    elif ptype in ("damper", "throttle"):
+        name_lower = name.lower()
+        if "обратный" in name_lower:
+            article = "18-2-1" if rectangular else "18-1-3"
+        elif "противопожарный" in name_lower or "дымовой" in name_lower:
+            article = "20-2" if rectangular else "20-1"
+        elif "воздушный" in name_lower:
+            article = "21-2-1" if rectangular else "21-1-1"
+        elif "дроссель" in name_lower or "заслонка" in name_lower:
+            article = "16-2-1" if rectangular else "16-1-1"
+        else:
+            # Не удалось классифицировать — используем дроссель по умолчанию
+            article = "16-2-1" if rectangular else "16-1-1"
+        if rectangular:
+            params = {k: v for k, v in dims.items() if k in ("A0", "B0", "L0")}
+            if "A0" not in params or "B0" not in params:
+                return None
+        else:
+            params = {k: v for k, v in dims.items() if k in ("D0", "L0")}
+            if "D0" not in params:
+                return None
+        if "L0" not in params:
+            params["L0"] = 200
 
     else:
         return None
@@ -680,6 +892,19 @@ def _finalize_row(parsed: dict) -> dict:
     return parsed
 
 
+def _apply_ocr_warnings(result: Optional[dict], warnings: List[str]) -> Optional[dict]:
+    """Добавляет OCR-предупреждения в успешную строку или в причину пропуска."""
+    if not result or not warnings:
+        return result
+    text = "; ".join(warnings)
+    if "reason" in result:
+        # Словарь с причиной пропуска
+        result["ocr_warning"] = text
+    else:
+        result["comment"] = f"{result.get('comment', '')} [{text}]".strip()
+    return result
+
+
 def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]]:
     """Преобразует одну строку таблицы в строку для XML или причину пропуска."""
     name = str(row.get("name", "")).strip()
@@ -690,6 +915,9 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
     # Если размер не вынесен в отдельную колонку — ищем его в наименовании
     if not size:
         size = extract_size_token(name)
+
+    # Исправляем типичные OCR-ошибки (потерянный ноль) в прямоугольных размерах
+    size, ocr_warnings = correct_ocr_size(name, size)
 
     # Материал и толщина также могут быть внутри наименования
     material = str(row.get("material", defaults.get("material", "оцинкованная"))).strip()
@@ -710,10 +938,11 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
     try:
         quantity = float(str(quantity_raw).replace(",", ".").replace(" ", ""))
     except ValueError:
-        return None, {
-            "name": name, "size": size, "unit": unit,
-            "reason": f"Не удалось распознать количество: {quantity_raw}"
-        }
+        return None, _apply_ocr_warnings(
+            {"name": name, "size": size, "unit": unit,
+             "reason": f"Не удалось распознать количество: {quantity_raw}"},
+            ocr_warnings,
+        )
 
     # Если строка уже содержит явный артикул и параметры (например, из map_customer_equipment),
     # используем их напрямую, минуя эвристики.
@@ -727,7 +956,7 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
 
         pieces = int(quantity) if unit in ("шт", "штук", "pcs", "pc", "шт.") else max(1, int(round(quantity)))
 
-        return _finalize_row({
+        return _apply_ocr_warnings(_finalize_row({
             "article": explicit_article,
             "params": dict(explicit_params),
             "quantity": pieces,
@@ -739,11 +968,7 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
             "connection_3": connections[3],
             "system": row.get("system", ""),
             "comment": f"{name} {size}".strip(),
-        }), None
-
-    # Агрегатные строки фасонных изделий / оборудование без артикула
-    if ptype == "aggregate_fittings" or unit in ("м2", "м²", "кв.м", "кв м"):
-        return None, {"name": name, "size": size, "unit": unit, "reason": classify_skip(name, size, unit, ptype)}
+        }), ocr_warnings), None
 
     material_code = material_to_code(material)
 
@@ -751,12 +976,19 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
     ksd = try_parse_ksd(size, name, material_code=material_code, thickness=thickness)
     if ksd:
         ksd["quantity"] = int(quantity) if unit in ("шт", "штук", "pcs", "pc", "шт.") else max(1, int(round(quantity)))
-        return _finalize_row(ksd), None
+        return _apply_ocr_warnings(_finalize_row(ksd), ocr_warnings), None
 
-    # Попытка распознать фасонное изделие
+    # Попытка распознать фасонное изделие / арматуру (в том числе для м²)
     fitting = try_parse_fitting(name, size, unit, quantity, material_code=material_code, thickness=thickness)
     if fitting:
-        return _finalize_row(fitting), None
+        return _apply_ocr_warnings(_finalize_row(fitting), ocr_warnings), None
+
+    # Агрегатные строки фасонных изделий / оборудование без артикула
+    if ptype == "aggregate_fittings" or unit in ("м2", "м²", "кв.м", "кв м"):
+        return None, _apply_ocr_warnings(
+            {"name": name, "size": size, "unit": unit, "reason": classify_skip(name, size, unit, ptype)},
+            ocr_warnings,
+        )
 
     # Воздуховоды
     section, dims = parse_size(size)
@@ -786,11 +1018,14 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
         elif unit in ("шт", "штук", "pcs", "pc", "шт."):
             pieces = int(quantity)
         else:
-            return None, {"name": name, "size": size, "unit": unit, "reason": classify_skip(name, size, unit, ptype)}
+            return None, _apply_ocr_warnings(
+                {"name": name, "size": size, "unit": unit, "reason": classify_skip(name, size, unit, ptype)},
+                ocr_warnings,
+            )
 
         dims["L0"] = length_mm
 
-        return _finalize_row({
+        return _apply_ocr_warnings(_finalize_row({
             "article": article,
             "params": dims,
             "quantity": pieces,
@@ -802,18 +1037,21 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
             "connection_3": connections[3],
             "system": "",
             "comment": f"{name} {size}",
-        }), None
+        }), ocr_warnings), None
 
     # Диффузоры и прочее без возможности автозагрузки
-    return None, {"name": name, "size": size, "unit": unit, "reason": classify_skip(name, size, unit, ptype)}
+    return None, _apply_ocr_warnings(
+        {"name": name, "size": size, "unit": unit, "reason": classify_skip(name, size, unit, ptype)},
+        ocr_warnings,
+    )
 
 
 def process_rows(
     rows: List[dict],
     header: Optional[dict] = None,
     defaults: Optional[dict] = None,
-) -> Tuple[str, List[dict]]:
-    """Принимает список строк спецификации и возвращает XML-строку и список пропущенных.
+) -> Tuple[str, List[dict], List[dict]]:
+    """Принимает список строк спецификации и возвращает XML-строку, пропущенные и успешные строки.
 
     Args:
         rows: список словарей с ключами name, size, unit, quantity, material, thickness.
@@ -821,7 +1059,7 @@ def process_rows(
         defaults: значения по умолчанию для material и thickness.
 
     Returns:
-        Кортеж (xml_string, skipped_list).
+        Кортеж (xml_string, skipped_list, success_rows).
     """
     if header is None:
         header = {
@@ -863,7 +1101,7 @@ def process_rows(
             skipped.append(skip)
 
     xml_text = generate_order_xml(header, success_rows)
-    return xml_text, skipped
+    return xml_text, skipped, success_rows
 
 
 def process_csv(
@@ -892,6 +1130,23 @@ def process_csv(
 
     if suffix in (".xlsx", ".xls", ".xlsm"):
         df = pd.read_excel(input_path, dtype=str)
+        if is_project_spec_xlsx(df):
+            rows = parse_project_spec_xlsx(input_path)
+            xml_text, skipped, success_rows = process_rows(
+                rows, header=header, defaults=defaults
+            )
+            if not success_rows:
+                logger.warning("Не удалось распознать ни одной строки.")
+                return success_rows, skipped
+
+            Path(output_xml).write_text(xml_text, encoding="utf-8")
+            report_path = str(Path(output_xml).with_suffix("")) + "_skipped.json"
+            with open(report_path, "w", encoding="utf-8") as f:
+                json.dump(skipped, f, ensure_ascii=False, indent=2)
+
+            logger.info("Сгенерировано строк: %d", len(success_rows))
+            logger.info("Пропущено строк: %d", len(skipped))
+            return success_rows, skipped
     else:
         df = pd.read_csv(input_path, delimiter=delimiter, dtype=str, encoding="utf-8-sig")
 
@@ -905,13 +1160,7 @@ def process_csv(
         row = {k.strip().lower(): str(v).strip() for k, v in raw_row.items()}
         rows.append(row)
 
-    xml_text, skipped = process_rows(rows, header=header, defaults=defaults)
-
-    success_rows: List[dict] = []
-    for row in rows:
-        parsed, _ = parse_row(row, defaults)
-        if parsed:
-            success_rows.append(parsed)
+    xml_text, skipped, success_rows = process_rows(rows, header=header, defaults=defaults)
 
     if not success_rows:
         logger.warning("Не удалось распознать ни одной строки.")

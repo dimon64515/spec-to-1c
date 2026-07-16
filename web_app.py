@@ -18,8 +18,10 @@ from api import (
     count_pdf_pages,
     extract_equipment_from_bytes,
     load_tables_from_pdf,
+    read_project_spec_bytes,
     read_uploaded_csv_or_excel,
 )
+from project_spec_xlsx import is_project_spec_xlsx
 from logging_config import configure_logging
 from pdf_spec_extractor import df_to_spec_rows, normalize_columns, parse_text_fallback
 from process_specification_table import detect_product_type, process_rows
@@ -246,7 +248,13 @@ def _render_main_tab(tab_main):
             with st.spinner("Читаю файл..."):
                 df = read_uploaded_csv_or_excel(uploaded_file)
             st.write(f"**Строк в файле:** {len(df)}")
-            combined_df = normalize_columns(df)
+
+            if is_project_spec_xlsx(df):
+                st.info("Распознан формат проектной спецификации (ОВ-лист).")
+                project_rows = read_project_spec_bytes(file_bytes, file_name)
+                combined_df = pd.DataFrame(project_rows)
+            else:
+                combined_df = normalize_columns(df)
 
         # --- Редактирование таблицы ---
         if combined_df is None or combined_df.empty:
@@ -309,7 +317,7 @@ def _render_main_tab(tab_main):
             rows = [_prepare_row(raw) for raw in raw_rows]
 
             with st.spinner("Генерирую XML..."):
-                xml_text, skipped = process_rows(rows, header=header)
+                xml_text, skipped, success_rows = process_rows(rows, header=header)
 
             # Учитываем уже пропущенное оборудование
             all_skipped = list(skipped)
@@ -322,6 +330,23 @@ def _render_main_tab(tab_main):
             )
             if equipment_skipped:
                 st.info(f"Пропущено оборудования (не производится/нет артикула): {len(equipment_skipped)}")
+
+            # Показываем строки, в которых OCR-эвристика исправила размеры
+            ocr_corrections: list[dict] = []
+            for row in success_rows:
+                comment = row.get("comment", "")
+                if "[OCR:" in comment:
+                    ocr_corrections.append(
+                        {"name": comment.split(" [OCR:")[0], "warning": comment[comment.find("[OCR:"):].strip("]")}
+                    )
+            for s in skipped:
+                warning = s.get("ocr_warning")
+                if warning:
+                    ocr_corrections.append({"name": s.get("name", ""), "warning": warning})
+            if ocr_corrections:
+                with st.expander(f"⚠️ Исправлены OCR-ошибки ({len(ocr_corrections)})"):
+                    for c in ocr_corrections:
+                        st.markdown(f"- **{c['name'][:80]}** — `{c['warning']}`")
 
             # Сохраняем оборудование для вкладки с ценами
             st.session_state["skipped_for_prices"] = _normalize_skipped_for_prices(all_skipped)

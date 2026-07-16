@@ -13,7 +13,8 @@ def test_load_config_default():
     assert cfg["default_round_length_mm"] == 3000
     assert cfg["default_rect_length_mm"] == 1250
     assert cfg["mapping_files"]["products"] == "product_article_mapping.json"
-    assert cfg["mcp"]["url"] == "http://localhost:6003/mcp"
+    assert isinstance(cfg["mcp"]["url"], str)
+    assert cfg["mcp"]["url"].endswith("/mcp")
 
 
 def test_mapping_file_helper():

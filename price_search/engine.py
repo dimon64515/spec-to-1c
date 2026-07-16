@@ -85,25 +85,75 @@ class AsyncPriceEngine:
                     await asyncio.sleep(1)
         return []
 
+    # Generic words that dealer-site search engines handle poorly or that dilute results.
+    _STOP_WORDS = {
+        "вентилятор", "канальный", "круглый", "прямоугольный", "кулачковый", "осевой",
+        "клапан", "обратный", "противопожарный", "регулируемый", "воздушный",
+        "воздуховод", "фасонный", "изделие", "переход", "тройник", "заглушка",
+        "отвод", "крестовина", "решетка", "диффузор", "нагреватель", "охладитель",
+        "фильтр", "шумоглушитель", "приточная", "вытяжная", "установка", "блок",
+    }
+
+    def _clean_query(self, text: str) -> str:
+        """Drop generic HVAC words, keep brand/model/numbers."""
+        tokens = text.split()
+        cleaned = [t for t in tokens if t.lower() not in self._STOP_WORDS]
+        return " ".join(cleaned)
+
     def _build_queries(self, item: dict) -> list[str]:
         name = item.get("name", "").strip()
         size = item.get("size", "").strip()
         brand = item.get("brand", "").strip()
-        queries = []
+        cleaned_name = self._clean_query(name)
+        base_queries: list[str] = []
+        # Prefer short, model-centric queries — dealer search engines work best with them.
+        if cleaned_name and size:
+            base_queries.append(f"{cleaned_name} {size}")
+        if cleaned_name:
+            base_queries.append(cleaned_name)
         if name and size:
-            queries.append(f"{name} {size}")
-        if name and brand and size:
-            queries.append(f"{name} {brand} {size}")
+            base_queries.append(f"{name} {size}")
         if name:
-            queries.append(name)
-        return queries
+            base_queries.append(name)
+        if brand and size:
+            base_queries.append(f"{brand} {size}")
+
+        # Dealer sites often return nothing for very specific queries (e.g. with "sileo").
+        # Add progressively shorter suffixes of the cleaned query as fallbacks.
+        suffix_queries: list[str] = []
+        for q in base_queries:
+            suffix_queries.extend(self._suffix_variants(q))
+
+        # Deduplicate while preserving order.
+        seen: set[str] = set()
+        result: list[str] = []
+        for q in suffix_queries:
+            if q and q not in seen:
+                seen.add(q)
+                result.append(q)
+        return result
+
+    @staticmethod
+    def _suffix_variants(query: str) -> list[str]:
+        """Return the query and its shorter suffixes, e.g. 'a b c' -> ['a b c','a b','a']."""
+        tokens = query.split()
+        variants: list[str] = []
+        for i in range(len(tokens), 0, -1):
+            variants.append(" ".join(tokens[:i]))
+        return variants
 
     def _filter_relevant(self, offers: list[PriceOffer], query: str) -> list[PriceOffer]:
         keywords = [w.lower() for w in query.split() if len(w) > 2]
+        if not keywords:
+            return offers
+        # Dealer sites return approximate matches; requiring every keyword is too strict.
+        # Keep offers that match all but one keyword (but no less than one).
+        threshold = max(1, len(keywords) - 1)
         relevant = []
         for offer in offers:
             title_lower = offer.title.lower()
-            if all(kw in title_lower for kw in keywords):
+            matches = sum(1 for kw in keywords if kw in title_lower)
+            if matches >= threshold:
                 relevant.append(offer)
         return relevant
 

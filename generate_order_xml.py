@@ -38,7 +38,13 @@ def format_parameter_value(name: str, value) -> str:
     Для дробных параметров (U, R, z) подбираем формат по значению.
     """
     name_upper = name.upper()
-    if name_upper in ("D0", "D1", "D2", "D3", "A0", "A1", "B0", "B1", "L0", "L1", "L2", "L3", "P0", "P1", "P2", "P3"):
+    if name_upper in (
+        "D0", "D1", "D2", "D3",
+        "A0", "A1", "A2", "A3",
+        "B0", "B1", "B2", "B3",
+        "L0", "L1", "L2", "L3",
+        "P0", "P1", "P2", "P3",
+    ):
         return f"{int(round(float(value))):04d}"
     if name_upper in ("U0", "R0", "Z"):
         # углы/радиусы обычно целые числа
@@ -95,9 +101,14 @@ def build_characteristic(params: Dict[str, float], mapping: dict) -> str:
     Пропущенные параметры подставляются из default_params, заданных
     в product_article_mapping.json. Строковые значения вычисляются
     по уже известным параметрам (например, R0 = D0).
+
+    force_params применяются последними и позволяют задать значения,
+    которые 1С использует принудительно независимо от исходных данных
+    (например, стандартная длина врезки L0 = 100 мм).
     """
     required = mapping.get("xml_parameters", [])
     defaults = mapping.get("default_params", {})
+    force = mapping.get("force_params", {})
     merged = dict(params)
     parts = []
     for p in required:
@@ -110,6 +121,13 @@ def build_characteristic(params: Dict[str, float], mapping: dict) -> str:
                     merged[p] = dv
             else:
                 raise ValueError(f"Для артикула {mapping['article']} не хватает параметра {p}")
+        # 1С-специфичные принудительные значения имеют наивысший приоритет
+        if p in force:
+            fv = force[p]
+            if isinstance(fv, str):
+                merged[p] = _eval_default_expression(fv, merged)
+            else:
+                merged[p] = fv
         val = format_parameter_value(p, merged[p])
         parts.append(f"{p}{val}{p}_")
     return "".join(parts)

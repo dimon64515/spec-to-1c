@@ -403,6 +403,9 @@
     "name": "Переход с прямоугольного на круглое сечения тип 1",
     "default_params": {
       "L0": 100
+    },
+    "force_params": {
+      "L0": 300
     }
   },
   {
@@ -1335,6 +1338,9 @@
     "default_params": {
       "L0": 100,
       "D2": "D0"
+    },
+    "force_params": {
+      "L0": 100
     }
   },
   {
@@ -1435,6 +1441,9 @@
     ],
     "name": "Врезка прямоугольного сечения прямая в прямоугольный воздуховод",
     "default_params": {
+      "L0": 100
+    },
+    "force_params": {
       "L0": 100
     }
   },
@@ -2394,6 +2403,212 @@
       "L0"
     ],
     "name": "Дроссель прямоугольного сечения",
+    "default_params": {
+      "L0": 200
+    }
+  },
+  {
+    "article": "15-1-2",
+    "group_code": "15",
+    "comment": "15.1.2",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"/\"+\"Ф\"+D1_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "D1",
+      "L0"
+    ],
+    "name": "Шумоглушитель трубчатый круглый спиральный",
+    "default_params": {
+      "D1": "D0",
+      "L0": 1000
+    }
+  },
+  {
+    "article": "15-2-2",
+    "group_code": "15",
+    "comment": "15.2.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "A1",
+      "B1",
+      "L0"
+    ],
+    "name": "Шумоглушитель пластинчатый",
+    "default_params": {
+      "A1": "A0",
+      "B1": "B0",
+      "L0": 1000
+    }
+  },
+  {
+    "article": "15-2-3",
+    "group_code": "15",
+    "comment": "15.2.3",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "A1",
+      "B1",
+      "L0"
+    ],
+    "name": "Шумоглушитель с обтекателем",
+    "default_params": {
+      "A1": "A0",
+      "B1": "B0",
+      "L0": 1000
+    }
+  },
+  {
+    "article": "15-2-4",
+    "group_code": "15",
+    "comment": "15.2.4",
+    "section": "rectangular",
+    "designation_expression": "\"\"+B_+\"x\"+L_+\"x\"+a2_",
+    "xml_parameters": [
+      "B0",
+      "L0",
+      "A2"
+    ],
+    "name": "Пластина шумоглушителя",
+    "default_params": {
+      "L0": 1000,
+      "A2": 200
+    }
+  },
+  {
+    "article": "15-2-5",
+    "group_code": "15",
+    "comment": "15.2.5",
+    "section": "rectangular",
+    "designation_expression": "\"\"+B_+\"x\"+a2_",
+    "xml_parameters": [
+      "B0",
+      "A2"
+    ],
+    "name": "Обтекатель шумоглушителя",
+    "default_params": {
+      "A2": 200
+    }
+  },
+  {
+    "article": "15-2-6",
+    "group_code": "15",
+    "comment": "15.2.6",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "A1",
+      "B1",
+      "L0"
+    ],
+    "name": "Шумоглушитель с круглыми врезками",
+    "default_params": {
+      "A1": "A0",
+      "B1": "B0",
+      "L0": 1000
+    }
+  },
+  {
+    "article": "15-2-7",
+    "group_code": "15",
+    "comment": "15.2.7",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"/\"+a1_+\"x\"+b1_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "A1",
+      "B1",
+      "L0"
+    ],
+    "name": "Шумоглушитель канальный",
+    "default_params": {
+      "A1": "A0",
+      "B1": "B0",
+      "L0": 1000
+    }
+  },
+  {
+    "article": "20-1",
+    "group_code": "20",
+    "comment": "20.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "name": "Противопожарный клапан круглого сечения",
+    "default_params": {
+      "L0": 200
+    }
+  },
+  {
+    "article": "20-2",
+    "group_code": "20",
+    "comment": "20.2",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Противопожарный клапан прямоугольного сечения",
+    "default_params": {
+      "L0": 200
+    }
+  },
+  {
+    "article": "21-1-1",
+    "group_code": "21",
+    "comment": "21.1.1",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "name": "Клапан воздушный круглого сечения",
+    "default_params": {
+      "L0": 200
+    }
+  },
+  {
+    "article": "21-2-1",
+    "group_code": "21",
+    "comment": "21.2.1",
+    "section": "rectangular",
+    "designation_expression": "\"\"+A_+\"x\"+B_+\"-\"+L_",
+    "xml_parameters": [
+      "A0",
+      "B0",
+      "L0"
+    ],
+    "name": "Клапан воздушный прямоугольного сечения",
+    "default_params": {
+      "L0": 200
+    }
+  },
+  {
+    "article": "29-1-3",
+    "group_code": "29",
+    "comment": "29.1.3",
+    "section": "round",
+    "designation_expression": "\"\"+\"Ф\"+D_+\"-\"+L_",
+    "xml_parameters": [
+      "D0",
+      "L0"
+    ],
+    "name": "Монтажный стакан",
     "default_params": {
       "L0": 200
     }

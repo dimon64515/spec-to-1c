@@ -31,3 +31,66 @@ def test_parse_row_unknown_skipped():
     parsed, skipped = parse_row(row, defaults)
     assert parsed is None
     assert "reason" in skipped
+
+
+def test_parse_row_litened_nkd_rectangular():
+    row = {"name": "Шумоглушитель LITENED 100-50 NKD", "size": "", "unit": "шт", "quantity": "2"}
+    defaults = {"material": "оцинкованная", "thickness": "0.7"}
+    parsed, skipped = parse_row(row, defaults)
+    assert skipped is None
+    assert parsed["article"] == "15-2-1"
+    assert parsed["params"]["A0"] == 1000
+    assert parsed["params"]["B0"] == 500
+    assert parsed["params"]["L0"] == 1100
+
+
+def test_parse_row_litened_nkk_rectangular():
+    row = {"name": "Шумоглушитель LITENED 60-30 NKK", "size": "", "unit": "шт", "quantity": "1"}
+    defaults = {"material": "оцинкованная", "thickness": "0.7"}
+    parsed, skipped = parse_row(row, defaults)
+    assert skipped is None
+    assert parsed["article"] == "15-2-1"
+    assert parsed["params"]["A0"] == 600
+    assert parsed["params"]["B0"] == 300
+    assert parsed["params"]["L0"] == 510
+
+
+def test_parse_row_knk_round_with_length_code():
+    row = {"name": "Шумоглушитель KNK 250/6", "size": "", "unit": "шт", "quantity": "2"}
+    defaults = {"material": "оцинкованная", "thickness": "0.7"}
+    parsed, skipped = parse_row(row, defaults)
+    assert skipped is None
+    assert parsed["article"] == "15-1-1"
+    assert parsed["params"]["D0"] == 250
+    assert parsed["params"]["L0"] == 600
+
+
+def test_parse_row_knk_round_with_explicit_length():
+    row = {"name": "Шумоглушитель круглый Ф160, L=900 мм KNK-160-900", "size": "", "unit": "шт", "quantity": "1"}
+    defaults = {"material": "оцинкованная", "thickness": "0.7"}
+    parsed, skipped = parse_row(row, defaults)
+    assert skipped is None
+    assert parsed["article"] == "15-1-1"
+    assert parsed["params"]["D0"] == 160
+    assert parsed["params"]["L0"] == 900
+
+
+def test_parse_row_silencer_plate_15_2_4():
+    row = {"name": "Пластина шумоглушителя 500x1100x200", "size": "", "unit": "шт", "quantity": "4"}
+    defaults = {"material": "оцинкованная", "thickness": "0.7"}
+    parsed, skipped = parse_row(row, defaults)
+    assert skipped is None
+    assert parsed["article"] == "15-2-4"
+    assert parsed["params"]["B0"] == 500
+    assert parsed["params"]["L0"] == 1100
+    assert parsed["params"]["A2"] == 200
+
+
+def test_parse_row_silencer_deflector_15_2_5():
+    row = {"name": "Обтекатель шумоглушителя 500x200", "size": "", "unit": "шт", "quantity": "4"}
+    defaults = {"material": "оцинкованная", "thickness": "0.7"}
+    parsed, skipped = parse_row(row, defaults)
+    assert skipped is None
+    assert parsed["article"] == "15-2-5"
+    assert parsed["params"]["B0"] == 500
+    assert parsed["params"]["A2"] == 200

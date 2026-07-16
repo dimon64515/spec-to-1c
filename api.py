@@ -24,6 +24,7 @@ from pdf_spec_extractor import (
 from equipment_pdf_extractor import extract_equipment_from_pdf
 from map_customer_equipment import map_equipment_rows
 from process_specification_table import process_rows
+from project_spec_xlsx import is_project_spec_xlsx, parse_project_spec_xlsx
 
 
 @dataclass
@@ -83,6 +84,18 @@ def read_csv_or_excel_bytes(file_bytes: bytes, file_name: str) -> pd.DataFrame:
     return pd.read_csv(buffer, delimiter=";", dtype=str, encoding="utf-8-sig")
 
 
+def read_project_spec_bytes(file_bytes: bytes, file_name: str) -> list[dict]:
+    """Read a recognised project-specification Excel file into spec rows."""
+    suffix = Path(file_name).suffix or ".xlsx"
+    with NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(file_bytes)
+        tmp_path = Path(tmp.name)
+    try:
+        return parse_project_spec_xlsx(tmp_path)
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
 def count_pdf_pages(file_bytes: bytes) -> int:
     """Return the number of pages in a PDF byte stream."""
     with NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
@@ -112,5 +125,5 @@ def process_specification_file(
     df = read_csv_or_excel_bytes(file_bytes, file_name)
     df = normalize_columns(df)
     rows = df_to_spec_rows(df)
-    xml_text, skipped = process_rows(rows, header=header)
+    xml_text, skipped, _ = process_rows(rows, header=header)
     return ProcessResult(xml=xml_text, skipped=skipped)

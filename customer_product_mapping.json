@@ -131,6 +131,51 @@
         "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})",
         "\\b(?:ДПУ|DPU)[-\\s]?(?<D>\\d{2,4})\\b"
       ]
+    },
+    {
+      "id": "mounting_cup",
+      "name": "Монтажный стакан",
+      "keywords": ["стакан монтажный", "монтажный стакан"],
+      "aliases": ["MSN", "KPN-S"],
+      "article_round": "29-1-3",
+      "article_rect": null,
+      "dimension_patterns": [
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})",
+        "\\b(?:MSN|KPN-S)[-\\s]?(?<D>\\d{2,4})\\b"
+      ],
+      "default_params": {
+        "L0": 200
+      }
+    },
+    {
+      "id": "fire_damper",
+      "name": "Противопожарный клапан",
+      "keywords": ["клапан противопожарный", "противопожарный клапан", "дымовой"],
+      "aliases": ["PPK"],
+      "article_round": "20-1",
+      "article_rect": "20-2",
+      "dimension_patterns": [
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})",
+        "\\b(?:PPK)[-\\s]?(?<D>\\d{2,4})\\b"
+      ],
+      "default_params": {
+        "L0": 200
+      }
+    },
+    {
+      "id": "air_valve",
+      "name": "Воздушный клапан",
+      "keywords": ["клапан воздушный", "воздушный клапан"],
+      "aliases": ["ГЕРМИК"],
+      "article_round": "21-1-1",
+      "article_rect": "21-2-1",
+      "dimension_patterns": [
+        "(?<A>\\d{2,4})\\s*[-xх×]\\s*(?<B>\\d{2,4})",
+        "\\b(?:ГЕРМИК)[-\\s]?(?<D>\\d{2,4})\\b"
+      ],
+      "default_params": {
+        "L0": 200
+      }
     }
   ],
   "skip_keywords": [
