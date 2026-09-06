@@ -24,3 +24,13 @@ mapping_files:
 mcp:
   url: "https://1dca23dc-dcb2-49f6-87f6-7a80a8710e1a.tunnel4.com/mcp"
   timeout: 30
+
+# Bitrix24 bot integration (секреты — в bitrix.local.yaml, gitignored)
+bitrix:
+  portal: "https://svok-kavkaz.bitrix24.ru"
+
+middleware:
+  tmp_dir: "tmp/bitrix_bot"
+  report_limit: 3500
+  request_timeout: 280
+  task_comment_prefix: "Задача Битрикс24"
