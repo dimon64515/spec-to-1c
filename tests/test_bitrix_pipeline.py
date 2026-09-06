@@ -77,7 +77,7 @@ def test_run_pipeline_end_to_end_mocked(monkeypatch):
     monkeypatch.setattr(
         pl, "process_pdf_to_positions",
         lambda b: (
-            [{"article": "1-2-1", "quantity": 6, "comment": "", "params": {}}],
+            [{"article": "1-2-1", "quantity": 6, "comment": "", "thickness": 0.8, "params": {}}],
             [{"name": "Клапан", "size": "200", "quantity": "1", "reason": "нет маппинга"}],
         ),
     )
