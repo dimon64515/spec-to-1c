@@ -41,7 +41,7 @@ def create_app(
     start_worker: bool = True,
 ) -> FastAPI:
     cfg = cfg or load_bot_config()
-    client = client or BitrixClient(cfg.incoming_webhook, timeout=30.0)
+    client = client or BitrixClient(cfg.incoming_webhook, timeout=cfg.request_timeout)
     queue = queue or JobQueue(
         Path(cfg.tmp_dir) / "jobs.db", cfg.tmp_dir
     )
@@ -73,30 +73,36 @@ def create_app(
             token = request.headers.get("X-Webhook-Token", "")
             if token != cfg.verify_token:
                 raise HTTPException(status_code=401, detail="bad token")
-        payload = await request.json()
-        event = parse_event(payload)
-        if event is None:
-            return JSONResponse({"ok": True})
         try:
-            pdf_bytes, file_name = find_pdf(client, event)
-        except PdfNotFound as exc:
-            background.add_task(client.send_message, event.dialog_id, str(exc))
+            payload = await request.json()
+            event = parse_event(payload)
+            if event is None:
+                return JSONResponse({"ok": True})
+            try:
+                pdf_bytes, file_name = find_pdf(client, event)
+            except PdfNotFound as exc:
+                background.add_task(client.send_message, event.dialog_id, str(exc))
+                return JSONResponse({"ok": True})
+            title = client.get_task_title(event.task_id) if event.task_id else ""
+            if event.task_id:
+                comment = f"{cfg.task_comment_prefix} №{event.task_id}: {title}"
+            else:
+                comment = cfg.task_comment_prefix
+            job = queue.enqueue(
+                Job(
+                    dialog_id=event.dialog_id,
+                    task_id=event.task_id,
+                    pdf_path="",
+                    file_name=file_name,
+                    order_comment=comment,
+                ),
+                pdf_bytes=pdf_bytes,
+            )
+        except Exception:
+            # webhook обязан отвечать быстрым 200; сбой обработки не должен
+            # уходить Битриксу как 500 (он ретраит доставку события)
+            logger.exception("webhook processing failed")
             return JSONResponse({"ok": True})
-        title = client.get_task_title(event.task_id) if event.task_id else ""
-        if event.task_id:
-            comment = f"{cfg.task_comment_prefix} №{event.task_id}: {title}"
-        else:
-            comment = cfg.task_comment_prefix
-        job = queue.enqueue(
-            Job(
-                dialog_id=event.dialog_id,
-                task_id=event.task_id,
-                pdf_path="",
-                file_name=file_name,
-                order_comment=comment,
-            ),
-            pdf_bytes=pdf_bytes,
-        )
         background.add_task(
             client.send_message, event.dialog_id,
             f"Принял «{file_name}», обрабатываю…",

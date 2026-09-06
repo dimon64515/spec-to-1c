@@ -3,6 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import bitrix_bot.server as srv
+from bitrix_bot.bitrix_client import BitrixError
 from bitrix_bot.config import BotConfig
 from bitrix_bot.events import parse_event
 from bitrix_bot.pipeline import PipelineResult
@@ -95,6 +96,23 @@ def test_webhook_enqueues_and_acks(env):
     assert open(job.pdf_path, "rb").read() == b"%PDF-fake-bytes"
     # ack отправлен
     assert any("Принял" in m[1] and "ОВ2.pdf" in m[1] for m in client.messages)
+
+
+def test_webhook_network_error_still_200(env, monkeypatch):
+    cfg, client, queue = env
+
+    def _boom(url):
+        raise BitrixError("disk unavailable")
+
+    monkeypatch.setattr(client, "download_file", _boom)
+    app = srv.create_app(cfg, client=client, queue=queue, start_worker=False)
+    resp = TestClient(app).post(
+        "/webhook/bot",
+        json=_payload(FILE_URL="https://b24/disk/download/1&auth=x"),
+        headers={"X-Webhook-Token": "tok"},
+    )
+    assert resp.status_code == 200 and resp.json()["ok"] is True
+    assert queue.stats().get("pending", 0) == 0
 
 
 def test_webhook_no_pdf_asks_to_attach(env):
