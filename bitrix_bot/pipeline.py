@@ -61,12 +61,13 @@ def parse_1c_result(text: str) -> Dict[str, Any]:
         if m:
             n_errors = int(m.group(1))
             if n_errors:
-                errors = segments[i + 1 : i + 1 + n_errors]
+                # BSL склеивает ошибки СтрСоединить(Ошибки, "; ") — один сегмент
+                errors = [e.strip() for e in segments[i + 1].split("; ")]
         m = re.match(r"предупр=(\d+)", seg)
         if m:
             n_warnings = int(m.group(1))
             if n_warnings:
-                warnings = segments[i + 1 : i + 1 + n_warnings]
+                warnings = [w.strip() for w in segments[i + 1].split("; ")]
     return {
         "order_number": order_number,
         "errors": errors,

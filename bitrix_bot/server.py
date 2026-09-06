@@ -30,7 +30,12 @@ def make_handler(cfg: BotConfig, client) -> Callable[[Job], None]:
             cfg.execute_code_url, timeout=cfg.request_timeout,
         )
         for msg in build_report(res, cfg.report_limit):
-            client.send_message(job.dialog_id, msg)
+            try:
+                client.send_message(job.dialog_id, msg)
+            except Exception:
+                # заказ в 1С уже создан — сбой доставки отчёта не должен
+                # приводить к reschedule (иначе дубликат заказа)
+                logger.exception("report delivery failed for job %s", job.id)
     return handle
 
 

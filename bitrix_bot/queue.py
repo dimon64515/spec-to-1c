@@ -46,6 +46,8 @@ class JobQueue:
                 )
                 """
             )
+            # рестарт сервиса: вернуть прерванные задания в очередь
+            conn.execute("UPDATE jobs SET status = 'pending' WHERE status = 'running'")
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self._db_path)
@@ -146,3 +148,8 @@ def run_worker(
             queue.complete(job.id)
         except Exception as exc:  # noqa: BLE001 - любой сбой -> ретрай
             queue.reschedule(job.id, f"{type(exc).__name__}: {exc}")
+            # пауза перед повторной обработкой (5с/20с/60с по номеру попытки);
+            # stop_event.wait прерывается при остановке воркера
+            delay = RETRY_DELAYS[min(job.attempts + 1, len(RETRY_DELAYS)) - 1]
+            if stop_event.wait(delay):
+                return

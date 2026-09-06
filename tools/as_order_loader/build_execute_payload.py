@@ -201,6 +201,8 @@ def build_payload(positions, mark_delete=False, order_comment=""):
     ).decode()
     if not order_comment:
         order_comment = "Загрузка из JSON (execute_code, build_execute_payload)"
+    # кавычки 1С в строковом литерале удваиваются
+    order_comment = order_comment.replace('"', '""')
     code = BSL_TEMPLATE.format(
         b64=b64,
         mark_delete="" if mark_delete else "// ",

@@ -39,6 +39,28 @@ def test_build_payload_order_comment_substituted():
     assert "Загрузка из JSON (execute_code, build_execute_payload)" in payload_def["code"]
 
 
+def test_build_payload_escapes_order_comment_quotes():
+    payload = build_payload(
+        [{"article": "1-2-1"}], order_comment='Задача №1: сказал "ура"'
+    )
+    # кавычки 1С в строковом литерале удваиваются
+    assert 'сказал ""ура""' in payload["code"]
+
+
+def test_parse_1c_result_errors_joined_single_segment():
+    # BSL склеивает ошибки/предупреждения через СтрСоединить(..., "; ") —
+    # всё сообщение приходит ОДНИМ сегментом после "ошибок=N"
+    text = (
+        'ЗАКАЗ 000001 | строк=2 | ошибок=2'
+        ' | не найден продукт "9-9-9"; не найден материал "X"'
+        ' | предупр=1 | Строка 1: цена 0 — проверьте прайс'
+    )
+    out = pl.parse_1c_result(text)
+    assert out["order_number"] == "000001"
+    assert out["errors"] == ['не найден продукт "9-9-9"', 'не найден материал "X"']
+    assert out["warnings"] == ["Строка 1: цена 0 — проверьте прайс"]
+
+
 def test_load_order_parses_ok(monkeypatch):
     monkeypatch.setattr(
         httpx, "post",

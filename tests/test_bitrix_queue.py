@@ -53,6 +53,16 @@ def test_reschedule_retries_then_fails(queue):
     assert stats["failed"] == 1
 
 
+def test_running_jobs_recovered_on_restart(tmp_path):
+    q1 = JobQueue(tmp_path / "jobs.db", tmp_path / "files")
+    job = q1.enqueue(_job(), pdf_bytes=b"%PDF")
+    assert q1.next_pending().id == job.id  # задание взятo -> status='running'
+    # рестарт: новый экземпляр на той же БД возвращает зависшее задание в очередь
+    q2 = JobQueue(tmp_path / "jobs.db", tmp_path / "files")
+    again = q2.next_pending()
+    assert again is not None and again.id == job.id
+
+
 def test_persistence_across_instances(tmp_path):
     q1 = JobQueue(tmp_path / "jobs.db", tmp_path / "files")
     job = q1.enqueue(_job())

@@ -148,6 +148,34 @@ def test_handler_sends_report(env, monkeypatch):
     assert "Клапан" in joined and "нет маппинга" in joined
 
 
+def test_handler_delivery_error_does_not_reschedule(env, monkeypatch):
+    cfg, client, queue = env
+    job = queue.enqueue(
+        Job(dialog_id="task|42", task_id=42, pdf_path="", file_name="spec.pdf",
+            order_comment="c"),
+        pdf_bytes=b"%PDF",
+    )
+    fake = PipelineResult(file_name="spec.pdf", order_number="000000860",
+                          loaded=[{"article": "1-2-1", "quantity": 1}], skipped=[],
+                          errors_1c=[], warnings_1c=[])
+    monkeypatch.setattr(srv, "run_pipeline", lambda *a, **kw: fake)
+    orig = client.send_message
+    calls = {"n": 0}
+
+    def flaky(dialog_id, text):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RuntimeError("network down")
+        orig(dialog_id, text)
+
+    client.send_message = flaky
+    handler = srv.make_handler(cfg, client)
+    # сбой доставки отчёта не должен уходить наружу (иначе воркер сделает
+    # reschedule и создаст дубликат заказа в 1С)
+    handler(job)
+    assert calls["n"] >= 1
+
+
 def test_health(env):
     cfg, client, queue = env
     app = srv.create_app(cfg, client=client, queue=queue, start_worker=False)
