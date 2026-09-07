@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from bitrix_bot.bitrix_client import BitrixClient
 from bitrix_bot.config import BotConfig, load_bot_config
 from bitrix_bot.events import PdfNotFound, find_pdf, form_payload, parse_event
-from bitrix_bot.pipeline import run_pipeline
+from bitrix_bot.pipeline import recreate_order_from_report, run_pipeline
 from bitrix_bot.queue import Job, JobQueue, run_worker
 from bitrix_bot.report import build_report, build_summary
 from report_xlsx import build_excel_report
@@ -42,10 +42,17 @@ def make_handler(cfg: BotConfig, client) -> Callable[[Job], None]:
     при сбое доставки файла — фолбэк на текстовую нарезку."""
     def handle(job: Job) -> None:
         data = Path(job.pdf_path).read_bytes()
-        res = run_pipeline(
-            data, job.file_name, job.order_comment,
-            cfg.execute_code_url, timeout=cfg.request_timeout,
-        )
+        if job.file_name.lower().endswith((".xlsx", ".xls")):
+            # отредактированный Excel-отчёт: round-trip — пересоздаём заказ
+            res = recreate_order_from_report(
+                data, cfg.execute_code_url, job.order_comment,
+                timeout=cfg.request_timeout,
+            )
+        else:
+            res = run_pipeline(
+                data, job.file_name, job.order_comment,
+                cfg.execute_code_url, timeout=cfg.request_timeout,
+            )
         try:
             xlsx = build_excel_report(res)
             client.send_file(
@@ -126,8 +133,12 @@ def create_app(
             event = parse_event(payload)
             if event is None:
                 return JSONResponse({"ok": True})
+            is_excel = (event.file_name or "").lower().endswith((".xlsx", ".xls"))
             try:
-                pdf_bytes, file_name = find_pdf(client, event)
+                if is_excel:
+                    pdf_bytes, file_name = find_pdf(client, event, ext=".xlsx")
+                else:
+                    pdf_bytes, file_name = find_pdf(client, event)
             except PdfNotFound:
                 background.add_task(client.send_message, event.dialog_id,
                                     WELCOME_TEXT, bot_id=event.bot_id)

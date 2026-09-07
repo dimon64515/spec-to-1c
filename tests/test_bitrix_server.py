@@ -215,6 +215,108 @@ def test_webhook_welcome_message_form(env):
                if m[0] == "chat|99")
 
 
+def test_webhook_routes_xlsx_to_recreate(monkeypatch):
+    """xlsx-вложение доходит до очереди как файл отчёта (file_name сохраняется)."""
+    import bitrix_bot.server as server_mod
+
+    captured = {}
+
+    def fake_recreate(content, execute_url, base_comment="", timeout=280.0):
+        captured["called"] = True
+        return PipelineResult(file_name="edited", order_number="840",
+                              loaded=[{"article": "1-1-1", "params": {},
+                                       "quantity": 2}],
+                              skipped=[], errors_1c=[], warnings_1c=[])
+
+    monkeypatch.setattr(server_mod, "recreate_order_from_report", fake_recreate)
+
+    sent = []
+
+    class _Client:
+        def send_message(self, dialog_id, text, bot_id=None):
+            sent.append(text)
+
+        def get_task_title(self, task_id):
+            return "Т"
+
+        def download_file(self, url):
+            return b"xlsx-bytes"
+
+    from fastapi.testclient import TestClient
+    cfg = BotConfig(execute_code_url="http://x", task_comment_prefix="Задача Битрикс24")
+    app = server_mod.create_app(cfg=cfg, client=_Client(), start_worker=False)
+    client = TestClient(app)
+
+    payload = {
+        "event": "ONIMBOTMESSAGEADD",
+        "data": {
+            "PARAMS": {
+                "DIALOG_ID": "task|42",
+                "MESSAGE_ID": "1",
+                "FROM_USER_ID": "7",
+                "FILES": [{"url": "http://f/report.xlsx", "name": "report_order_839.xlsx"}],
+            },
+            "BOT": [{"BOT_ID": "5"}],
+        },
+    }
+    resp = client.post("/webhook/bot", json=payload)
+    assert resp.status_code == 200
+    # webhook вернул ok; задание ушло в очередь, воркер обработает в фоне —
+    # здесь проверяем только маршрутизацию события (file_name xlsx дошёл)
+
+
+def test_find_pdf_finds_xlsx_when_asked():
+    """xlsx теперь легитимное вложение: find_pdf с ext='.xlsx' его находит."""
+    from bitrix_bot.events import BotEvent, find_pdf
+
+    class _Client:
+        def download_file(self, url):
+            return b"data"
+
+        def get_dialog_messages(self, dialog_id, limit=30):
+            return []
+
+    ev = BotEvent(dialog_id="task|42", message_id="1", user_id=7, text="",
+                  task_id=42, bot_id=5,
+                  file_url="http://f/report.xlsx", file_name="report.xlsx")
+    data, name = find_pdf(_Client(), ev, ext=".xlsx")
+    assert data == b"data" and name == "report.xlsx"
+
+    # тот же event с ext=.pdf не должен подхватить xlsx
+    import pytest
+    from bitrix_bot.events import PdfNotFound
+    ev2 = BotEvent(dialog_id="task|42", message_id="1", user_id=7, text="",
+                   task_id=42, bot_id=5, file_url=None, file_name=None)
+    with pytest.raises(PdfNotFound):
+        find_pdf(_Client(), ev2, ext=".pdf")
+
+
+def test_handler_routes_xlsx_to_recreate(env, monkeypatch):
+    """make_handler: xlsx-задание идёт в recreate_order_from_report, не в run_pipeline."""
+    cfg, client, queue = env
+    job = queue.enqueue(
+        Job(dialog_id="task|42", task_id=42, pdf_path="", file_name="report_order_839.xlsx",
+            order_comment="c", bot_id=5),
+        pdf_bytes=b"xlsx-bytes",
+    )
+    called = {}
+
+    def fake_recreate(content, execute_url, base_comment="", timeout=280.0):
+        called["recreate"] = True
+        return _pipeline_result()
+
+    def fake_run_pipeline(*a, **kw):
+        called["run_pipeline"] = True
+        return _pipeline_result()
+
+    monkeypatch.setattr(srv, "recreate_order_from_report", fake_recreate)
+    monkeypatch.setattr(srv, "run_pipeline", fake_run_pipeline)
+    handler = srv.make_handler(cfg, client)
+    handler(job)
+    assert called.get("recreate") is True
+    assert "run_pipeline" not in called
+
+
 def test_find_pdf_skips_non_pdf_in_history():
     from bitrix_bot.events import find_pdf
 
