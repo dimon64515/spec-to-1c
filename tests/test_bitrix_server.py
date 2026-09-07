@@ -291,6 +291,56 @@ def test_find_pdf_finds_xlsx_when_asked():
         find_pdf(_Client(), ev2, ext=".pdf")
 
 
+def test_first_file_best_effort_without_name():
+    """Файл без ключа имени не отфильтровывается (best effort) — регресс-фикс:
+    раньше дефолт 'document.pdf' проходил фильтр, 'document' — нет."""
+    from bitrix_bot.events import _first_file
+
+    url, name = _first_file({"FILES": [{"url": "http://f/x"}]})
+    assert url == "http://f/x"
+    assert name is None
+
+
+def test_find_pdf_best_effort_downloads_nameless_file():
+    """find_pdf с file_name=None скачивает файл и отдаёт дефолтное имя document.pdf."""
+    from bitrix_bot.events import BotEvent, find_pdf
+
+    class _Client:
+        def __init__(self):
+            self.urls = []
+
+        def download_file(self, url):
+            self.urls.append(url)
+            return b"data"
+
+        def get_dialog_messages(self, dialog_id, limit=30):
+            return []
+
+    ev = BotEvent(dialog_id="task|42", message_id="1", user_id=7, text="",
+                  task_id=42, bot_id=5,
+                  file_url="http://f/x", file_name=None)
+    data, name = find_pdf(_Client(), ev, ext=".pdf")
+    assert data == b"data" and name == "document.pdf"
+
+
+def test_find_pdf_finds_xls_when_asked():
+    """webhook маршрутизирует и .xls — find_pdf с ext='.xls' его находит."""
+    from bitrix_bot.events import BotEvent, find_pdf
+
+    class _Client:
+        def download_file(self, url):
+            return b"data"
+
+        def get_dialog_messages(self, dialog_id, limit=30):
+            return []
+
+    ev = BotEvent(dialog_id="task|42", message_id="1", user_id=7, text="",
+                  task_id=42, bot_id=5,
+                  file_url="http://f/report.xls", file_name="report.xls")
+    data, name = find_pdf(_Client(), ev, ext=".xls")
+    assert data == b"data" and name == "report.xls"
+
+
 def test_handler_routes_xlsx_to_recreate(env, monkeypatch):
     """make_handler: xlsx-задание идёт в recreate_order_from_report, не в run_pipeline."""
     cfg, client, queue = env

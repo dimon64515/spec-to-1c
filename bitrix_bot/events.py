@@ -83,19 +83,19 @@ def _first_file(params: dict, exts: tuple = (".pdf",)) -> Tuple[Optional[str], O
         f0 = files[0] or {}
         url = (f0.get("url") or f0.get("urlDownload") or f0.get("downloadUrl")
                or f0.get("DOWNLOAD_URL"))
-        name = f0.get("name") or f0.get("FILE_NAME") or "document"
+        name = f0.get("name") or f0.get("FILE_NAME")
         if url and _looks_like(name, exts):
             return url, name
     for key in ("FILE_URL", "DOWNLOAD_URL", "ATTACH_URL"):
         if params.get(key):
-            name = params.get("FILE_NAME") or "document"
+            name = params.get("FILE_NAME")
             if _looks_like(name, exts):
                 return params[key], name
     attach = params.get("ATTACH")
     if isinstance(attach, list):
         for block in attach:
             if isinstance(block, dict) and block.get("LINK"):
-                name = block.get("NAME") or "document"
+                name = block.get("NAME")
                 if _looks_like(name, exts):
                     return block["LINK"], name
     return None, None

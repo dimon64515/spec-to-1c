@@ -136,7 +136,8 @@ def create_app(
             is_excel = (event.file_name or "").lower().endswith((".xlsx", ".xls"))
             try:
                 if is_excel:
-                    pdf_bytes, file_name = find_pdf(client, event, ext=".xlsx")
+                    ext = ".xls" if event.file_name.lower().endswith(".xls") else ".xlsx"
+                    pdf_bytes, file_name = find_pdf(client, event, ext=ext)
                 else:
                     pdf_bytes, file_name = find_pdf(client, event)
             except PdfNotFound:
