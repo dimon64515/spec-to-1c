@@ -9,6 +9,7 @@ r"""
 
 import json
 import logging
+import re
 from typing import List, Optional
 
 import pandas as pd
@@ -26,6 +27,8 @@ from logging_config import configure_logging
 from pdf_spec_extractor import df_to_spec_rows, normalize_columns, parse_text_fallback
 from process_specification_table import detect_product_type, process_rows
 from price_search.ui import render_price_search_tab
+from bitrix_bot.pipeline import PipelineResult
+from report_xlsx import build_excel_report
 
 
 configure_logging()
@@ -117,6 +120,16 @@ def _normalize_skipped_for_prices(skipped_rows: List[dict]) -> List[dict]:
         if ptype not in EQUIPMENT_PTYPES:
             continue
 
+        # Диффузоры SR-P/SR заменяем на заводской аналог DVS-P (только для
+        # отображения/поиска цен, в XML подмены не происходит).
+        if ptype == "diffuser":
+            m_d = re.search(r"(\d{2,4})", name)
+            d_num = m_d.group(1) if m_d else ""
+            if re.search(r"\bSR-P\b", name, re.IGNORECASE):
+                name = f"Диффузор приточный DVS-P {d_num}".strip()
+            elif re.search(r"\bSR\b", name, re.IGNORECASE):
+                name = f"Диффузор вытяжной DVS-P {d_num}".strip()
+
         item = {
             "name": name,
             "size": size,
@@ -156,19 +169,11 @@ def _render_main_tab(tab_main):
 
         # --- PDF ---
         if file_name.lower().endswith(".pdf"):
-            # Определяем количество страниц
+            # Обрабатываем весь PDF целиком: выбор страниц/таблиц убран,
+            # т.к. process_rows сам отсекает служебные строки и мусор.
             total_pages = count_pdf_pages(file_bytes)
-
-            st.write(f"**Страниц в PDF:** {total_pages}")
-            selected_pages = st.multiselect(
-                "Выберите страницы для обработки",
-                options=list(range(1, total_pages + 1)),
-                default=list(range(1, total_pages + 1)),
-            )
-
-            if not selected_pages:
-                st.warning("Выберите хотя бы одну страницу.")
-                return
+            st.write(f"**Страниц в PDF:** {total_pages} (обрабатываются все)")
+            selected_pages = list(range(1, total_pages + 1))
 
             is_equipment_mode = st.checkbox(
                 "Это ведомость оборудования заказчика (автомаппинг брендовых позиций)",
@@ -205,26 +210,33 @@ def _render_main_tab(tab_main):
 
                 rows: List[dict] = []
 
-                if "tables" in result:
+                if "block_rows" in result:
+                    st.info(
+                        "Таблицы не распознались (бланк с многострочными ячейками) — "
+                        "использован разбор текстового слоя."
+                    )
+                    rows.extend(result["block_rows"])
+                elif "tables" in result:
                     tables_by_page = result["tables"]
                     selected_tables = []
                     for page_num, tables in tables_by_page.items():
-                        if not tables:
-                            continue
-                        st.subheader(f"Страница {page_num}")
-                        for idx, df in enumerate(tables, start=1):
-                            st.write(f"**Таблица {idx}** ({len(df)} строк)")
-                            st.dataframe(df, width="stretch")
-                            if st.checkbox(
-                                f"Включить таблицу {idx} со страницы {page_num}",
-                                value=True,
-                                key=f"tbl_{page_num}_{idx}",
-                            ):
+                        for df in tables:
+                            if not df.empty:
                                 selected_tables.append(df)
 
                     if not selected_tables:
-                        st.warning("Не выбрано ни одной таблицы.")
+                        st.warning("В PDF не найдено ни одной таблицы.")
                         return
+
+                    # Предпросмотр найденных таблиц — для контроля, не для выбора
+                    with st.expander(f"Найденные таблицы ({len(selected_tables)})"):
+                        for page_num, tables in tables_by_page.items():
+                            if not tables:
+                                continue
+                            st.write(f"**Страница {page_num}**")
+                            for idx, df in enumerate(tables, start=1):
+                                st.write(f"Таблица {idx} ({len(df)} строк)")
+                                st.dataframe(df, width="stretch")
 
                     for df in selected_tables:
                         rows.extend(df_to_spec_rows(df))
@@ -351,7 +363,7 @@ def _render_main_tab(tab_main):
             # Сохраняем оборудование для вкладки с ценами
             st.session_state["skipped_for_prices"] = _normalize_skipped_for_prices(all_skipped)
 
-            col1, col2 = st.columns(2)
+            col1, col2, col3 = st.columns(3)
             with col1:
                 st.download_button(
                     label="⬇️ Скачать order.xml",
@@ -366,6 +378,20 @@ def _render_main_tab(tab_main):
                     data=skipped_json,
                     file_name="skipped.json",
                     mime="application/json",
+                )
+            with col3:
+                report_xlsx = build_excel_report(
+                    PipelineResult(
+                        file_name=file_name,
+                        loaded=success_rows,
+                        skipped=all_skipped,
+                    )
+                )
+                st.download_button(
+                    label="⬇️ Скачать отчёт.xlsx",
+                    data=report_xlsx,
+                    file_name="report.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 )
 
             if all_skipped:
