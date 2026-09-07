@@ -10,10 +10,12 @@ r"""
 import json
 import logging
 import re
-from typing import List, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import streamlit as st
+import yaml
 
 from api import (
     count_pdf_pages,
@@ -35,6 +37,10 @@ from config import get_config
 configure_logging()
 logger = logging.getLogger(__name__)
 
+
+ROOT = Path(__file__).resolve().parent
+LOCAL_CONFIG = ROOT / "bitrix.local.yaml"
+DEFAULT_EXECUTE_CODE_URL = "http://127.0.0.1:6005/api/execute_code"
 
 DEFAULT_HEADER = {
     "numberDate": "",
@@ -403,13 +409,25 @@ def _render_main_tab(tab_main):
                 st.code(xml_text, language="xml")
 
 
+def _read_local_yaml(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}
+
+
 def _execute_code_url() -> str:
     """URL MCP execute_code — как в bitrix_bot.config, без секретов."""
+    local = _read_local_yaml(LOCAL_CONFIG)
+    override = (local.get("middleware") or {}).get("execute_code_url", "")
+    if override:
+        return override
+
     cfg = get_config()
     mcp_url = (cfg.get("mcp") or {}).get("url", "")
     if mcp_url:
         return mcp_url.rstrip("/").rsplit("/", 1)[0] + "/api/execute_code"
-    return "http://127.0.0.1:6005/api/execute_code"
+    return DEFAULT_EXECUTE_CODE_URL
 
 
 def _render_recreate_tab(tab):
@@ -429,6 +447,14 @@ def _render_recreate_tab(tab):
             return
 
         content = uploaded.getvalue()
+        # Ключ источника: имя файла + хэш содержимого. При смене файла
+        # результат прошлого recreate инвалидируем — иначе новый заказ
+        # создастся из старого результата или дублируется при повторном клике.
+        source_key = f"{uploaded.name}:{hash(content)}"
+        if st.session_state.get("recreate_source") != source_key:
+            st.session_state.pop("recreate_result", None)
+            st.session_state.pop("recreate_source", None)
+
         try:
             edited = parse_edited_report(content)
         except EditedReportError as e:
@@ -449,7 +475,11 @@ def _render_recreate_tab(tab):
             st.error("Нечего загружать: лист «Загружено» пуст и позиции на включение отсутствуют.")
             return
 
-        if st.button("⚙️ Создать новый заказ", type="primary"):
+        result = st.session_state.get("recreate_result")
+        if result is not None:
+            # Защита от дубликата: заказ уже создан из этого файла.
+            st.info("Заказ уже создан из этого файла — скачайте отчёт ниже")
+        elif st.button("⚙️ Создать новый заказ", type="primary"):
             with st.spinner("Создаю заказ в 1С..."):
                 try:
                     res = recreate_order_from_report(
@@ -459,16 +489,23 @@ def _render_recreate_tab(tab):
                 except Exception as e:
                     st.error(f"Не удалось создать заказ: {e}")
                     return
-            st.success(f"Создан заказ №{res.order_number} "
-                       f"(загружено {len(res.loaded)}, пропущено {len(res.skipped)})")
+            st.session_state["recreate_result"] = res
+            st.session_state["recreate_source"] = source_key
+            result = res
+
+        # Блок результата рендерим из session_state: перерисовка Streamlit
+        # (в т.ч. rerun по download_button) не должен его терять.
+        if result is not None:
+            st.success(f"Создан заказ №{result.order_number} "
+                       f"(загружено {len(result.loaded)}, пропущено {len(result.skipped)})")
             st.download_button(
                 label="⬇️ Скачать новый отчёт.xlsx",
-                data=build_excel_report(res),
-                file_name=f"report_order_{res.order_number or 'new'}.xlsx",
+                data=build_excel_report(result),
+                file_name=f"report_order_{result.order_number or 'new'}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             )
-            if res.errors_1c:
-                st.warning("Ошибки 1С: " + "; ".join(res.errors_1c))
+            if result.errors_1c:
+                st.warning("Ошибки 1С: " + "; ".join(result.errors_1c))
 
 
 def main():
