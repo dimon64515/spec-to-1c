@@ -182,6 +182,15 @@ def _num(value, ctx: str) -> float:
         raise EditedReportError(f"{ctx}: ожидалось число, получено {value!r}")
 
 
+def _thickness_or_default(value) -> float:
+    """Толщина из колонки «Толщина»; пустая/битая → дефолт 0.8."""
+    try:
+        t = float(str(value).replace(",", ".").replace(" ", ""))
+        return t if t > 0 else 0.8
+    except (TypeError, ValueError):
+        return 0.8
+
+
 def parse_edited_report(content: bytes) -> EditedReport:
     """Прочитать отредактированный отчёт обратно в позиции для пересоздания заказа."""
     from openpyxl import load_workbook
@@ -203,8 +212,6 @@ def parse_edited_report(content: bytes) -> EditedReport:
     # --- Загружено ---
     ws = wb[SHEET_LOADED]
     rows = list(ws.iter_rows(min_row=2, values_only=True))
-    if not any(any(c is not None and str(c).strip() for c in r) for r in rows):
-        raise EditedReportError("Лист «Загружено» пуст — нечего пересоздавать")
     for idx, r in enumerate(rows, start=2):
         if not any(c is not None and str(c).strip() for c in r):
             continue  # удалённая пользователем строка — пропускаем молча
@@ -253,6 +260,7 @@ def parse_edited_report(content: bytes) -> EditedReport:
         i_size, i_qty = col("Размер"), col("Кол-во")
         i_unit, i_mat = col("Ед."), col("Материал")
         i_inc = col("Включить в заказ")
+        i_thick = col("Толщина")
         for idx, r in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
             if not any(c is not None and str(c).strip() for c in r):
                 continue
@@ -265,7 +273,7 @@ def parse_edited_report(content: bytes) -> EditedReport:
                 "unit": _s(r[i_unit]) or "шт",
                 "quantity": 1.0,
                 "material": _s(r[i_mat]) or "оцинкованная",
-                "thickness": 0.8,
+                "thickness": _thickness_or_default(r[i_thick]),
             }
             q_raw = r[i_qty]
             if q_raw is not None and str(q_raw).strip():
@@ -275,6 +283,9 @@ def parse_edited_report(content: bytes) -> EditedReport:
                     pass
             skipped_rows.append(item)
             if _s(r[i_inc]).lower() in INCLUDE_YES:
+                # служебный runtime-маркер: включённая позиция не должна
+                # оставаться в skipped при пересоздании заказа
+                item["_include"] = True
                 include_rows.append(item)
 
     # --- Ошибки 1С: номер заменяемого заказа из сводки (колонка A) ---
@@ -283,6 +294,14 @@ def parse_edited_report(content: bytes) -> EditedReport:
         if r and _s(r[0]) == ORDER_NUMBER_LABEL and len(r) > 1:
             replaced_order = _s(r[1]) or None
             break
+
+    # Отказ только если пусто И включённых нет: пересоздание возможно
+    # и из одних включённых позиций (аналоги подбираются заново).
+    if not loaded_rows and not include_rows:
+        raise EditedReportError(
+            "Лист «Загружено» пуст и позиции на включение отсутствуют — "
+            "нечего пересоздавать"
+        )
 
     return EditedReport(
         loaded_rows=loaded_rows,

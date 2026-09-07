@@ -17,7 +17,7 @@ from bitrix_bot.events import PdfNotFound, find_pdf, form_payload, parse_event
 from bitrix_bot.pipeline import recreate_order_from_report, run_pipeline
 from bitrix_bot.queue import Job, JobQueue, run_worker
 from bitrix_bot.report import build_report, build_summary
-from report_xlsx import build_excel_report
+from report_xlsx import EditedReportError, build_excel_report
 
 logger = logging.getLogger(__name__)
 
@@ -44,12 +44,25 @@ def make_handler(cfg: BotConfig, client) -> Callable[[Job], None]:
     при сбое доставки файла — фолбэк на текстовую нарезку."""
     def handle(job: Job) -> None:
         data = Path(job.pdf_path).read_bytes()
-        if job.file_name.lower().endswith((".xlsx", ".xls")):
+        if job.file_name.lower().endswith(".xlsx"):
             # отредактированный Excel-отчёт: round-trip — пересоздаём заказ
-            res = recreate_order_from_report(
-                data, cfg.execute_code_url, job.order_comment,
-                timeout=cfg.request_timeout,
-            )
+            try:
+                res = recreate_order_from_report(
+                    data, cfg.execute_code_url, job.order_comment,
+                    timeout=cfg.request_timeout,
+                )
+            except EditedReportError as e:
+                # детерминированная валидация отчёта: reschedule бессмысленен —
+                # повторная попытка даст тот же отказ. Отвечаем в чат и выходим.
+                logger.exception("edited report rejected for job %s", job.id)
+                try:
+                    client.send_message(
+                        job.dialog_id, f"Не смог обработать отчёт: {e}",
+                        bot_id=job.bot_id,
+                    )
+                except Exception:
+                    logger.exception("error message delivery failed for job %s", job.id)
+                return
         else:
             res = run_pipeline(
                 data, job.file_name, job.order_comment,
@@ -135,11 +148,10 @@ def create_app(
             event = parse_event(payload)
             if event is None:
                 return JSONResponse({"ok": True})
-            is_excel = (event.file_name or "").lower().endswith((".xlsx", ".xls"))
+            is_excel = (event.file_name or "").lower().endswith(".xlsx")
             try:
                 if is_excel:
-                    ext = ".xls" if event.file_name.lower().endswith(".xls") else ".xlsx"
-                    pdf_bytes, file_name = find_pdf(client, event, ext=ext)
+                    pdf_bytes, file_name = find_pdf(client, event, ext=".xlsx")
                 else:
                     pdf_bytes, file_name = find_pdf(client, event)
             except PdfNotFound:

@@ -158,3 +158,69 @@ def test_recreate_order_from_report(monkeypatch):
     assert out.order_number == "840"
     assert len(out.loaded) == 1
     assert len(out.skipped) == 1  # перекупное осталось пропущенным
+
+
+def _report_with_include(skipped_row, loaded_rows=None):
+    """Отчёт с одной позицией «Пропущено», у которой стоит «Включить в заказ» = да."""
+    import report_xlsx
+    from openpyxl import load_workbook
+
+    res_in = PipelineResult(
+        file_name="spec.pdf", order_number="839",
+        loaded=loaded_rows or [], skipped=[skipped_row],
+    )
+    content = report_xlsx.build_excel_report(res_in)
+    wb = load_workbook(io.BytesIO(content))
+    for sheet in (report_xlsx.SHEET_SKIPPED, report_xlsx.SHEET_TRADING):
+        ws = wb[sheet]
+        headers = [c.value for c in ws[1]]
+        inc_col = headers.index("Включить в заказ") + 1
+        for row in range(2, ws.max_row + 1):
+            if ws.cell(row=row, column=1).value == skipped_row["name"]:
+                ws.cell(row=row, column=inc_col, value="да")
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue()
+
+
+def _fake_1c_load(positions, execute_url, order_comment, timeout=280.0):
+    return {"order_number": "840", "errors": [], "warnings": [],
+            "raw": "ЗАКАЗ 840 | строк=1 | ошибок=0 | предупр=0"}
+
+
+def test_recreate_include_success_loaded_once_not_skipped(monkeypatch):
+    # I-2: включённая позиция с подобранным аналогом — ровно один раз в loaded,
+    # ни одного её упоминания в skipped.
+    content = _report_with_include(
+        {"name": "Воздуховод прямошовный 300x200", "size": "300x200", "unit": "м",
+         "quantity": 5, "material": "оцинкованная", "thickness": 0.8,
+         "reason": "Не удалось распознать артикул"},
+    )
+    monkeypatch.setattr(pl, "load_order_to_1c", _fake_1c_load)
+
+    out = pl.recreate_order_from_report(content, "http://x")
+
+    hits = [p for p in out.loaded if p.get("article") == "1-2-1"]
+    assert len(hits) == 1
+    assert not any("Воздуховод прямошовный" in str(s.get("name", ""))
+                   for s in out.skipped)
+
+
+def test_recreate_include_unparsable_single_skip_with_reason(monkeypatch):
+    # I-2: включённая позиция без аналога — ровно один раз в skipped, с причиной
+    # (а не две строки: без reason из skipped_rows + с reason из extra_skipped).
+    content = _report_with_include(
+        {"name": "Абракадабра без размера", "size": "", "unit": "шт",
+         "quantity": 2, "material": "оцинкованная", "thickness": 0.8,
+         "reason": "Не удалось распознать артикул"},
+        loaded_rows=[{"article": "1-1-1", "params": {"A0": 300, "B0": 200},
+                     "quantity": 2, "material_code": "1", "thickness": 0.8}],
+    )
+    monkeypatch.setattr(pl, "load_order_to_1c", _fake_1c_load)
+
+    out = pl.recreate_order_from_report(content, "http://x")
+
+    matches = [s for s in out.skipped
+               if "Абракадабра" in str(s.get("name", ""))]
+    assert len(matches) == 1
+    assert matches[0].get("reason")

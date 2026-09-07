@@ -164,11 +164,14 @@ def recreate_order_from_report(
 
     positions = build_positions(success)
     out = load_order_to_1c(positions, execute_url, comment, timeout=timeout)
+    # Включённые позиции из skipped_rows (маркер "_include") исключаем:
+    # они либо уже в extra_success, либо дублируются в extra_skipped с причиной.
+    skipped = [s for s in edited.skipped_rows if not s.get("_include")]
     return PipelineResult(
         file_name=f"edited_report_{edited.replaced_order or 'new'}",
         order_number=out["order_number"],
         loaded=success,
-        skipped=edited.skipped_rows + extra_skipped,
+        skipped=skipped + extra_skipped,
         errors_1c=out["errors"],
         warnings_1c=out["warnings"],
         raw_text=out["raw"],

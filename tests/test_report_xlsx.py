@@ -125,13 +125,39 @@ def test_parse_edited_report_include_from_skipped_sheet():
     assert edited.include_rows[0]["quantity"] == 3
 
 
+def test_parse_edited_report_reads_thickness_from_skipped_and_trading():
+    # I-1: толщина «Пропущено»/«Перекупное» читается из колонки «Толщина»,
+    # а не хардкодится в 0.8. «Толщина»: SKIPPED_HEADERS idx 5, TRADING_HEADERS idx 4.
+    content = build_excel_report(_sample_result())
+    wb = load_workbook(io.BytesIO(content))
+    wb[SHEET_SKIPPED].cell(row=2, column=6, value=1.0)  # Толщина
+    wb[SHEET_SKIPPED].cell(row=2, column=8, value="да")  # Включить в заказ
+    buf = io.BytesIO()
+    wb.save(buf)
+
+    edited = parse_edited_report(buf.getvalue())
+    assert edited.include_rows[0]["name"] == "Неизвестная деталь"
+    assert edited.include_rows[0]["thickness"] == 1.0
+
+    content2 = build_excel_report(_sample_result())
+    wb2 = load_workbook(io.BytesIO(content2))
+    wb2[SHEET_TRADING].cell(row=2, column=5, value=1.2)  # Толщина
+    wb2[SHEET_TRADING].cell(row=2, column=10, value="да")  # Включить в заказ
+    buf2 = io.BytesIO()
+    wb2.save(buf2)
+
+    edited2 = parse_edited_report(buf2.getvalue())
+    assert edited2.include_rows[0]["name"] == "Гибкий воздуховод Ф125"
+    assert edited2.include_rows[0]["thickness"] == 1.2
+
+
 def test_parse_edited_report_rejects_garbage():
     with pytest.raises(EditedReportError):
         parse_edited_report(b"not an xlsx")
 
 
-def test_parse_edited_report_empty_loaded():
-    # loaded пуст → лист «Загружено» содержит только заголовок
+def test_parse_edited_report_empty_loaded_still_rejected():
+    # loaded пуст и включённых нет → отказ
     res = PipelineResult(
         file_name="spec.pdf",
         order_number="839",
@@ -144,3 +170,29 @@ def test_parse_edited_report_empty_loaded():
     )
     with pytest.raises(EditedReportError, match="нечего пересоздавать"):
         parse_edited_report(build_excel_report(res))
+
+
+def test_parse_edited_report_empty_loaded_with_include_ok():
+    # I-3: пустой «Загружено» + «Включить в заказ» = да → parse проходит,
+    # пересоздание возможно из включённых позиций.
+    res = PipelineResult(
+        file_name="spec.pdf",
+        order_number="839",
+        loaded=[],
+        skipped=[{"name": "Воздуховод прямошовный 300x200", "size": "300x200",
+                  "unit": "м", "quantity": 5, "material": "оцинкованная",
+                  "thickness": 0.8,
+                  "reason": "Не удалось распознать артикул"}],
+        errors_1c=[],
+        warnings_1c=[],
+    )
+    content = build_excel_report(res)
+    wb = load_workbook(io.BytesIO(content))
+    wb[SHEET_SKIPPED].cell(row=2, column=8, value="да")  # Включить в заказ
+    buf = io.BytesIO()
+    wb.save(buf)
+
+    edited = parse_edited_report(buf.getvalue())
+    assert edited.loaded_rows == []
+    assert len(edited.include_rows) == 1
+    assert edited.include_rows[0]["name"] == "Воздуховод прямошовный 300x200"

@@ -7,6 +7,7 @@ r"""
     venv\Scripts\streamlit run web_app.py
 """
 
+import hashlib
 import json
 import logging
 import re
@@ -387,13 +388,21 @@ def _render_main_tab(tab_main):
                     mime="application/json",
                 )
             with col3:
-                report_xlsx = build_excel_report(
-                    PipelineResult(
-                        file_name=file_name,
-                        loaded=success_rows,
-                        skipped=all_skipped,
+                # Кэш отчёта по хэшу исходного файла: rerun Streamlit
+                # (в т.ч. по download_button) не должен пересобирать xlsx.
+                file_hash = hashlib.md5(file_bytes).hexdigest()
+                cache = st.session_state.get("report_xlsx_cache")
+                if cache and cache[0] == file_hash:
+                    report_xlsx = cache[1]
+                else:
+                    report_xlsx = build_excel_report(
+                        PipelineResult(
+                            file_name=file_name,
+                            loaded=success_rows,
+                            skipped=all_skipped,
+                        )
                     )
-                )
+                    st.session_state["report_xlsx_cache"] = (file_hash, report_xlsx)
                 st.download_button(
                     label="⬇️ Скачать отчёт.xlsx",
                     data=report_xlsx,

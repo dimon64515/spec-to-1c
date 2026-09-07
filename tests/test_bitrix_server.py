@@ -323,22 +323,36 @@ def test_find_pdf_best_effort_downloads_nameless_file():
     assert data == b"data" and name == "document.pdf"
 
 
-def test_find_pdf_finds_xls_when_asked():
-    """webhook маршрутизирует и .xls — find_pdf с ext='.xls' его находит."""
-    from bitrix_bot.events import BotEvent, find_pdf
+def test_webhook_xls_goes_to_welcome_not_recreate(env, monkeypatch):
+    """M-3: .xls больше не Excel-маршрут (openpyxl его не парсит): файл report.xls
+    в webhook уходит по PDF-пути и, не найдясь, приводит к welcome (PdfNotFound)."""
+    called = {}
 
-    class _Client:
-        def download_file(self, url):
-            return b"data"
+    def fake_recreate(*a, **kw):
+        called["recreate"] = True
+        return _pipeline_result()
 
-        def get_dialog_messages(self, dialog_id, limit=30):
-            return []
-
-    ev = BotEvent(dialog_id="task|42", message_id="1", user_id=7, text="",
-                  task_id=42, bot_id=5,
-                  file_url="http://f/report.xls", file_name="report.xls")
-    data, name = find_pdf(_Client(), ev, ext=".xls")
-    assert data == b"data" and name == "report.xls"
+    monkeypatch.setattr(srv, "recreate_order_from_report", fake_recreate)
+    cfg, client, queue = env
+    app = srv.create_app(cfg, client=client, queue=queue, start_worker=False)
+    payload = {
+        "event": "ONIMBOTMESSAGEADD",
+        "data": {
+            "PARAMS": {
+                "DIALOG_ID": "task|42",
+                "MESSAGE_ID": "1",
+                "FROM_USER_ID": "7",
+                "FILES": [{"url": "http://f/report.xls", "name": "report.xls"}],
+            },
+            "BOT": [{"BOT_ID": "5"}],
+        },
+    }
+    resp = TestClient(app).post("/webhook/bot", json=payload,
+                                headers={"X-Webhook-Token": "tok"})
+    assert resp.status_code == 200
+    assert "recreate" not in called
+    assert queue.stats().get("pending", 0) == 0
+    assert any("PDF" in m[1] for m in client.messages)  # welcome вместо recreate
 
 
 def test_handler_routes_xlsx_to_recreate(env, monkeypatch):
@@ -365,6 +379,26 @@ def test_handler_routes_xlsx_to_recreate(env, monkeypatch):
     handler(job)
     assert called.get("recreate") is True
     assert "run_pipeline" not in called
+
+
+def test_handler_broken_xlsx_sends_error_and_stops(env, monkeypatch):
+    """I-4: битый/чужой .xlsx → понятное сообщение в чат, без reschedule
+    (EditedReportError — детерминированная валидация, не покидает handler)."""
+    from report_xlsx import EditedReportError
+
+    def fake_recreate(content, execute_url, base_comment="", timeout=280.0):
+        raise EditedReportError("Лист «Загружено» пуст — нечего пересоздавать")
+
+    monkeypatch.setattr(srv, "recreate_order_from_report", fake_recreate)
+    cfg, client, queue = env
+    job = queue.enqueue(
+        Job(dialog_id="task|42", task_id=42, pdf_path="",
+            file_name="report_order_839.xlsx", order_comment="c", bot_id=5),
+        pdf_bytes=b"not an xlsx",
+    )
+    handler = srv.make_handler(cfg, client)
+    handler(job)  # исключение не должно покинуть обработчик
+    assert any("Не смог обработать отчёт" in m[1] for m in client.messages)
 
 
 def test_find_pdf_skips_non_pdf_in_history():
