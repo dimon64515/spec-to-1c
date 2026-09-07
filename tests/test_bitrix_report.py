@@ -1,6 +1,6 @@
 """Тесты формирования итогового отчёта бота."""
 from bitrix_bot.pipeline import PipelineResult
-from bitrix_bot.report import build_report
+from bitrix_bot.report import build_report, build_summary
 
 
 def _res(**kw):
@@ -51,3 +51,22 @@ def test_report_splits_long_details():
     assert msgs[0].startswith("Заказ 1С")
     total = "".join(msgs)
     assert total.count("1-2-1") == 80
+
+
+def test_build_summary_counts_trading():
+    res = PipelineResult(
+        file_name="spec.pdf", order_number="839",
+        loaded=[{"article": "1-1-1", "params": {}, "quantity": 2}],
+        skipped=[
+            {"name": "гибкий", "reason": "Покупная позиция (…) — завод не производит"},
+            {"name": "мусор", "reason": "Не удалось распознать артикул"},
+        ],
+        errors_1c=["ошибка1"],
+        warnings_1c=[],
+    )
+    text = build_summary(res)
+    assert "№839" in text
+    assert "Загружено: 1" in text
+    assert "Пропущено: 1" in text
+    assert "Перекупное: 1" in text
+    assert "Ошибок 1С: 1" in text

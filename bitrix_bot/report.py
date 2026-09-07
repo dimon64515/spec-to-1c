@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import List
 
 from bitrix_bot.pipeline import PipelineResult
+from report_xlsx import is_trading_skip
 
 DEFAULT_LIMIT = 3500
 
@@ -70,3 +71,19 @@ def build_report(res: PipelineResult, limit: int = DEFAULT_LIMIT) -> List[str]:
     if len(chunks) > 1:
         chunks = [chunks[0]] + [f"(продолжение {i + 2}/{len(chunks)})\n{c}" for i, c in enumerate(chunks[1:])]
     return chunks
+
+
+def build_summary(res: PipelineResult) -> str:
+    """Короткая сводка для подписи к Excel-файлу в чате."""
+    n_trading = sum(1 for s in res.skipped if is_trading_skip(s))
+    n_skipped = len(res.skipped) - n_trading
+    header = f"Заказ 1С: №{res.order_number}" if res.order_number else "Заказ НЕ создан"
+    lines = [
+        header,
+        f"Файл: {res.file_name}",
+        f"Загружено: {len(res.loaded)} · Пропущено: {n_skipped}"
+        f" · Перекупное: {n_trading} · Ошибок 1С: {len(res.errors_1c)}",
+    ]
+    if res.errors_1c:
+        lines.append("Ошибки: " + "; ".join(res.errors_1c[:5]))
+    return "\n".join(lines)
