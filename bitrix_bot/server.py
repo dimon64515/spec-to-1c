@@ -13,29 +13,55 @@ from fastapi.responses import JSONResponse
 
 from bitrix_bot.bitrix_client import BitrixClient
 from bitrix_bot.config import BotConfig, load_bot_config
-from bitrix_bot.events import PdfNotFound, find_pdf, parse_event
+from bitrix_bot.events import PdfNotFound, find_pdf, form_payload, parse_event
 from bitrix_bot.pipeline import run_pipeline
 from bitrix_bot.queue import Job, JobQueue, run_worker
-from bitrix_bot.report import build_report
+from bitrix_bot.report import build_report, build_summary
+from report_xlsx import build_excel_report
 
 logger = logging.getLogger(__name__)
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+
+WELCOME_TEXT = (
+    "Здравствуйте! Я создаю заказы в 1С из PDF-спецификаций (воздуховоды, фасонные части, клапаны).\n\n"
+    "Как работать со мной:\n"
+    "1. Прикрепите PDF со спецификацией к сообщению.\n"
+    "2. Отправьте файл мне напрямую в этот чат "
+    "или ответьте (reply) на сообщение с файлом и упомяните меня @.\n"
+    "3. Я отвечу: номер созданного заказа 1С, сводку и список пропущенных позиций.\n\n"
+    "PDF без таблицы оборудования не обработаю — проверяйте, что в файле есть спецификация."
+)
+
 
 def make_handler(cfg: BotConfig, client) -> Callable[[Job], None]:
-    """Обработчик задания очереди: пайплайн -> отчёт в чат задачи."""
+    """Обработчик задания очереди: пайплайн -> Excel-файл с резюме в чат;
+    при сбое доставки файла — фолбэк на текстовую нарезку."""
     def handle(job: Job) -> None:
-        pdf_bytes = Path(job.pdf_path).read_bytes()
+        data = Path(job.pdf_path).read_bytes()
         res = run_pipeline(
-            pdf_bytes, job.file_name, job.order_comment,
+            data, job.file_name, job.order_comment,
             cfg.execute_code_url, timeout=cfg.request_timeout,
         )
-        for msg in build_report(res, cfg.report_limit):
-            try:
-                client.send_message(job.dialog_id, msg)
-            except Exception:
-                # заказ в 1С уже создан — сбой доставки отчёта не должен
-                # приводить к reschedule (иначе дубликат заказа)
-                logger.exception("report delivery failed for job %s", job.id)
+        try:
+            xlsx = build_excel_report(res)
+            client.send_file(
+                job.dialog_id,
+                f"report_order_{res.order_number or 'new'}.xlsx",
+                xlsx, build_summary(res), bot_id=job.bot_id,
+            )
+        except Exception:
+            # заказ в 1С уже создан — сбой доставки отчёта не должен
+            # приводить к reschedule (иначе дубликат заказа)
+            logger.exception("excel report delivery failed for job %s", job.id)
+            for msg in build_report(res, cfg.report_limit):
+                try:
+                    client.send_message(job.dialog_id, msg, bot_id=job.bot_id)
+                except Exception:
+                    logger.exception("report delivery failed for job %s", job.id)
     return handle
 
 
@@ -46,7 +72,8 @@ def create_app(
     start_worker: bool = True,
 ) -> FastAPI:
     cfg = cfg or load_bot_config()
-    client = client or BitrixClient(cfg.incoming_webhook, timeout=cfg.request_timeout)
+    client = client or BitrixClient(cfg.incoming_webhook, timeout=cfg.request_timeout,
+                                    app_client_id=cfg.client_id)
     queue = queue or JobQueue(
         Path(cfg.tmp_dir) / "jobs.db", cfg.tmp_dir
     )
@@ -79,14 +106,31 @@ def create_app(
             if token != cfg.verify_token:
                 raise HTTPException(status_code=401, detail="bad token")
         try:
-            payload = await request.json()
+            if request.headers.get("content-type", "").startswith(
+                "application/x-www-form-urlencoded"
+            ):
+                payload = form_payload(await request.body())
+            else:
+                payload = await request.json()
+            logger.info("payload: %s", payload)  # временно: сверка схемы событий
+            if payload.get("event") == "ONIMBOTJOINCHAT":
+                params = ((payload.get("data") or {}).get("PARAMS")) or {}
+                dialog_id = params.get("DIALOG_ID", "")
+                bots = (payload.get("data") or {}).get("BOT") or []
+                bot_id = int(bots[0]["BOT_ID"]) if bots else None
+                if dialog_id:
+                    background.add_task(
+                        client.send_message, dialog_id, WELCOME_TEXT, bot_id=bot_id
+                    )
+                return JSONResponse({"ok": True})
             event = parse_event(payload)
             if event is None:
                 return JSONResponse({"ok": True})
             try:
                 pdf_bytes, file_name = find_pdf(client, event)
-            except PdfNotFound as exc:
-                background.add_task(client.send_message, event.dialog_id, str(exc))
+            except PdfNotFound:
+                background.add_task(client.send_message, event.dialog_id,
+                                    WELCOME_TEXT, bot_id=event.bot_id)
                 return JSONResponse({"ok": True})
             title = client.get_task_title(event.task_id) if event.task_id else ""
             if event.task_id:
@@ -100,6 +144,7 @@ def create_app(
                     pdf_path="",
                     file_name=file_name,
                     order_comment=comment,
+                    bot_id=event.bot_id,
                 ),
                 pdf_bytes=pdf_bytes,
             )
@@ -111,6 +156,7 @@ def create_app(
         background.add_task(
             client.send_message, event.dialog_id,
             f"Принял «{file_name}», обрабатываю…",
+            bot_id=event.bot_id,
         )
         return JSONResponse({"ok": True, "job_id": job.id})
 
