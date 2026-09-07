@@ -10,8 +10,8 @@ def test_parse_row_round_duct():
     assert parsed["article"] == "1-1-2"
     assert parsed["params"]["D0"] == 160
     assert parsed["params"]["L0"] == 3000
-    # 400 м при стандартной длине 3000 мм → 133 шт
-    assert parsed["quantity"] == 133
+    # 400 м при стандартной длине 3000 мм → 134 шт (завод округляет вверх)
+    assert parsed["quantity"] == 134
 
 
 def test_parse_row_rect_duct():
@@ -94,3 +94,28 @@ def test_parse_row_silencer_deflector_15_2_5():
     assert parsed["article"] == "15-2-5"
     assert parsed["params"]["B0"] == 500
     assert parsed["params"]["A2"] == 200
+
+
+def test_trading_skip_contains_material_thickness_quantity():
+    ok, skip = parse_row(
+        {"name": "Гибкий воздуховод Ф125", "size": "Ф125", "unit": "м", "quantity": "10"},
+        {},
+    )
+    assert ok is None
+    assert skip["reason"].startswith("Покупная позиция")
+    assert skip["material"] == "оцинкованная"
+    assert skip["thickness"] == 0.8
+    assert skip["quantity"] == 10
+
+
+def test_bad_quantity_skip_contains_material():
+    ok, skip = parse_row(
+        {"name": "Отвод нержавеющий 0.7 300x200", "size": "300x200",
+         "unit": "шт", "quantity": "abc"},
+        {},
+    )
+    assert ok is None
+    assert skip["reason"].startswith("Не удалось распознать количество")
+    assert skip["material"] == "нержавеющая"
+    assert skip["thickness"] == 0.7
+    assert skip["quantity"] is None

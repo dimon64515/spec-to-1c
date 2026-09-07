@@ -22,6 +22,7 @@ process_specification_table.py
 
 import json
 import logging
+import math
 import re
 import sys
 from pathlib import Path
@@ -161,19 +162,22 @@ PRODUCT_TYPE_PATTERNS = [
     (r"\bврезка\b", "saddle"),
     (r"\bутка\b", "offset"),
     (r"\bзонт\b", "roof_cap"),
+    (r"\bдефлектор\b", "roof_cap"),
     (r"\bпленум\b", "plenum"),
     (r"\bфланец\b", "flange"),
     (r"\bниппель\b", "nipple"),
     (r"\bбандаж\b", "band"),
     # Оборудование / арматура
-    (r"\bдиффузор\b", "diffuser"),
+    (r"\bдиффузор", "diffuser"),
     (r"\bксд\b", "ksd"),
     (r"\bрешетка\b", "grille"),
     (r"\bшумоглушител", "silencer"),
     (r"\bклапан\b", "damper"),
+    (r"\bзаслонка\b", "damper"),
     (r"\bшибер\b", "shutter"),
     (r"\bфильтр\b", "filter"),
     (r"\bдроссель\b", "throttle"),
+    (r"\bдк[-–\s]?\d", "throttle"),
     (r"\bстакан\b", "mounting_cup"),
     (r"\bвентилятор\b", "fan"),
     # Воздуховоды — самый общий случай
@@ -213,7 +217,10 @@ def is_round(text: str) -> bool:
     if re.search(r"\bпрямоугольн", text):
         return False
     # Одиночный диаметр
-    if re.search(r"(?:d|dn|ф)\s*\d+", text, re.IGNORECASE):
+    if re.search(r"(?:dn|d|дн|ду|д|ф)\s*\d+", text, re.IGNORECASE):
+        return True
+    # Суффиксный диаметр «125ø» (U+00F8)
+    if re.search(r"\d{2,5}\s*[øØ⌀]", text):
         return True
     return False
 
@@ -221,9 +228,9 @@ def is_round(text: str) -> bool:
 # --- Извлечение размеров из имени, если отдельная колонка пуста ---
 
 def normalize_dimension_prefix(token: str) -> str:
-    """Приводит D/DN/Ø/⌀ к Ф для единообразия."""
-    token = token.replace("Ø", "Ф").replace("⌀", "Ф")
-    token = re.sub(r"^(d|dn)\b", "ф", token, flags=re.IGNORECASE)
+    """Приводит D/DN/Ø/ø/⌀ к Ф для единообразия."""
+    token = token.replace("Ø", "Ф").replace("ø", "Ф").replace("⌀", "Ф")
+    token = re.sub(r"^(?:dn|d|дн|ду|д)\b", "ф", token, flags=re.IGNORECASE)
     return token
 
 
@@ -247,8 +254,12 @@ def extract_size_token(text: str) -> str:
     m = re.search(r"\b(\d{2,5}\s*x\s*\d{2,5}(?:\s*[-_]\s*\d{2,5})?)\b", text, re.IGNORECASE)
     if m:
         return m.group(1).replace(" ", "")
+    # Круглое сечение: суффиксный диаметр «250ø» (FineReader ставит ø после числа)
+    m = re.search(r"\b(\d{2,5})\s*[øØ⌀]", text)
+    if m:
+        return f"Ф{m.group(1)}"
     # Круглое сечение с опциональной длиной (⌀ — не буква, поэтому \b не подходит)
-    m = re.search(r"(?<![\w.])(?:(?:D|DN|Ф|Ø|⌀)\s*\d{2,5}(?:\s*[-_]\s*\d{2,5})?)", text, re.IGNORECASE)
+    m = re.search(r"(?<![\w.])(?:(?:DN|D|ДН|ДУ|Д|Ф|Ø|⌀)\s*\d{2,5}(?:\s*[-_]\s*\d{2,5})?)", text, re.IGNORECASE)
     if m:
         return normalize_dimension_prefix(m.group(0)).replace(" ", "")
     return ""
@@ -305,7 +316,11 @@ def _thickness_from_name(name: str) -> Optional[float]:
         if 0.3 <= val <= 3.0:
             return val
 
-    # 5. Оставшееся десятичное число в диапазоне толщин (0.3..3.0)
+    # 5. Оставшееся десятичное число в диапазоне толщин (0.3..3.0).
+    #    Предварительно убираем мусор, похожий на толщину, но ею не являющийся:
+    #    «м3/ч» (кубометры в час) и номера систем «В2.2», «В3.1», «П1»
+    n = re.sub(r"м\s*3\s*/\s*ч", " ", n)
+    n = re.sub(r"(?<![а-яa-z])[ввпрт]+\.?\s*\d{1,2}(?:\.\d{1,3})?(?![0-9.])", " ", n)
     for token in re.findall(r"\d{1,2}(?:\.\d{1,3})?", n):
         val = float(token)
         if 0.3 <= val <= 3.0:
@@ -400,12 +415,12 @@ def parse_size(size: str) -> Tuple[Optional[str], Dict[str, float]]:
         return "rectangular", {"A0": float(m.group(1)), "B0": float(m.group(2))}
 
     # Круглое сечение с длиной: Ф100-3000, D160-1250
-    m = re.match(r"^(?:d|dn|ф)\s*(\d{2,5})\s*[-_]\s*(\d{2,5})$", size)
+    m = re.match(r"^(?:dn|d|дн|ду|д|ф)\s*(\d{2,5})\s*[-_]\s*(\d{2,5})$", size)
     if m:
         return "round", {"D0": float(m.group(1)), "L0": float(m.group(2))}
 
     # D160, DN160, Ф160
-    m = re.match(r"^(?:d|dn|ф)\s*(\d{2,5})$", size)
+    m = re.match(r"^(?:dn|d|дн|ду|д|ф)\s*(\d{2,5})$", size)
     if m:
         return "round", {"D0": float(m.group(1))}
 
@@ -434,9 +449,16 @@ def extract_dimensions(text: str) -> Dict[str, float]:
     rect_matches = re.findall(r"(\d{2,5})\s*x\s*(\d{2,5})", text, re.IGNORECASE)
     rect_tokens = [(float(w), float(h)) for w, h in rect_matches]
 
-    # Все круглые диаметры (D/DN/Ф/Ø/⌀)
-    round_matches = re.findall(r"(?<![\w.])(?:d|dn|ф|ø|⌀)\s*(\d{2,5})", text, re.IGNORECASE)
-    round_tokens = [float(d) for d in round_matches]
+    # Все круглые диаметры: префиксные (D/DN/Ф/Ø/⌀) и суффиксные «125ø» (U+00F8)
+    round_matches = re.findall(
+        r"(?:\d{2,5}\s*[øØ⌀]|(?:dn|d|дн|ду|д|ф|ø|⌀)\s*\d{2,5})",
+        text,
+        re.IGNORECASE,
+    )
+    round_tokens = [
+        float(re.search(r"\d{2,5}", m.replace("ø", "").replace("Ø", "").replace("⌀", "")).group(0))
+        for m in round_matches
+    ]
 
     # Основное сечение
     if rect_tokens:
@@ -512,7 +534,7 @@ def extract_dimensions(text: str) -> Dict[str, float]:
 
     # Оборудование по псевдонимам: MSN, KPN-S, PPK, ГЕРМИК, NKD, KNK, CHR, KCH
     if "D0" not in dims and "A0" not in dims:
-        m = re.search(r"\b(?:MSN|KPN-S|PPK|ГЕРМИК|NKD|KNK|CHR|KCH|RV[NCS]|RSK|KON)[-\s]?(\d{2,4})\b", text, re.IGNORECASE)
+        m = re.search(r"\b(?:MSN|KPN-S|PPK|ГЕРМИК|NKD|KNK|CHR|KCH|RV[NCS]|RSK|KON|ДК)[-\s]?(\d{2,4})\b", text, re.IGNORECASE)
         if m:
             dims["D0"] = float(m.group(1))
 
@@ -527,11 +549,14 @@ def extract_dimensions(text: str) -> Dict[str, float]:
 
 
 def meters_to_pieces(quantity_m: float, length_mm: float) -> Tuple[int, float]:
-    """Переводит метраж в количество штук стандартной длины."""
+    """Переводит метраж в количество штук стандартной длины.
+
+    Завод округляет вверх (28.8 м / 1.25 м → 24 шт, 7.9 → 7, 0.9 → 1).
+    """
     if quantity_m <= 0 or length_mm <= 0:
         return 0, length_mm
     length_m = length_mm / 1000.0
-    pieces = int(round(quantity_m / length_m))
+    pieces = int(math.ceil(quantity_m / length_m))
     return max(pieces, 1), length_mm
 
 
@@ -617,7 +642,7 @@ def try_parse_fitting(
 ) -> Optional[dict]:
     """Пытается распознать фасонное изделие."""
     ptype = detect_product_type(name)
-    if ptype not in ("elbow", "transition", "tee", "cross", "cap", "saddle", "offset", "flange", "silencer", "damper", "throttle", "mounting_cup"):
+    if ptype not in ("elbow", "transition", "tee", "cross", "cap", "saddle", "offset", "flange", "silencer", "damper", "throttle", "mounting_cup", "nipple", "roof_cap"):
         return None
 
     dims = extract_dimensions(name + " " + size)
@@ -641,10 +666,12 @@ def try_parse_fitting(
     # Отвод
     if ptype == "elbow":
         if rectangular:
-            article = "2-2-1"  # радиусный по умолчанию
+            # Дефолт — прямой отвод (практика КП завода: все прямоугольные
+            # отводы без уточнения — «прямой»); слова переопределяют тип.
+            article = "2-2-2"
             name_lower = name.lower()
-            if "прямой" in name_lower:
-                article = "2-2-2"
+            if "радиусн" in name_lower:
+                article = "2-2-1"
             elif "косой" in name_lower or re.search(r"\bкос\b", name_lower):
                 article = "2-2-3"
             elif "пирамид" in name_lower:
@@ -672,7 +699,12 @@ def try_parse_fitting(
                 article = "3-3-1"
                 params = {"A0": dims["A0"], "B0": dims["B0"], "D0": dims["D0"]}
             else:
-                article = "3-2-1"
+                # Дефолт — переход тип 5 (практика КП завода: все
+                # прямоугольные переходы без уточнения — «тип 5»).
+                article = "3-2-5"
+                m_type = re.search(r"тип\s*(\d)", name, re.IGNORECASE)
+                if m_type:
+                    article = f"3-2-{m_type.group(1)}"
                 params = {k: v for k, v in dims.items() if k in ("A0", "B0", "A1", "B1")}
         else:
             article = "3-1-1"
@@ -758,6 +790,21 @@ def try_parse_fitting(
         if "P0" not in params:
             params["P0"] = 0
 
+    # Ниппель
+    elif ptype == "nipple":
+        if round_:
+            article = "12-1-1"
+            params = {k: v for k, v in dims.items() if k in ("D0", "L0")}
+            if "D0" not in params:
+                return None
+            # L0 отсутствует в спецификации — не задаём; mapping подставит
+            # default_params (12-1-1: L0=100)
+        else:
+            article = "12-2-4"
+            params = {k: v for k, v in dims.items() if k in ("A0", "B0", "L0")}
+            if "A0" not in params or "B0" not in params:
+                return None
+
     # Шумоглушитель
     elif ptype == "silencer":
         name_lower = name.lower()
@@ -835,6 +882,18 @@ def try_parse_fitting(
         if "L0" not in params:
             params["L0"] = 200
 
+    # Зонт крышный / дефлектор (по техотделу — одно и то же изделие)
+    elif ptype == "roof_cap":
+        if "D0" in dims:
+            article = "9-1-2"  # Зонт крышный круглого сечения (дефлектор)
+            params = {"D0": dims["D0"]}
+        elif "A0" in dims and "B0" in dims:
+            article = "9-2-1"  # Зонт прямоугольного сечения с коньком
+            params = {"A0": dims["A0"], "B0": dims["B0"],
+                      "A1": dims["A0"], "B1": dims["B0"]}
+        else:
+            return None
+
     # Клапаны / дроссели / заслонки
     elif ptype in ("damper", "throttle"):
         name_lower = name.lower()
@@ -866,6 +925,19 @@ def try_parse_fitting(
     if not params:
         return None
 
+    # Правило техотдела: прямоугольная фасонка (отводы, тройники, крестовины,
+    # врезки, утки, зонты) собирается на шине/уголке (код 6).
+    # Иначе 1С берёт соединение по умолчанию из изделия (УГФ-95/105 без УГФ-65
+    # для сечений до 350 мм). Переходы уже получают свои соединения выше.
+    # Заглушка — одностороннее изделие: шина только на стороне 0, иначе в 1С
+    # появляется шина на несуществующем соединении 1.
+    if rectangular and ptype in ("elbow", "tee", "cross", "saddle", "offset", "roof_cap"):
+        if connections == ["0", "0", "0", "0"]:
+            connections = ["6", "6", "0", "0"]
+    if rectangular and ptype == "cap":
+        if connections == ["0", "0", "0", "0"]:
+            connections = ["6", "0", "0", "0"]
+
     return {
         "article": article,
         "params": params,
@@ -881,12 +953,56 @@ def try_parse_fitting(
     }
 
 
+def gost_min_thickness(max_dim: float) -> float:
+    """Минимальная толщина металла по ГОСТ (правила техотдела):
+    до 350 мм — 0.55; 400–950 — 0.7; 1000 — 0.8; свыше 1000 — 1.0."""
+    if max_dim <= 350:
+        return 0.55
+    if max_dim <= 950:
+        return 0.7
+    if max_dim <= 1000:
+        return 0.8
+    return 1.0
+
+
+def normalize_thickness(
+    thickness: float,
+    params: Dict[str, float],
+    text: str = "",
+    explicit: bool = False,
+) -> float:
+    """Приводит толщину к правилам техотдела.
+
+    - металл 0.5 и 0.6 не считается, считается 0.55;
+    - толщина НЕ указана в проекте (explicit=False): берётся точное значение
+      из ГОСТ-таблицы по наибольшему размеру сечения (0.55/0.7/0.8/1.0),
+      а не значение по умолчанию;
+    - толщина указана в проекте (explicit=True): сохраняется как есть,
+      ГОСТ-таблицей не перебивается (решение от 05.09.2026 по сверке с КП);
+    - для дымоудаления минимум 0.8.
+    """
+    t = 0.55 if thickness in (0.5, 0.6) else thickness
+    dims = [params[k] for k in ("A0", "B0", "D0", "A1", "B1", "D1")
+            if isinstance(params.get(k), (int, float))]
+    if dims and not explicit:
+        t = gost_min_thickness(max(dims))
+    if "дым" in (text or "").lower():
+        t = max(t, 0.8)
+    return t
+
+
 def _finalize_row(parsed: dict) -> dict:
     """Проверяет и корректирует код материала по справочнику применимости."""
     article = parsed.get("article", "")
     code = parsed.get("material_code", "1")
     validated, warning = validate_material_code(article, code)
     parsed["material_code"] = validated
+    parsed["thickness"] = normalize_thickness(
+        parsed.get("thickness", 0.8),
+        parsed.get("params", {}),
+        f"{parsed.get('system', '')} {parsed.get('comment', '')}",
+        explicit=bool(parsed.pop("thickness_explicit", False)),
+    )
     if warning:
         parsed["comment"] = f"{parsed.get('comment', '')} [{warning}]".strip()
     return parsed
@@ -905,44 +1021,111 @@ def _apply_ocr_warnings(result: Optional[dict], warnings: List[str]) -> Optional
     return result
 
 
+def normalize_unit_value(unit: str) -> str:
+    """Приводит единицу измерения к каноническому виду.
+
+    «п.м.»/«пм»/«м.п.» и варианты записи погонных метров → «м»,
+    «шт.»/«штк» → «шт». «кг»/«т» и прочие единицы не трогаем.
+    """
+    u = unit.strip().lower().replace(".", "").replace(" ", "")
+    if u in ("м", "m", "метр", "mtr", "пм", "мп"):
+        return "м"
+    if u in ("шт", "штк", "pcs", "pc"):
+        return "шт"
+    if u in ("м2", "м²", "кв.м", "квм", "m2"):
+        return "м²"
+    return unit.strip()
+
+
 def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]]:
     """Преобразует одну строку таблицы в строку для XML или причину пропуска."""
     name = str(row.get("name", "")).strip()
     size = str(row.get("size", "")).strip()
-    unit = str(row.get("unit", "")).strip().lower()
+    unit = normalize_unit_value(str(row.get("unit", "")).strip().lower())
     quantity_raw = row.get("quantity", "0")
 
     # Если размер не вынесен в отдельную колонку — ищем его в наименовании
     if not size:
         size = extract_size_token(name)
+    if not size:
+        # «Голый» диаметр в конце наименования (проектные спецификации):
+        # «... класс воздуховодов "П" 200» → Ф200.
+        m = re.search(r"\b(\d{3,4})\s*$", name)
+        if m:
+            size = f"Ф{m.group(1)}"
 
     # Исправляем типичные OCR-ошибки (потерянный ноль) в прямоугольных размерах
     size, ocr_warnings = correct_ocr_size(name, size)
 
     # Материал и толщина также могут быть внутри наименования
     material = str(row.get("material", defaults.get("material", "оцинкованная"))).strip()
-    thickness_raw = row.get("thickness", defaults.get("thickness", "0.8"))
-    try:
-        thickness = float(str(thickness_raw).replace(",", "."))
-    except ValueError:
-        thickness = 0.8
+    thickness_raw = str(row.get("thickness", "")).strip()
+    thickness_explicit = bool(thickness_raw)
+    if thickness_explicit:
+        try:
+            thickness = float(thickness_raw.replace(",", "."))
+        except ValueError:
+            thickness = 0.8
+            thickness_explicit = False
+    else:
+        try:
+            thickness = float(str(defaults.get("thickness", "0.8")).replace(",", "."))
+        except ValueError:
+            thickness = 0.8
     mat_from_name, thick_from_name = extract_material_thickness_from_name(name)
     # Если в наименовании явно указан материал — он приоритетнее значения по умолчанию
     if mat_from_name != material.lower() or re.search(r"(нерж|черн|оц|оцинк|aisi|ст3|ст\.3|ст-3)", name, re.IGNORECASE):
         material = mat_from_name
     if thick_from_name is not None:
         thickness = thick_from_name
+        thickness_explicit = True
+
+    try:
+        parsed_quantity = float(str(quantity_raw).replace(",", ".").replace(" ", ""))
+    except ValueError:
+        parsed_quantity = None
 
     ptype = detect_product_type(name)
 
-    try:
-        quantity = float(str(quantity_raw).replace(",", ".").replace(" ", ""))
-    except ValueError:
+    # Покупные позиции (КП 45–59) завод не производит: гибкие воздуховоды,
+    # медные/металлопластиковые трубы и трубки, изоляция K-FLEX. Без явного
+    # пропуска после нормализации «п.м.»→«м» они распознавались бы как жёсткие
+    # круглые воздуховоды (например, «Труба металлопластиковая ф16х2,0» → Ф16,
+    # «K-FLEX ... Ф10х6мм» → Ф10).
+    name_lower = name.lower()
+    if (
+        ("гибкий" in name_lower and "воздуховод" in name_lower)
+        or re.search(r"\bтруба\b|\bтрубка\b", name_lower)
+        or "k-flex" in name_lower
+    ):
         return None, _apply_ocr_warnings(
             {"name": name, "size": size, "unit": unit,
+             "quantity": parsed_quantity, "material": material, "thickness": thickness,
+             "reason": "Покупная позиция (гибкий воздуховод/трубопровод/изоляция) — завод не производит"},
+            ocr_warnings,
+        )
+
+    # Покупные клапаны/шумоглушители (брендовые серии, электропривод) — завод
+    # не производит. Проверяем до try_parse_fitting, иначе «Клапан ОЗ-60-НО-400*200»
+    # стал бы дросселем 16-2-1, а «Канал-ГКП-40-20» — шумоглушителем 15-2-x.
+    if ptype in ("damper", "silencer") and re.search(
+        r"оз-\d|клара|канал-|электропривод|ик/\d|вектор", name_lower
+    ):
+        return None, _apply_ocr_warnings(
+            {"name": name, "size": size, "unit": unit,
+             "quantity": parsed_quantity, "material": material, "thickness": thickness,
+             "reason": "Покупная арматура (брендовый клапан/шумоглушитель) — завод не производит"},
+            ocr_warnings,
+        )
+
+    if parsed_quantity is None:
+        return None, _apply_ocr_warnings(
+            {"name": name, "size": size, "unit": unit,
+             "quantity": None, "material": material, "thickness": thickness,
              "reason": f"Не удалось распознать количество: {quantity_raw}"},
             ocr_warnings,
         )
+    quantity = parsed_quantity
 
     # Если строка уже содержит явный артикул и параметры (например, из map_customer_equipment),
     # используем их напрямую, минуя эвристики.
@@ -962,6 +1145,7 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
             "quantity": pieces,
             "material_code": material_to_code(material),
             "thickness": thickness,
+            "thickness_explicit": thickness_explicit,
             "connection_0": connections[0],
             "connection_1": connections[1],
             "connection_2": connections[2],
@@ -972,15 +1156,23 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
 
     material_code = material_to_code(material)
 
-    # Попытка распознать КСД-адаптер
-    ksd = try_parse_ksd(size, name, material_code=material_code, thickness=thickness)
+    # Попытка распознать КСД-адаптер. Толщина — по таблице техотдела от
+    # максимального размера сечения (600x600 -> 0.7), явная толщина из
+    # проекта сохраняется как есть.
+    ksd_thickness = thickness
+    if not thickness_explicit:
+        m = re.match(r"\s*(\d+)\s*[xх×*]\s*(\d+)", size)
+        ksd_thickness = gost_min_thickness(max(int(m.group(1)), int(m.group(2)))) if m else 0.7
+    ksd = try_parse_ksd(size, name, material_code=material_code, thickness=ksd_thickness)
     if ksd:
         ksd["quantity"] = int(quantity) if unit in ("шт", "штук", "pcs", "pc", "шт.") else max(1, int(round(quantity)))
+        ksd["thickness_explicit"] = thickness_explicit
         return _apply_ocr_warnings(_finalize_row(ksd), ocr_warnings), None
 
     # Попытка распознать фасонное изделие / арматуру (в том числе для м²)
     fitting = try_parse_fitting(name, size, unit, quantity, material_code=material_code, thickness=thickness)
     if fitting:
+        fitting["thickness_explicit"] = thickness_explicit
         return _apply_ocr_warnings(_finalize_row(fitting), ocr_warnings), None
 
     # Агрегатные строки фасонных изделий / оборудование без артикула
@@ -990,9 +1182,30 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
             ocr_warnings,
         )
 
+    # Оборудование (решетки, диффузоры, фильтры, вентиляторы и т.п.) — в XML не
+    # попадает, иначе размер в имени превращал бы его в воздуховод
+    # (например, «Наружные решетки … 550*400» → прямоугольный воздуховод 1-2-1).
+    if ptype in ("diffuser", "grille", "shutter", "filter", "fan", "roof_cap", "ksd", "plenum"):
+        return None, _apply_ocr_warnings(
+            {"name": name, "size": size, "unit": unit, "reason": classify_skip(name, size, unit, ptype)},
+            ocr_warnings,
+        )
+
+    # Строки без признаков воздуховода (шкафы автоматики, реле, узлы, крепеж и
+    # прочее оборудование): раньше любой размер в имени («ШСАУ … Ф200») делал из
+    # них круглый воздуховод 1-1-2.
+    if ptype is None and name and not re.search(r"воздуховод|спирально|прямошовн", name_lower):
+        return None, _apply_ocr_warnings(
+            {"name": name, "size": size, "unit": unit, "reason": classify_skip(name, size, unit, ptype)},
+            ocr_warnings,
+        )
+
     # Воздуховоды
     section, dims = parse_size(size)
     if section:
+        if section == "rectangular" and dims.get("A0", 0) < dims.get("B0", 0):
+            # Правило техотдела: воздуховоды — от большего размера к меньшему
+            dims["A0"], dims["B0"] = dims["B0"], dims["A0"]
         if section == "round":
             # Выбор артикула по типу круглого воздуховода
             name_lower = name.lower()
@@ -1031,11 +1244,12 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
             "quantity": pieces,
             "material_code": material_code,
             "thickness": thickness,
+            "thickness_explicit": thickness_explicit,
             "connection_0": connections[0],
             "connection_1": connections[1],
             "connection_2": connections[2],
             "connection_3": connections[3],
-            "system": "",
+            "system": row.get("system", ""),
             "comment": f"{name} {size}",
         }), ocr_warnings), None
 
