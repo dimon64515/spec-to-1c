@@ -125,3 +125,51 @@ def run_pipeline(
         warnings_1c=out["warnings"],
         raw_text=out["raw"],
     )
+
+
+def recreate_order_from_report(
+    content: bytes,
+    execute_url: str,
+    base_comment: str = "",
+    timeout: float = 280.0,
+) -> PipelineResult:
+    """Пересоздать заказ из отредактированного Excel-отчёта (round-trip).
+
+    Лист «Загружено» → позиции напрямую; позиции с «Включить в заказ» = да
+    из «Пропущено»/«Перекупного» проходят повторный разбор process_rows
+    (подбор аналога). Создаётся НОВЫЙ заказ; старый (replaced_order) удаляет
+    менеджер вручную — в 1С ничего не обновляем.
+    """
+    from process_specification_table import process_rows
+    from json_positions import build_positions
+    from report_xlsx import EditedReportError, parse_edited_report
+
+    edited = parse_edited_report(content)
+
+    extra_success: List[Dict[str, Any]] = []
+    extra_skipped: List[Dict[str, Any]] = []
+    if edited.include_rows:
+        _, extra_skipped, extra_success = process_rows(edited.include_rows)
+
+    success = edited.loaded_rows + extra_success
+    if not success:
+        raise EditedReportError(
+            "Нечего загружать: лист «Загружено» пуст, а включённые позиции "
+            "не дали ни одного аналога."
+        )
+
+    comment = base_comment or "Заказ из Excel-отчёта"
+    if edited.replaced_order:
+        comment += f" | Заменяет заказ №{edited.replaced_order} (исправлено из отчёта)"
+
+    positions = build_positions(success)
+    out = load_order_to_1c(positions, execute_url, comment, timeout=timeout)
+    return PipelineResult(
+        file_name=f"edited_report_{edited.replaced_order or 'new'}",
+        order_number=out["order_number"],
+        loaded=success,
+        skipped=edited.skipped_rows + extra_skipped,
+        errors_1c=out["errors"],
+        warnings_1c=out["warnings"],
+        raw_text=out["raw"],
+    )
