@@ -8,7 +8,8 @@ Task 7) читает их обратно для пересоздания зак�
 from __future__ import annotations
 
 import io
-from typing import TYPE_CHECKING, Any, List
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from openpyxl import Workbook
 from openpyxl.styles import Font
@@ -153,3 +154,139 @@ def build_excel_report(res: "PipelineResult") -> bytes:
     buf = io.BytesIO()
     wb.save(buf)
     return buf.getvalue()
+
+
+class EditedReportError(ValueError):
+    """Отредактированный отчёт не читается (формат/значения)."""
+
+
+INCLUDE_YES = {"да", "yes", "1", "+"}
+
+
+@dataclass
+class EditedReport:
+    loaded_rows: List[dict]
+    include_rows: List[dict]
+    skipped_rows: List[dict]
+    replaced_order: Optional[str] = None
+
+
+def _s(value) -> str:
+    return "" if value is None else str(value).strip()
+
+
+def _num(value, ctx: str) -> float:
+    try:
+        return float(str(value).replace(",", ".").replace(" ", ""))
+    except (TypeError, ValueError):
+        raise EditedReportError(f"{ctx}: ожидалось число, получено {value!r}")
+
+
+def parse_edited_report(content: bytes) -> EditedReport:
+    """Прочитать отредактированный отчёт обратно в позиции для пересоздания заказа."""
+    from openpyxl import load_workbook
+
+    try:
+        wb = load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+    except Exception as e:
+        raise EditedReportError(f"Не удалось прочитать xlsx: {e}")
+
+    for name in (SHEET_LOADED, SHEET_ERRORS):
+        if name not in wb.sheetnames:
+            raise EditedReportError(f"В файле нет листа «{name}» — это не отчёт системы")
+
+    replaced_order = None
+    loaded_rows: List[dict] = []
+    include_rows: List[dict] = []
+    skipped_rows: List[dict] = []
+
+    # --- Загружено ---
+    ws = wb[SHEET_LOADED]
+    rows = list(ws.iter_rows(min_row=2, values_only=True))
+    if not any(any(c is not None and str(c).strip() for c in r) for r in rows):
+        raise EditedReportError("Лист «Загружено» пуст — нечего пересоздавать")
+    for idx, r in enumerate(rows, start=2):
+        if not any(c is not None and str(c).strip() for c in r):
+            continue  # удалённая пользователем строка — пропускаем молча
+        ctx = f"Лист «{SHEET_LOADED}», строка {idx}"
+        article = _s(r[0])
+        if not article:
+            raise EditedReportError(f"{ctx}: пустой артикул")
+        params = {}
+        for key, cell in (("A0", r[1]), ("B0", r[2]), ("D0", r[3])):
+            if cell is not None and str(cell).strip():
+                params[key] = _num(cell, ctx)
+        if not params:
+            raise EditedReportError(f"{ctx}: нет ни одного размера (A/B/D)")
+        quantity = _num(r[4], ctx)
+        if quantity <= 0:
+            raise EditedReportError(f"{ctx}: количество должно быть > 0")
+        q = int(quantity) if float(quantity).is_integer() else quantity
+        thickness = _num(r[6], ctx)
+        if thickness <= 0:
+            raise EditedReportError(f"{ctx}: толщина должна быть > 0")
+        loaded_rows.append({
+            "article": article,
+            "params": params,
+            "quantity": q,
+            "material_code": _s(r[5]) or "1",
+            "thickness": thickness,
+            "connection_0": _s(r[7]), "connection_1": _s(r[8]),
+            "connection_2": _s(r[9]), "connection_3": _s(r[10]),
+            "system": _s(r[11]),
+            "comment": _s(r[12]),
+        })
+
+    # --- Пропущено / Перекупное: индексы колонок из заголовков листа ---
+    for sheet_name, headers in ((SHEET_SKIPPED, SKIPPED_HEADERS),
+                                (SHEET_TRADING, TRADING_HEADERS)):
+        if sheet_name not in wb.sheetnames:
+            continue
+        ws = wb[sheet_name]
+        actual = next(ws.iter_rows(min_row=1, max_row=1, values_only=True), ())
+        def col(title: str) -> int:
+            try:
+                return actual.index(title)
+            except ValueError:
+                raise EditedReportError(
+                    f"Лист «{sheet_name}»: нет колонки «{title}» — файл изменён вне отчёта")
+        i_size, i_qty = col("Размер"), col("Кол-во")
+        i_unit, i_mat = col("Ед."), col("Материал")
+        i_inc = col("Включить в заказ")
+        for idx, r in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+            if not any(c is not None and str(c).strip() for c in r):
+                continue
+            name = _s(r[0])
+            if not name:
+                continue
+            item = {
+                "name": name,
+                "size": _s(r[i_size]),
+                "unit": _s(r[i_unit]) or "шт",
+                "quantity": 1.0,
+                "material": _s(r[i_mat]) or "оцинкованная",
+                "thickness": 0.8,
+            }
+            q_raw = r[i_qty]
+            if q_raw is not None and str(q_raw).strip():
+                try:
+                    item["quantity"] = float(str(q_raw).replace(",", "."))
+                except ValueError:
+                    pass
+            skipped_rows.append(item)
+            if _s(r[i_inc]).lower() in INCLUDE_YES:
+                include_rows.append(item)
+
+    # --- Ошибки 1С: номер заменяемого заказа из сводки (колонка A) ---
+    ws = wb[SHEET_ERRORS]
+    for r in ws.iter_rows(values_only=True):
+        if r and _s(r[0]) == ORDER_NUMBER_LABEL and len(r) > 1:
+            replaced_order = _s(r[1]) or None
+            break
+
+    return EditedReport(
+        loaded_rows=loaded_rows,
+        include_rows=include_rows,
+        skipped_rows=skipped_rows,
+        replaced_order=replaced_order,
+    )

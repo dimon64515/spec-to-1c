@@ -1,11 +1,12 @@
 import io
 
+import pytest
 from openpyxl import load_workbook
 
 from bitrix_bot.pipeline import PipelineResult
 from report_xlsx import (
     SHEET_ERRORS, SHEET_LOADED, SHEET_SKIPPED, SHEET_TRADING,
-    build_excel_report, is_trading_skip,
+    EditedReportError, build_excel_report, is_trading_skip, parse_edited_report,
 )
 
 
@@ -84,3 +85,62 @@ def test_is_trading_skip_by_equipment_ptype():
     # «Неизвестная деталь» не распознаётся как оборудование → не перекупное
     assert not is_trading_skip({"name": "Неизвестная деталь",
                                 "reason": "Не удалось распознать артикул"})
+
+
+def test_parse_edited_report_roundtrip():
+    res = _sample_result()
+    content = build_excel_report(res)
+
+    # «Правка»: толщина 1.0, добавим «да» у перекупной позиции
+    wb = load_workbook(io.BytesIO(content))
+    wb[SHEET_LOADED].cell(row=2, column=7, value=1.0)  # Толщина
+    wb[SHEET_TRADING].cell(row=2, column=10, value="да")  # Включить в заказ
+    buf = io.BytesIO()
+    wb.save(buf)
+
+    edited = parse_edited_report(buf.getvalue())
+    assert edited.replaced_order == "839"
+    assert len(edited.loaded_rows) == 1
+    row = edited.loaded_rows[0]
+    assert row["article"] == "1-1-1"
+    assert row["params"] == {"A0": 300, "B0": 200}
+    assert row["thickness"] == 1.0
+    assert row["material_code"] == "1"
+    assert row["connection_0"] == "6"
+    assert len(edited.include_rows) == 1
+    assert edited.include_rows[0]["name"] == "Гибкий воздуховод Ф125"
+    assert len(edited.skipped_rows) == 5  # все пропущенные/перекупные
+
+
+def test_parse_edited_report_include_from_skipped_sheet():
+    # «Включить в заказ» = «да» у строки «Неизвестная деталь» (лист «Пропущено»)
+    content = build_excel_report(_sample_result())
+    wb = load_workbook(io.BytesIO(content))
+    wb[SHEET_SKIPPED].cell(row=2, column=8, value="да")  # Включить в заказ
+    buf = io.BytesIO()
+    wb.save(buf)
+
+    edited = parse_edited_report(buf.getvalue())
+    assert any(r["size"] == "100x100" for r in edited.include_rows)
+    assert edited.include_rows[0]["quantity"] == 3
+
+
+def test_parse_edited_report_rejects_garbage():
+    with pytest.raises(EditedReportError):
+        parse_edited_report(b"not an xlsx")
+
+
+def test_parse_edited_report_empty_loaded():
+    # loaded пуст → лист «Загружено» содержит только заголовок
+    res = PipelineResult(
+        file_name="spec.pdf",
+        order_number="839",
+        loaded=[],
+        skipped=[{"name": "Неизвестная деталь", "size": "100x100", "unit": "шт",
+                  "quantity": 3, "material": "оцинкованная", "thickness": 0.8,
+                  "reason": "Не удалось распознать артикул"}],
+        errors_1c=[],
+        warnings_1c=[],
+    )
+    with pytest.raises(EditedReportError, match="нечего пересоздавать"):
+        parse_edited_report(build_excel_report(res))
