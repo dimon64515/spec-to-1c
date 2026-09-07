@@ -27,8 +27,9 @@ from logging_config import configure_logging
 from pdf_spec_extractor import df_to_spec_rows, normalize_columns, parse_text_fallback
 from process_specification_table import detect_product_type, process_rows
 from price_search.ui import render_price_search_tab
-from bitrix_bot.pipeline import PipelineResult
-from report_xlsx import build_excel_report
+from bitrix_bot.pipeline import PipelineResult, recreate_order_from_report
+from report_xlsx import EditedReportError, build_excel_report, parse_edited_report
+from config import get_config
 
 
 configure_logging()
@@ -402,6 +403,74 @@ def _render_main_tab(tab_main):
                 st.code(xml_text, language="xml")
 
 
+def _execute_code_url() -> str:
+    """URL MCP execute_code — как в bitrix_bot.config, без секретов."""
+    cfg = get_config()
+    mcp_url = (cfg.get("mcp") or {}).get("url", "")
+    if mcp_url:
+        return mcp_url.rstrip("/").rsplit("/", 1)[0] + "/api/execute_code"
+    return "http://127.0.0.1:6005/api/execute_code"
+
+
+def _render_recreate_tab(tab):
+    """Round-trip: загрузить исправленный отчёт -> пересоздать заказ в 1С."""
+    with tab:
+        st.subheader("Пересоздать заказ из отчёта")
+        st.caption(
+            "Загрузите Excel-отчёт, который вы скачали и правили "
+            "(толщина, материал, удалённые/включённые позиции). "
+            "Будет создан НОВЫЙ заказ; старый пометьте на удаление в 1С вручную."
+        )
+        uploaded = st.file_uploader(
+            "Исправленный отчёт (.xlsx)", type=["xlsx"],
+            key="recreate_report",
+        )
+        if uploaded is None:
+            return
+
+        content = uploaded.getvalue()
+        try:
+            edited = parse_edited_report(content)
+        except EditedReportError as e:
+            st.error(str(e))
+            return
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Позиций в новом заказе",
+                  len(edited.loaded_rows) + len(edited.include_rows))
+        c2.metric("Включено обратно", len(edited.include_rows))
+        c3.metric("Заменяет заказ", edited.replaced_order or "—")
+
+        if edited.include_rows:
+            st.write("**Позиции на включение (повторный подбор аналога):**")
+            st.dataframe(pd.DataFrame(edited.include_rows), width="stretch")
+
+        if not edited.loaded_rows and not edited.include_rows:
+            st.error("Нечего загружать: лист «Загружено» пуст и позиции на включение отсутствуют.")
+            return
+
+        if st.button("⚙️ Создать новый заказ", type="primary"):
+            with st.spinner("Создаю заказ в 1С..."):
+                try:
+                    res = recreate_order_from_report(
+                        content, _execute_code_url(),
+                        base_comment="Пересоздан из отчёта (web)",
+                    )
+                except Exception as e:
+                    st.error(f"Не удалось создать заказ: {e}")
+                    return
+            st.success(f"Создан заказ №{res.order_number} "
+                       f"(загружено {len(res.loaded)}, пропущено {len(res.skipped)})")
+            st.download_button(
+                label="⬇️ Скачать новый отчёт.xlsx",
+                data=build_excel_report(res),
+                file_name=f"report_order_{res.order_number or 'new'}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+            if res.errors_1c:
+                st.warning("Ошибки 1С: " + "; ".join(res.errors_1c))
+
+
 def main():
     st.set_page_config(page_title="Спецификация → XML для 1С", layout="wide")
     st.title("📄 Спецификация → XML для 1С")
@@ -410,11 +479,12 @@ def main():
         "Выберите страницы/таблицы, отредактируйте данные и сгенерируйте XML."
     )
 
-    tab_main, tab_prices = st.tabs(
-        ["Спецификация → XML", "Цены на перекупное оборудование"]
+    tab_main, tab_recreate, tab_prices = st.tabs(
+        ["Спецификация → XML", "Пересоздать заказ из отчёта", "Цены на перекупное оборудование"]
     )
 
     _render_main_tab(tab_main)
+    _render_recreate_tab(tab_recreate)
 
     with tab_prices:
         skipped_for_prices = st.session_state.get("skipped_for_prices", [])
