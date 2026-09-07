@@ -93,7 +93,15 @@ def load_order_to_1c(
     resp = httpx.post(execute_url, json=payload, timeout=timeout)
     resp.raise_for_status()
     data = resp.json()
-    text = str(data.get("result", data))
+    # Два envelope ответа:
+    # - нативный HTTP-API MCPToolkit: {"success": bool, "data"|"error": str}
+    # - MCP-прокси (tunnel): {"result": ...}
+    if isinstance(data, dict) and data.get("success") is False:
+        raise RuntimeError(f"1С execute_code: {data.get('error', data)}")
+    if isinstance(data, dict):
+        text = str(data.get("data") or data.get("result") or data)
+    else:
+        text = str(data)
     return parse_1c_result(text)
 
 

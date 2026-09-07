@@ -86,6 +86,47 @@ def test_load_order_parses_errors(monkeypatch):
     assert out["warnings"] == []
 
 
+def test_load_order_parses_native_envelope(monkeypatch):
+    # нативный HTTP-API MCPToolkit (127.0.0.1:6005): {"success": true, "data": "..."}
+    # — раньше str(dict) попадал в парсер: номер заказа терялся, а в ошибки
+    # улетал сегмент "предупр=N" (регрессия после перехода с tunnel-прокси).
+    monkeypatch.setattr(
+        httpx, "post",
+        lambda url, json=None, timeout=None: _Resp(
+            {"success": True, "data": SAMPLE_1C_OK}
+        ),
+    )
+    out = pl.load_order_to_1c([{"article": "1-2-1"}], "http://x/api/execute_code", "c")
+    assert out["order_number"] == "000000860"
+    assert out["errors"] == []
+    assert out["warnings"] == ["Строка 1 (1-2-1): цена 0 — проверьте прайс"]
+
+
+def test_load_order_native_envelope_1c_error(monkeypatch):
+    # ошибка 1С внутри успешного HTTP-ответа: {"success": true, "data": "ЗАКАЗ ... ошибок=1 ..."}
+    monkeypatch.setattr(
+        httpx, "post",
+        lambda url, json=None, timeout=None: _Resp(
+            {"success": True, "data": SAMPLE_1C_ERRORS}
+        ),
+    )
+    out = pl.load_order_to_1c([{"article": "9-9-9"}], "http://x/api/execute_code", "c")
+    assert out["order_number"] == "000000861"
+    assert out["errors"] == ['Строка 1: не найден продукт "9-9-9"']
+
+
+def test_load_order_native_envelope_failure(monkeypatch):
+    # {"success": false, "error": "..."} — исключение с текстом 1С, не молчаливый dict-repr
+    monkeypatch.setattr(
+        httpx, "post",
+        lambda url, json=None, timeout=None: _Resp(
+            {"success": False, "error": "Ошибка компиляции"}
+        ),
+    )
+    with pytest.raises(RuntimeError, match="Ошибка компиляции"):
+        pl.load_order_to_1c([{"article": "1-2-1"}], "http://x/api/execute_code", "c")
+
+
 def test_run_pipeline_no_positions(monkeypatch):
     monkeypatch.setattr(
         pl, "process_pdf_to_positions",
