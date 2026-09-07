@@ -8,7 +8,7 @@ Task 7) читает их обратно для пересоздания зак�
 from __future__ import annotations
 
 import io
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, List
 
 from openpyxl import Workbook
 from openpyxl.styles import Font
@@ -27,6 +27,21 @@ SHEET_ERRORS = "Ошибки 1С"
 TRADING_REASON_PREFIXES = ("Покупная позиция", "Покупная арматура")
 ORDER_NUMBER_LABEL = "Номер заказа"
 
+# Product types treated as resold equipment (покупное оборудование).
+# Источник истины — здесь (web_app.py не импортируется: это Streamlit-приложение).
+EQUIPMENT_PTYPES = {
+    "diffuser",
+    "ksd",
+    "grille",
+    "silencer",
+    "damper",
+    "shutter",
+    "filter",
+    "throttle",
+    "roof_cap",
+    "fan",
+}
+
 LOADED_HEADERS = ["Артикул", "A", "B", "D", "Кол-во", "Материал", "Толщина",
                   "Соед. 0", "Соед. 1", "Соед. 2", "Соед. 3",
                   "Система", "Комментарий"]
@@ -37,12 +52,20 @@ TRADING_HEADERS = ["Наименование", "Категория", "Разме
 
 
 def is_trading_skip(skip: dict) -> bool:
-    """Перекупное (покупное) оборудование: скипы по причине «Покупная …»
-    и строки автомаппинга оборудования (raw_name)."""
+    """Перекупное (покупное) оборудование: скипы по причине «Покупная …»,
+    строки автомаппинга оборудования (raw_name) и позиции, чей тип
+    распознаётся как покупное оборудование (EQUIPMENT_PTYPES)."""
     if skip.get("raw_name"):
         return True
     reason = str(skip.get("reason", ""))
-    return reason.startswith(TRADING_REASON_PREFIXES)
+    if reason.startswith(TRADING_REASON_PREFIXES):
+        return True
+    name = skip.get("name") or skip.get("raw_name") or ""
+    if name:
+        ptype = detect_product_type(name)
+        if ptype in EQUIPMENT_PTYPES:
+            return True
+    return False
 
 
 def _write_sheet(ws, headers: List[str], rows: List[List[Any]]) -> None:

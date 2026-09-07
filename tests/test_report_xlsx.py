@@ -30,6 +30,8 @@ def _sample_result() -> PipelineResult:
             {"name": "Неизвестная деталь", "size": "100x100", "unit": "шт",
              "quantity": 3, "material": "оцинкованная", "thickness": 0.8,
              "reason": "Не удалось распознать артикул"},
+            {"name": "Диффузор без артикула", "size": "300", "unit": "шт",
+             "quantity": 2, "reason": "Диффузор без артикула в каталоге"},
             {"raw_name": "Диффузор SR-P 300", "model": "SR-P-300",
              "reason": "Оборудование не производится"},
         ],
@@ -57,6 +59,7 @@ def test_sheets_and_split():
     tnames = [r[0] for r in trading_ws.iter_rows(min_row=2, values_only=True)]
     assert "Гибкий воздуховод Ф125" in tnames
     assert "Диффузор SR-P 300" in tnames  # raw_name-строка тоже перекупное
+    assert "Диффузор без артикула" in tnames  # по категории оборудования, без «Покупная …»
     theaders = [c.value for c in trading_ws[1]]
     assert "Материал" in theaders and "Толщина" in theaders and "Включить в заказ" in theaders
 
@@ -72,3 +75,12 @@ def test_is_trading_skip():
     assert is_trading_skip({"reason": "Покупная арматура (…) — завод не производит"})
     assert is_trading_skip({"raw_name": "Диффузор", "reason": "Оборудование не производится"})
     assert not is_trading_skip({"reason": "Не удалось распознать артикул"})
+
+
+def test_is_trading_skip_by_equipment_ptype():
+    # Диффузор — категория оборудования, даже если reason не «Покупная …»
+    assert is_trading_skip({"name": "Диффузор SR-P 300",
+                            "reason": "Диффузор без артикула в каталоге"})
+    # «Неизвестная деталь» не распознаётся как оборудование → не перекупное
+    assert not is_trading_skip({"name": "Неизвестная деталь",
+                                "reason": "Не удалось распознать артикул"})
