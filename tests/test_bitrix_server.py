@@ -78,16 +78,62 @@ def test_webhook_rejects_bad_token(env):
     assert resp.status_code == 401
 
 
-def test_webhook_enqueues_and_acks(env):
+def test_webhook_plain_message_goes_to_welcome(env):
+    """Простое сообщение без файла и без reply → приветствие;
+    старый PDF из истории диалога НЕ подхватывается."""
+    cfg, client, queue = env
+    client.dialog_messages = [
+        {"id": 1, "params": {"FILE_URL": "https://b24/disk/download/9&auth=x",
+                             "FILE_NAME": "vo2112_passport.pdf"}},
+    ]
+    app = srv.create_app(cfg, client=client, queue=queue, start_worker=False)
+    resp = TestClient(app).post("/webhook/bot", json=_payload(),
+                                headers={"X-Webhook-Token": "tok"})
+    assert resp.status_code == 200
+    assert queue.stats().get("pending", 0) == 0
+    assert any("заказы в 1С" in m[1] for m in client.messages)  # WELCOME_TEXT
+    assert not any("Принял" in m[1] for m in client.messages)
+
+
+def test_webhook_reply_without_file_context_scans_history(env):
+    """Reply на сообщение с файлом: если файл не извлёкся из контекста reply —
+    допустим исторический fallback (только для reply, не для простых сообщений)."""
     cfg, client, queue = env
     client.dialog_messages = [
         {"id": 1, "params": {"FILE_URL": "https://b24/disk/download/1&auth=x",
                              "FILE_NAME": "ОВ2.pdf"}},
     ]
+    app = srv.create_app(cfg, client=client, queue=queue, start_worker=False)
+    resp = TestClient(app).post(
+        "/webhook/bot",
+        json=_payload(MESSAGE_REPLIED={"params": {"MESSAGE": "обработай вот это"}}),
+        headers={"X-Webhook-Token": "tok"},
+    )
+    assert resp.status_code == 200
+    assert queue.stats().get("pending", 0) == 1
+
+
+def test_parse_event_marks_reply():
+    ev = parse_event(_payload(MESSAGE_REPLIED={"params": {"MESSAGE": "вот файл"}}))
+    assert ev.is_reply is True
+    ev2 = parse_event(_payload())
+    assert ev2.is_reply is False
+
+
+def test_webhook_enqueues_and_acks(env):
+    cfg, client, queue = env
     client.task_titles[42] = "Шипиловский — ОВ2"
     app = srv.create_app(cfg, client=client, queue=queue, start_worker=False)
-    resp = TestClient(app).post("/webhook/bot", json=_payload(),
-                                headers={"X-Webhook-Token": "tok"})
+    resp = TestClient(app).post(
+        "/webhook/bot",
+        json=_payload(
+            MESSAGE_REPLIED={"params": {
+                "FILE_URL": "https://b24/disk/download/1&auth=x",
+                "FILE_NAME": "ОВ2.pdf",
+            }}
+        ),
+        headers={"X-Webhook-Token": "tok"},
+    )
     assert resp.status_code == 200 and resp.json()["ok"] is True
     assert queue.stats().get("pending") == 1
     job = queue.next_pending()

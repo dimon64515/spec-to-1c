@@ -148,6 +148,12 @@ def create_app(
             event = parse_event(payload)
             if event is None:
                 return JSONResponse({"ok": True})
+            if not event.file_url and not event.is_reply:
+                # простое сообщение без файла и без reply: не подхватываем
+                # старые файлы из истории — только короткая инструкция
+                background.add_task(client.send_message, event.dialog_id,
+                                    WELCOME_TEXT, bot_id=event.bot_id)
+                return JSONResponse({"ok": True})
             is_excel = (event.file_name or "").lower().endswith(".xlsx")
             try:
                 if is_excel:

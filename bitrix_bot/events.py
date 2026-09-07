@@ -59,6 +59,7 @@ class BotEvent:
     bot_id: Optional[int] = None
     file_url: Optional[str] = None
     file_name: Optional[str] = None
+    is_reply: bool = False
 
 
 def task_id_from_dialog(dialog_id: str) -> Optional[int]:
@@ -131,6 +132,7 @@ def parse_event(payload: dict) -> Optional[BotEvent]:
         bot_id=bot_id,
         file_url=file_url,
         file_name=file_name,
+        is_reply=isinstance(replied, dict) and bool(replied),
     )
 
 
