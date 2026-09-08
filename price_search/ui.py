@@ -12,6 +12,7 @@ import streamlit as st
 from price_search.engine import AsyncPriceEngine
 from price_search.models import SearchResult
 from price_search.sources.base import SourceRegistry
+from price_search.sources.google_camoufox import GoogleCamoufoxSource
 from price_search.sources.hvac import AirvekSource, UmClimatSource
 from price_search.storage import PriceStorage
 
@@ -25,6 +26,7 @@ def get_engine() -> AsyncPriceEngine:
     registry = SourceRegistry()
     registry.register(UmClimatSource())
     registry.register(AirvekSource())
+    registry.register(GoogleCamoufoxSource())
     return AsyncPriceEngine(
         storage,
         registry,
