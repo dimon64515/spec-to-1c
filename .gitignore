@@ -33,3 +33,19 @@ _mcp_toolkit_extract/
 # Personal conversation exports (not project source)
 docs/kimi_exports/
 bitrix.local.yaml
+
+# Local diagnostics and one-off test artifacts (keep on disk, not in repo)
+tmp/
+diagnostic_state.md
+diagnose_*
+search_sample_*.html
+order_test_*.xml
+order_from_customer_ov3.xml
+original_order_844.xml
+regenerated_order_844.xml
+sample_adapted_test.xml
+verify_order.xml
+1c_doc_rows_full.json
+shipilovsky_positions.json
+price_search/diag_results.json
+price_search/diag_test.py
