@@ -98,7 +98,7 @@
       "id": "damper",
       "name": "Заслонка",
       "keywords": ["заслонка", "дроссель"],
-      "aliases": ["CHR", "KCH"],
+      "aliases": ["CHR", "KCH", "ДК"],
       "article_round": "16-1-1",
       "article_rect": "16-2-1",
       "dimension_patterns": [

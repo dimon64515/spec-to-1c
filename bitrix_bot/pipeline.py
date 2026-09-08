@@ -8,6 +8,16 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 
+# Артикулы, непригодные для прямой загрузки в 1С: программное создание
+# асСпецификацияЗаказа с любой строкой 20-2 падает в ПередЗаписью
+# («Значение не является значением объектного типа (Товары)») — дефект на
+# стороне 1С, см. docs/BACKLOG.md «Продукт 20-2».
+BLOCKED_1C_ARTICLES = {
+    "20-2": ("Не загружено: продукт 20-2 не записывается в 1С "
+             "(дефект ПередЗаписью асСпецификацияЗаказа, см. BACKLOG); "
+             "добавьте клапан в заказ вручную"),
+}
+
 
 @dataclass
 class PipelineResult:
@@ -41,6 +51,26 @@ def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict]]:
     else:
         rows = data.get("block_rows") or []
     _, skipped, success = process_rows(rows)
+    # Артикулы, которые заведомо роняют Записать() в 1С (дефект модуля объекта
+    # документа, см. docs/BACKLOG.md): одна такая строка обвалила бы весь
+    # заказ. Исключаем из загрузки — менеджер увидит их в отчёте «Пропущено».
+    if BLOCKED_1C_ARTICLES:
+        kept: List[dict] = []
+        for row in success:
+            reason = BLOCKED_1C_ARTICLES.get(row["article"])
+            if reason:
+                skipped.append({
+                    "name": row.get("comment", row["article"]),
+                    "size": "",
+                    "unit": "шт",
+                    "quantity": row.get("quantity", ""),
+                    "article": row["article"],
+                    "reason": reason,
+                    "not_trading": True,
+                })
+            else:
+                kept.append(row)
+        success = kept
     return success, skipped
 
 

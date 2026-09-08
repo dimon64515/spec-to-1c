@@ -22,7 +22,7 @@ mapping_files:
 
 # MCP server connection settings
 mcp:
-  url: "https://1dca23dc-dcb2-49f6-87f6-7a80a8710e1a.tunnel4.com/mcp"
+  url: "http://127.0.0.1:6005/mcp"
   timeout: 30
 
 # Bitrix24 bot integration (секреты — в bitrix.local.yaml, gitignored)

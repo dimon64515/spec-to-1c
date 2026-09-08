@@ -1,5 +1,5 @@
 import pytest
-from process_specification_table import parse_row
+from process_specification_table import parse_row, process_rows
 
 
 def test_parse_row_round_duct():
@@ -119,3 +119,127 @@ def test_bad_quantity_skip_contains_material():
     assert skip["material"] == "нержавеющая"
     assert skip["thickness"] == 0.7
     assert skip["quantity"] is None
+
+
+def test_saddle_round_two_diameters_passes_d2():
+    """8-1-1: второй диаметр — D2 (основной воздуховод), а не D1.
+
+    Без D2 1С считает sqrt(d2^2 - D^2) с d2=0 и пишет
+    «Геометрия недопустима» (прямой JSON-путь as_order_loader не
+    подставляет default_params из product_article_mapping.json).
+    """
+    parsed, skipped = parse_row(
+        {"name": "Врезка круглая", "size": "⌀160-⌀315", "unit": "шт", "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.8"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "8-1-1"
+    assert parsed["params"]["D0"] == 160
+    assert parsed["params"]["D2"] == 315
+    assert "D1" not in parsed["params"]
+    assert parsed["params"]["L0"] > 0
+
+
+def test_saddle_round_single_diameter_d2_falls_back_to_d0():
+    parsed, skipped = parse_row(
+        {"name": "Врезка круглая", "size": "⌀160", "unit": "шт", "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.8"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "8-1-1"
+    assert parsed["params"]["D0"] == 160
+    assert parsed["params"]["D2"] == 160
+
+
+def test_gost_designation_number_is_not_diameter():
+    """«по ГОСТ 14918-80 Ø200/ Ø200/Ø160»: номер ГОСТа не диаметр.
+
+    Старый парсер брал «80» из «14918-80» как суффиксный диаметр «80 Ø…»
+    → D0=80; у тройника 4-1-1 ветвь d2>D0 давала в 1С
+    «Геометрия недопустима» (sqrt отрицательного), у перехода 3-1-1 —
+    молча неверную площадь. Реальный дефект заказа №000000871.
+    """
+    parsed, skipped = parse_row(
+        {"name": "Тройник-90° из оцинк. стали по ГОСТ 14918-80 Ø200/ Ø200/Ø160",
+         "size": "", "unit": "шт", "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.6"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "4-1-1"
+    assert parsed["params"]["D0"] == 200
+    assert parsed["params"]["D2"] == 160
+
+    parsed, skipped = parse_row(
+        {"name": "Переход из оцинк. стали по ГОСТ 14918-80 Ø200/ Ø160",
+         "size": "", "unit": "шт", "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.6"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "3-1-1"
+    assert parsed["params"]["D0"] == 200
+    assert parsed["params"]["D1"] == 160
+
+
+def test_tee_slash_diameters_without_prefix():
+    """«Тройник-90° … 250/250/160» и «Переход … 200/125» без знаков Ø."""
+    parsed, skipped = parse_row(
+        {"name": "Тройник-90° из оцинк. стали по ГОСТ 14918-80 250/250/160",
+         "size": "", "unit": "шт", "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.6"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "4-1-1"
+    assert parsed["params"]["D0"] == 250
+    assert parsed["params"]["D2"] == 160
+
+    parsed, skipped = parse_row(
+        {"name": "Переход из оцинк. стали по ГОСТ 14918-80 200/125",
+         "size": "", "unit": "шт", "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.6"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "3-1-1"
+    assert parsed["params"]["D0"] == 200
+    assert parsed["params"]["D1"] == 125
+
+
+def test_saddle_rectangular_has_no_d2():
+    parsed, skipped = parse_row(
+        {"name": "Врезка прямоугольная", "size": "500x300", "unit": "шт", "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.8"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "8-2-1"
+    assert parsed["params"]["A0"] == 500
+    assert parsed["params"]["B0"] == 300
+
+
+def test_tee_branch_larger_than_main_goes_to_skipped():
+    """4-1-1 с d2 > D0 (заказ №000000871: D=80, d2=160).
+
+    Геометрия 1С невозможна: sqrt(D²/4 − d2²/4) из отрицательного и
+    asin(d2/D > 1) — расчёт падает, S=0 и цена=0. Строка должна уходить
+    в пропущенные с понятной причиной, а не в заказ.
+    """
+    xml, skipped, success = process_rows([
+        {"name": "Тройник-90° из оцинк. стали по ГОСТ 14918-80 80/160",
+         "size": "", "unit": "шт", "quantity": "1"},
+    ])
+    assert success == []
+    assert len(skipped) == 1
+    assert skipped[0]["article"] == "4-1-1"
+    assert "врезк" in skipped[0]["reason"]
+    assert "80" in skipped[0]["reason"] and "160" in skipped[0]["reason"]
+    assert "4-1-1" not in xml
+
+
+def test_tee_valid_diameters_pass_geometry_check():
+    """Обычный тройник и равные диаметры (d2 == D0) — геометрия допустима."""
+    xml, skipped, success = process_rows([
+        {"name": "Тройник-90° из оцинк. стали по ГОСТ 14918-80 250/160",
+         "size": "", "unit": "шт", "quantity": "2"},
+        {"name": "Тройник-90° из оцинк. стали по ГОСТ 14918-80 200/200",
+         "size": "", "unit": "шт", "quantity": "1"},
+    ])
+    assert skipped == []
+    assert [r["params"]["D2"] for r in success] == [160, 200]

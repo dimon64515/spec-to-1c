@@ -19,6 +19,7 @@ from pdf_spec_extractor import (
     extract_tables_from_pdf,
     extract_text_lines_from_pdf,
     normalize_columns,
+    parse_spec_text_blocks,
     parse_text_fallback,
 )
 from equipment_pdf_extractor import extract_equipment_from_pdf
@@ -39,16 +40,32 @@ class ProcessResult:
 
 
 def load_tables_from_pdf(file_bytes: bytes, selected_pages: Optional[List[int]] = None):
-    """Save PDF bytes to a temporary file and extract tables or text fallback."""
+    """Save PDF bytes to a temporary file and extract tables or text fallback.
+
+    Если таблицы найдены, но строки съезжаются (меньше 25% строк имеют и имя,
+    и размер — типично для ГОСТ-бланков с многострочными ячейками), падаем
+    в разбор текстового слоя блоками (parse_spec_text_blocks) и возвращаем
+    {"text_fallback": ..., "block_rows": [...]}.
+    """
     with NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
         tmp.write(file_bytes)
         tmp_path = Path(tmp.name)
     try:
         tables_by_page = extract_tables_from_pdf(str(tmp_path), pages=selected_pages)
-        if not any(tables_by_page.values()):
-            text_by_page = extract_text_lines_from_pdf(str(tmp_path), pages=selected_pages)
-            return {"text_fallback": text_by_page}
-        return {"tables": tables_by_page}
+        if any(tables_by_page.values()):
+            total_rows = 0
+            valid_rows = 0
+            for tables in tables_by_page.values():
+                for df in tables:
+                    total_rows += len(df)
+                    for row in df_to_spec_rows(df):
+                        if str(row.get("name", "")).strip() and str(row.get("size", "")).strip():
+                            valid_rows += 1
+            if total_rows and valid_rows / total_rows >= 0.25:
+                return {"tables": tables_by_page}
+        text_by_page = extract_text_lines_from_pdf(str(tmp_path), pages=selected_pages)
+        all_lines = [line for page in sorted(text_by_page) for line in text_by_page[page]]
+        return {"text_fallback": text_by_page, "block_rows": parse_spec_text_blocks(all_lines)}
     finally:
         tmp_path.unlink(missing_ok=True)
 
@@ -123,7 +140,12 @@ def process_specification_file(
     options = options or {}
     header = header or {}
     df = read_csv_or_excel_bytes(file_bytes, file_name)
-    df = normalize_columns(df)
-    rows = df_to_spec_rows(df)
+    if file_name.lower().endswith((".xlsx", ".xls", ".xlsm")) and is_project_spec_xlsx(df):
+        # Распознанный проектный Excel (FineReader) с ГОСТ-разметкой: колонки
+        # не совпадают с name/size/unit/quantity, разбираем постранично.
+        rows = read_project_spec_bytes(file_bytes, file_name)
+    else:
+        df = normalize_columns(df)
+        rows = df_to_spec_rows(df)
     xml_text, skipped, _ = process_rows(rows, header=header)
     return ProcessResult(xml=xml_text, skipped=skipped)

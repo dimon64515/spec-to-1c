@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 import sqlite3
 import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, Optional
+
+logger = logging.getLogger(__name__)
 
 MAX_ATTEMPTS = 3
 RETRY_DELAYS = [5, 20, 60]  # паузы перед повтором, сек
@@ -22,6 +25,7 @@ class Job:
     order_comment: str
     id: int = 0
     attempts: int = 0
+    bot_id: Optional[int] = None
 
 
 class JobQueue:
@@ -41,11 +45,16 @@ class JobQueue:
                     file_name TEXT NOT NULL,
                     order_comment TEXT NOT NULL,
                     attempts INTEGER NOT NULL DEFAULT 0,
+                    bot_id INTEGER,
                     status TEXT NOT NULL DEFAULT 'pending',
                     error TEXT
                 )
                 """
             )
+            # миграция: bot_id появился после первых релизов
+            cols = {r[1] for r in conn.execute("PRAGMA table_info(jobs)")}
+            if "bot_id" not in cols:
+                conn.execute("ALTER TABLE jobs ADD COLUMN bot_id INTEGER")
             # рестарт сервиса: вернуть прерванные задания в очередь
             conn.execute("UPDATE jobs SET status = 'pending' WHERE status = 'running'")
 
@@ -64,14 +73,16 @@ class JobQueue:
             file_name=row["file_name"],
             order_comment=row["order_comment"],
             attempts=row["attempts"],
+            bot_id=row["bot_id"],
         )
 
     def enqueue(self, job: Job, pdf_bytes: Optional[bytes] = None) -> Job:
         with self._lock, self._connect() as conn:
             cur = conn.execute(
-                "INSERT INTO jobs (dialog_id, task_id, pdf_path, file_name, order_comment)"
-                " VALUES (?, ?, ?, ?, ?)",
-                (job.dialog_id, job.task_id, job.pdf_path, job.file_name, job.order_comment),
+                "INSERT INTO jobs (dialog_id, task_id, pdf_path, file_name, order_comment, bot_id)"
+                " VALUES (?, ?, ?, ?, ?, ?)",
+                (job.dialog_id, job.task_id, job.pdf_path, job.file_name,
+                 job.order_comment, job.bot_id),
             )
             job_id = cur.lastrowid
             if pdf_bytes is not None:
@@ -107,7 +118,8 @@ class JobQueue:
         with self._lock, self._connect() as conn:
             conn.execute("UPDATE jobs SET status = 'done' WHERE id = ?", (job_id,))
 
-    def reschedule(self, job_id: int, error: str) -> None:
+    def reschedule(self, job_id: int, error: str) -> str:
+        """Вернуть задание в очередь; вернуть новый статус ('pending'|'failed')."""
         with self._lock, self._connect() as conn:
             row = conn.execute(
                 "SELECT attempts FROM jobs WHERE id = ?", (job_id,)
@@ -118,6 +130,7 @@ class JobQueue:
                 "UPDATE jobs SET status = ?, attempts = ?, error = ? WHERE id = ?",
                 (status, attempts, error[:500], job_id),
             )
+            return status
 
     def stats(self) -> Dict[str, int]:
         with self._connect() as conn:
@@ -135,8 +148,13 @@ def run_worker(
     handler: Callable[[Job], None],
     stop_event: Optional[threading.Event] = None,
     poll_seconds: float = 2.0,
+    on_failure: Optional[Callable[[Job, str], None]] = None,
 ) -> None:
-    """Блокирующий цикл воркера: handler(job); исключение -> reschedule."""
+    """Блокирующий цикл воркера: handler(job); исключение -> reschedule.
+
+    on_failure вызывается, когда попытки исчерпаны и задание переходит
+    в 'failed' — без него пользователь не получает никакого ответа.
+    """
     stop_event = stop_event or threading.Event()
     while not stop_event.is_set():
         job = queue.next_pending()
@@ -147,7 +165,13 @@ def run_worker(
             handler(job)
             queue.complete(job.id)
         except Exception as exc:  # noqa: BLE001 - любой сбой -> ретрай
-            queue.reschedule(job.id, f"{type(exc).__name__}: {exc}")
+            error = f"{type(exc).__name__}: {exc}"
+            status = queue.reschedule(job.id, error)
+            if status == "failed" and on_failure is not None:
+                try:
+                    on_failure(job, error)
+                except Exception:  # noqa: BLE001 - уведомление не должно ломать воркер
+                    logger.exception("on_failure failed for job %s", job.id)
             # пауза перед повторной обработкой (5с/20с/60с по номеру попытки);
             # stop_event.wait прерывается при остановке воркера
             delay = RETRY_DELAYS[min(job.attempts + 1, len(RETRY_DELAYS)) - 1]

@@ -15,7 +15,7 @@ from bitrix_bot.bitrix_client import BitrixClient
 from bitrix_bot.config import BotConfig, load_bot_config
 from bitrix_bot.events import PdfNotFound, find_pdf, form_payload, parse_event
 from bitrix_bot.pipeline import recreate_order_from_report, run_pipeline
-from bitrix_bot.queue import Job, JobQueue, run_worker
+from bitrix_bot.queue import MAX_ATTEMPTS, Job, JobQueue, run_worker
 from bitrix_bot.report import build_report, build_summary
 from report_xlsx import EditedReportError, build_excel_report
 
@@ -109,8 +109,25 @@ def create_app(
         thread = None
         if start_worker:
             handler = make_handler(cfg, client)
+
+            def notify_failure(job: Job, error: str) -> None:
+                # попытки исчерпаны — без ответа пользователь остаётся
+                # с «обрабатываю…» и ничем
+                try:
+                    client.send_message(
+                        job.dialog_id,
+                        f"Не смог обработать «{job.file_name}» "
+                        f"({MAX_ATTEMPTS} попытки): {error}",
+                        bot_id=job.bot_id,
+                    )
+                except Exception:
+                    logger.exception(
+                        "failure notification failed for job %s", job.id)
+
             thread = threading.Thread(
-                target=run_worker, args=(queue, handler, worker_stop),
+                target=run_worker,
+                args=(queue, handler, worker_stop),
+                kwargs={"on_failure": notify_failure},
                 daemon=True, name="bitrix-bot-worker",
             )
             thread.start()

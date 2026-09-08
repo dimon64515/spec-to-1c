@@ -312,6 +312,192 @@ def parse_text_fallback(lines: List[str]) -> List[dict]:
     return rows
 
 
+def parse_spec_text_blocks(lines: List[str]) -> List[dict]:
+    """Разбирает текстовый слой ГОСТ-бланка спецификации на позиции.
+
+    Fallback для PDF, где find_tables съезжается по колонкам (многострочные
+    ячейки бланка «Позиция / Наименование / ... / Количество»). Текстовый слой
+    такого бланка — последовательность блоков: наименование (1+ строк) ->
+    размер -> бренд -> «Занести в перекупные»? -> единица -> количество.
+    Строки бренда/единицы/штампа могут быть разбиты переносами
+    («Климатве»/«нтмаш», «Изм № уч Лист №док Подпись Дата»).
+
+    Возвращает список dict с ключами name, size, unit, quantity (float).
+    """
+    size_re = re.compile(r"^\d+(?:[xх]\d+)?$")
+    qty_re = re.compile(r"^\d+(?:[.,]\d+)?$")
+    unit_re = re.compile(r"^(м|м2|м²|шт|компл)\.?$", re.IGNORECASE)
+
+    rows: List[dict] = []
+    i, n = 0, len(lines)
+    while i < n:
+        token = lines[i].strip()
+        if not token or _is_block_junk(token):
+            i += 1
+            continue
+        # Наименование: всё до размера, единицы, поставщика или элемента штампа
+        name_parts = []
+        while i < n:
+            token = lines[i].strip()
+            nxt = lines[i + 1].strip() if i + 1 < n else ""
+            if (not token or _is_block_junk(token) or unit_re.match(token)
+                    or _is_block_vendor(token, nxt)
+                    or size_re.match(token) or token.startswith("Занести в")):
+                break
+            name_parts.append(token)
+            i += 1
+        name = " ".join(name_parts).strip()
+        # Отклеиваем заголовки разделов, склеившиеся с первой строкой группы
+        changed = True
+        while changed:
+            changed = False
+            for header in _BLOCK_SECTION_HEADERS:
+                if name.startswith(header + " "):
+                    name = name[len(header) + 1:].strip()
+                    changed = True
+        if not name:
+            i += 1
+            continue
+        size = ""
+        if i < n and size_re.match(lines[i].strip()):
+            size = lines[i].strip()
+            i += 1
+        # Поставщик (1+ строк, в т.ч. разорванные переносом: «Климатве»/«нтмаш»)
+        # и примечание «Занести в перекупные» — в любом порядке. Примечание НЕ
+        # означает пропуск: техотдел включает такие позиции в КП как
+        # производимые, пометку сохраняем в наименовании (уйдёт в комментарий).
+        resell_note = ""
+        while i < n:
+            token = lines[i].strip()
+            nxt = lines[i + 1].strip() if i + 1 < n else ""
+            if _norm_block_token(f"{token} {nxt}") in _BLOCK_VENDOR_TOKENS:
+                i += 2
+                continue
+            t = _norm_block_token(token)
+            if t in _BLOCK_VENDOR_TOKENS or (
+                    len(t) >= 4 and any(v.startswith(t) or v.endswith(t)
+                                        for v in _BLOCK_VENDOR_TOKENS)):
+                i += 1
+                continue
+            if token.startswith("Занести в"):
+                resell_note = "Занести в перекупные"
+                i += 1
+                if i < n and lines[i].strip().rstrip(".") == "перекупные":
+                    i += 1
+                continue
+            break
+        unit = ""
+        quantity = 0.0
+        if i < n and unit_re.match(lines[i].strip()):
+            unit = lines[i].strip().rstrip(".")
+            i += 1
+            if i < n and qty_re.match(lines[i].strip()):
+                try:
+                    quantity = float(lines[i].strip().replace(",", "."))
+                except ValueError:
+                    quantity = 0.0
+                i += 1
+        # Единица приклеена к концу наименования, а «размер» — на самом деле
+        # количество: «…Ровен шт.» + «1» → unit=шт, quantity=1, size="".
+        if not unit and size and qty_re.match(size):
+            m = re.search(r"(м|м2|м²|шт|компл)\.?\s*$", name)
+            if m:
+                unit = m.group(1).rstrip(".")
+                name = name[:m.start()].strip()
+                try:
+                    quantity = float(size.replace(",", "."))
+                except ValueError:
+                    quantity = 0.0
+                size = ""
+        if resell_note:
+            name = f"{name} [{resell_note}]" if name else resell_note
+        rows.append({"name": name, "size": size, "unit": unit, "quantity": quantity})
+    return rows
+
+
+def _norm_block_token(token: str) -> str:
+    return " ".join(token.lower().replace("ё", "е").split())
+
+
+# Заводы-поставщики из колонки «Завод-изготовитель». Встречаются целиком,
+# разбитые переносом («Климатве»/«нтмаш») и в двух словах («Polar Bear»).
+_BLOCK_VENDOR_TOKENS = {
+    "россия", "ned", "арктос", "сезон", "korf", "imbat", "valtec",
+    "русич", "вентинфо", "рм", "изовент", "rockwool", "пенофол",
+    "lennox", "mdv", "ровен", "aluduct", "belimo",
+    "климатвентмаш", "metu system", "polar bear",
+}
+
+
+def _is_block_vendor(token: str, nxt: str = "", pair_ok: bool = False) -> bool:
+    """Определяет, является ли строка (возможно, с соседней) брендом-поставщиком."""
+    t = _norm_block_token(token)
+    if t in _BLOCK_VENDOR_TOKENS:
+        return True
+    if pair_ok and _norm_block_token(f"{token} {nxt}") in _BLOCK_VENDOR_TOKENS:
+        return True
+    # Разорванный переносом бренд: «Климатве» (префикс) / «нтмаш» (суффикс)
+    if len(t) >= 4 and any(v.startswith(t) or v.endswith(t) for v in _BLOCK_VENDOR_TOKENS):
+        return True
+    return False
+
+
+def _is_block_junk(token: str) -> bool:
+    """Строки штампа, колонтитулов и служебные — не части позиций."""
+    t = _norm_block_token(token).rstrip(".")
+    if t in _BLOCK_BOM_TOKENS or _is_stamp_line(token):
+        return True
+    # номера позиций / страниц / служебные числа («194», «01.2», «6»)
+    if re.fullmatch(r"\d+(?:[.,]\d+)?", t):
+        return True
+    if t.startswith(("шифр объекта", "шифр проекта")):
+        return True
+    if t in ("стадия", "листов", "гип", "инженер", "березин", "кузьмичева", "р"):
+        return True
+    return False
+
+
+def _is_stamp_line(token: str) -> bool:
+    """Фрагменты основного штампа ГОСТ 21.602 (в т.ч. на одной строке)."""
+    t = _norm_block_token(token)
+    if t in ("изм", "№уч", "№ уч", "дата", "подпись", "взам инв №",
+             "подп и дата", "инв № подп", "лист №док подпись"):
+        return True
+    if t.startswith(("изм №", "взам.", "подп.", "инв.", "лист №док")):
+        return True
+    if "подпись" in t and "дата" in t:
+        return True
+    if "взам" in t and "инв" in t:
+        return True
+    if "инв" in t and "подп" in t:
+        return True
+    return False
+
+
+# Элементы штампа/шапки бланка ГОСТ 21.602 — не позиции спецификации
+_BLOCK_BOM_TOKENS = {
+    "лист", "изм", "кол уч", "№док", "подпись", "дата",
+    "наименование и техническая характеристика",
+    "тип, марка, обозначение документа, опросного",
+    "код оборудования, изделия, материала",
+    "завод - изготовитель", "завод-изготовитель", "единица", "измерения",
+    "количество", "масса единицы, кг", "примечание", "оборудование,",
+    "изделия,", "материала", "измерен ия", "количест во", "масса",
+    "единицы,", "кг", "примечание",
+}
+
+# Заголовки разделов, которые склеиваются с первой строкой группы
+_BLOCK_SECTION_HEADERS = (
+    "ПРОТИВОДЫМНАЯ ЗАЩИТА",
+    "Воздуховоды и фасонные изделия из оцинкованной стали",
+    "Воздуховоды и фасонные изделия",
+    "Воздухораспределительные устройства",
+    "ВЕНТИЛЯЦИЯ",
+    "Оборудование",
+    "КИПиА",
+)
+
+
 def main():
     """Простой тест: ищет PDF в рабочей директории и выводит статистику по таблицам."""
     pdf_files = glob("*.pdf")
