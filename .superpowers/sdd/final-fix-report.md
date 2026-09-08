@@ -1,71 +1,92 @@
-# Final Review Fix Report — price_search
+# Final fix report — feature/excel-report (round-trip review findings)
 
-## Status
-Fixed.
+Дата: 2026-09-07. Коммит: `1d0c8c0ae6fd1dc2c620620bfa624c00df132ecf`
+(`fix(roundtrip): thickness readback, include dedup, empty-loaded guard, bot error message`), ветка `feature/excel-report`.
 
-## Important issues addressed
+Метод: TDD — сначала добавлены/переписаны падающие тесты (5 упали, 1 прошёл
+сразу по дизайну, см. M-3), затем фиксы. Полный сьют после фиксов:
+**164 passed, 1 warning** (`.venv/bin/python -m pytest tests/ -x -q`).
 
-### 1. Retry in `AsyncPriceEngine._run_source`
-- **File:** `price_search/engine.py`
-- **Change:** `_run_source` now retries a source up to 3 times, sleeping 1s between failures via `asyncio.sleep`, before returning `[]`.
+## I-1. Толщина «Пропущено»/«Перекупное» хардкодилась 0.8
 
-### 2. "Искать заново" UI control
-- **File:** `price_search/ui.py`
-- **Change:** Added a keyed checkbox `Искать заново (игнорировать кэш)`. Its value is passed as `force_refresh` to `engine.search(...)`. Keyed state is preserved across Streamlit reruns.
+- **Файл:** `report_xlsx.py` — `parse_edited_report`.
+- **Что сделал:** колонка «Толщина» читается через `col("Толщина")`
+  (headers-индексы: SKIPPED idx 5, TRADING idx 4); добавлен хелпер
+  `_thickness_or_default(value)` — пустое/битое/≤0 → дефолт 0.8.
+- **Тест:** `test_parse_edited_report_reads_thickness_from_skipped_and_trading`
+  (tests/test_report_xlsx.py): толщина 1.0 в «Пропущено» и 1.2 в «Перекупное»
+  → `include_rows[0]["thickness"]` == 1.0 / 1.2. До фикса падал (было 0.8).
 
-### 3. `include_in_report` filters downloads
-- **File:** `price_search/ui.py`
-- **Change:** The editor exposes the `include_in_report` column by default. Before generating Excel/JSON, rows with `include_in_report == True` are collected into `included_keys`. `_download_results` skips any `SearchResult` whose `(item_name, item_size)` is not in that set, so excluded items do not appear in downloads.
+## I-2. Включённая позиция задваивалась (loaded + skipped)
 
-### 4. `is_fallback` flag
-- **Files:** `price_search/models.py`, `price_search/storage.py`, `price_search/engine.py`, `price_search/fallback/search_engines.py`
-- **Change:** Added `is_fallback: bool = False` to `PriceOffer`. `SearchEngineFallback` now creates offers with `is_fallback=True`. The engine marks fallback offers in `_search_one` as well, and `PriceStorage.save_offers` / `get_cached_offers` / `get_history` persist and restore the flag per offer.
+- **Файлы:** `report_xlsx.py`, `bitrix_bot/pipeline.py`.
+- **Что сделал:** при парсинге включённой позиции в item ставится служебный
+  runtime-маркер `_include: True` (в Excel не пишется — `_skipped_row`/
+  `_trading_row` пишут фиксированные колонки). В `recreate_order_from_report`:
+  `skipped = [s for s in edited.skipped_rows if not s.get("_include")] + extra_skipped`
+  (extra_skipped уже содержит reason для непарсибельных).
+- **Тесты** (tests/test_bitrix_pipeline.py, реальный `process_rows`, без мока):
+  - `test_recreate_include_success_loaded_once_not_skipped` — «Воздуховод
+    прямошовный 300x200» size «300x200» qty 5 → ровно один раз в loaded
+    (article 1-2-1), ни одного упоминания в skipped. До фикса: дубль в skipped.
+  - `test_recreate_include_unparsable_single_skip_with_reason` — «Абракадабра
+    без размера» + include=да → ровно один раз в skipped, с непустой причиной
+    («Отсутствует размер»). До фикса: две строки (без reason + с reason).
 
-### 5. Zero-price fallback offers no longer distort `min_price`
-- **File:** `price_search/engine.py`
-- **Change:** Added `_select_top_offers`, which filters out offers with `price == 0` before sorting and keeps only the top-3 priced offers. This prevents zero-price search-engine placeholders from becoming the reported minimum.
+## I-3. Пустой «Загружено» бросал ошибку до чтения включённых
 
-### 6. Ignore SQLite databases in git
-- **File:** `.gitignore`
-- **Change:** Added `*.db` and `price_search.db`.
+- **Файл:** `report_xlsx.py` — проверка перенесена из начала parse в конец:
+  `EditedReportError` только если `loaded_rows` пуст И `include_rows` пуст.
+  Страховка `if not success` в `recreate_order_from_report` сохранена.
+- **Тесты:** `test_parse_edited_report_empty_loaded_with_include_ok` (пустой
+  loaded + include=да → parse проходит, `loaded_rows == []`, include_rows из
+  одной позиции); старый `test_parse_edited_report_empty_loaded` переписан в
+  `test_parse_edited_report_empty_loaded_still_rejected` (пусто и без
+  включённых → по-прежнему EditedReportError, match «нечего пересоздавать»).
 
-### 7. `use_container_width` deprecation
-- **File:** `price_search/ui.py`
-- **Change:** Replaced `use_container_width=True` in `st.data_editor` with `width="stretch"`.
+## I-4. Битый .xlsx в чате → тишина + reschedule×3
 
-## Minor issues addressed
+- **Файл:** `bitrix_bot/server.py` — `make_handler`: вызов
+  `recreate_order_from_report` обёрнут в `try/except EditedReportError` →
+  `logger.exception` + `client.send_message(dialog_id, f"Не смог обработать
+  отчёт: {e}", bot_id=job.bot_id)` (сам send_message в try/except) + `return`
+  без re-raise. `run_pipeline`-ветка не тронута.
+- **Тест:** `test_handler_broken_xlsx_sends_error_and_stops`
+  (tests/test_bitrix_server.py): recreate поднимает EditedReportError →
+  сообщение «Не смог обработать отчёт: …» ушло в чат, исключение не покинуло
+  handler. До фикса исключение вылетало наружу.
 
-- **Removed unused import:** `import asyncio` removed from `price_search/sources/aggregators/pulscen.py`.
-- **Fallback interface:** `SearchEngineFallback` now inherits from `BasePriceSource`.
-- **Relative href handling:** `SearchEngineFallback._parse_html` now uses the search engine's base URL (`https://yandex.ru/search/` or `https://www.google.com/search`) in `urljoin` instead of `"https://"`.
+## M-3. Убран «.xls» из проверок (openpyxl его не парсит)
 
-## Verification
+- **Файл:** `bitrix_bot/server.py` — в webhook `is_excel` теперь только
+  `.endswith(".xlsx")`, ветка упрощена (`find_pdf(client, event, ext=".xlsx")`);
+  в `make_handler` — только `.xlsx`.
+- **Тест:** `test_find_pdf_finds_xls_when_asked` заменён на
+  `test_webhook_xls_goes_to_welcome_not_recreate`: файл report.xls в webhook →
+  welcome (PdfNotFound), recreate не вызывается, задание не ставится в очередь.
+  Примечание: тест был зелёным ещё до фикса — `parse_event` (events.py:117,119)
+  фильтрует вложения по `(".pdf", ".xlsx")`, так что .xls до is_excel-ветки в
+  принципе не доходит; фикс убирает мёртвый/вредный путь в самом сервере
+  (defense in depth). `find_pdf(ext=...)` остался generic — не тронут.
 
-### Unit tests
-```bash
-source .venv/bin/activate
-pytest tests/ -q
+## M-1. Кэш отчёта в основном табе web_app.py
+
+- **Файл:** `web_app.py` — импорт `hashlib`; отчёт кэшируется в
+  `st.session_state["report_xlsx_cache"] = (md5(file_bytes).hexdigest(),
+  xlsx_bytes)`; rerun с тем же file_bytes переиспользует кэш. MD5 — для
+  детерминизма между рестартами (аналог recreate_source).
+
+## Проверка
+
 ```
-Result: `43 passed in 0.83s`.
-
-### Syntax check
-```bash
-source .venv/bin/activate
-python -m py_compile web_app.py price_search/ui.py $(find price_search -name '*.py')
-```
-Result: no errors.
-
-### Streamlit startup check
-```bash
-source .venv/bin/activate
-timeout 15 streamlit run web_app.py --server.headless true --browser.gatherUsageStats false
-```
-Result: server started on `:::8501` with message `You can now view your Streamlit app in your browser`. Exit code `124` is from `timeout`, expected.
-
-## Commit
-```bash
-git add price_search/engine.py price_search/ui.py price_search/models.py price_search/storage.py price_search/fallback/search_engines.py price_search/sources/aggregators/pulscen.py .gitignore .superpowers/sdd/final-fix-report.md
-git commit -m "fix(price_search): address final review findings"
+.venv/bin/python -m pytest tests/ -x -q
+→ 164 passed, 1 warning in 14.71s
+python -c "import web_app" → OK
+git commit 1d0c8c0 — 7 files changed, 230 insertions(+), 35 deletions(-)
 ```
 
-No push performed.
+## Что не получилось / остатки
+
+- Ничего критичного. M-3-тест зелёный до фикса по причине фильтра в
+  `parse_event` (см. выше) — поведенческая разница в проде наступит только
+  если вложение попадёт в webhook мимо `parse_event`.

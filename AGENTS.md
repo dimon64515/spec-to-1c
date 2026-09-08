@@ -43,6 +43,7 @@
 - Build & test: `mcp-bsl-platform-context/gradlew` and `gradlew.bat` (root)
 - Server entrypoints and run modes: `mcp-bsl-platform-context/run.bat`, `Dockerfile.*` in that folder
 - Docs & how-tos: many markdown files in repo root (XML import, order load guides) and `mcp-bsl-platform-context/documentation/`
+- Direct 1C order loading (JSON → `асСпецификацияЗаказа` with auto pricing): `tools/as_order_loader/` (BSL module + README). Pricing logic knowledge base: `docs/ЛОГИКА_РАСЧЕТА_ЦЕН_1С.md` — read before touching price calculation or 1C MCP probes. Open issues: `docs/BACKLOG.md`.
 
 ## Next suggested customizations
 - Add module-specific agent instructions for `mcp-bsl-platform-context/` to cover build, run, and test specifics.
