@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 import pytest
+import yaml
 
 from process_specification_table import extract_dimensions
 
@@ -27,6 +28,41 @@ def _primary_dims_match(comment: str, expected: dict) -> bool:
     else:
         return False
     return all(dims.get(k) == pytest.approx(expected[k]) for k in keys if k in expected)
+
+
+BASELINE_MATRIX_RECALL: dict = {
+    "round_prefix": 0.6667,
+    "round_suffix": 1.0,
+    "rect": 1.0,
+    "tee_round": 0.5,
+    "transition": 1.0,
+    "transition_mixed": 1.0,
+    "litened": 1.0,
+    "knk": 1.0,
+    "length": 1.0,
+    "ocr_space": 0.0,
+}  # PINNED
+
+
+def _check_matrix_entry(entry: dict) -> bool:
+    from process_specification_table import parse_size
+
+    if entry["via"] == "parse_size":
+        _, dims = parse_size(entry["input"])
+    else:
+        dims = extract_dimensions(entry["input"])
+    return all(dims.get(k) == pytest.approx(v) for k, v in entry["expect"].items())
+
+
+def test_size_format_matrix_recall():
+    matrix = yaml.safe_load((FIXTURES / "size_format_matrix.yaml").read_text(encoding="utf-8"))
+    measured = {}
+    for fmt, entries in matrix.items():
+        ok = sum(1 for e in entries if _check_matrix_entry(e))
+        measured[fmt] = round(ok / len(entries), 4)
+    print(f"\nBASELINE_MATRIX_RECALL = {measured}")
+    for fmt, rate in measured.items():
+        assert rate >= BASELINE_MATRIX_RECALL.get(fmt, 0.0), f"{fmt}: {rate} below baseline"
 
 
 def test_vladik_baseline_coverage():

@@ -1,0 +1,44 @@
+# Матрица вариантов записи размеров. via: какой вход используем.
+# expect: первичная геометрия, которую каскад ОБЯЗАН извлечь.
+round_prefix:
+  - {input: "Ф315", expect: {D0: 315}, via: parse_size}
+  - {input: "Ø315", expect: {D0: 315}, via: parse_size}
+  - {input: "ø315", expect: {D0: 315}, via: parse_size}
+  - {input: "⌀315", expect: {D0: 315}, via: parse_size}
+  - {input: "Ду315", expect: {D0: 315}, via: parse_size}
+  - {input: "ДН315", expect: {D0: 315}, via: parse_size}
+  - {input: "DN315", expect: {D0: 315}, via: parse_size}
+  - {input: "d315", expect: {D0: 315}, via: parse_size}
+  - {input: "Ф315-3000", expect: {D0: 315}, via: parse_size}
+round_suffix:
+  - {input: "315ø", expect: {D0: 315}, via: extract_dimensions}
+  - {input: "315 Ø", expect: {D0: 315}, via: extract_dimensions}
+rect:
+  - {input: "1250x800", expect: {A0: 1250, B0: 800}, via: parse_size}
+  - {input: "1250х800", expect: {A0: 1250, B0: 800}, via: parse_size}
+  - {input: "1250×800", expect: {A0: 1250, B0: 800}, via: parse_size}
+  - {input: "1250*800", expect: {A0: 1250, B0: 800}, via: parse_size}
+  - {input: "1250 x 800", expect: {A0: 1250, B0: 800}, via: parse_size}
+  - {input: "600x400-1250", expect: {A0: 600, B0: 400}, via: parse_size}
+  - {input: "600x400_1250", expect: {A0: 600, B0: 400}, via: parse_size}
+  - {input: "600x400x1250", expect: {A0: 600, B0: 400}, via: parse_size}
+  - {input: "Отвод 90 град 600x400", expect: {A0: 600, B0: 400}, via: extract_dimensions}
+tee_round:
+  - {input: "Ф315-Ф315-Ф160", expect: {D0: 315}, via: extract_dimensions}
+  - {input: "Тройник 315/315/160", expect: {D0: 315}, via: extract_dimensions}
+transition:
+  - {input: "Переход Ф250-Ф160", expect: {D0: 250}, via: extract_dimensions}
+  - {input: "Переход с Ф200 на Ф160", expect: {D0: 200}, via: extract_dimensions}
+  - {input: "Переход 900x900-800x800", expect: {A0: 900, B0: 900}, via: extract_dimensions}
+transition_mixed:
+  - {input: "Переход 300x200-Ф200", expect: {A0: 300, B0: 200}, via: extract_dimensions}
+litened:
+  - {input: "LITENED 50-25 NKD", expect: {A0: 500, B0: 250}, via: extract_dimensions}
+  - {input: "LITENED 40-20 NKK", expect: {A0: 400, B0: 200}, via: extract_dimensions}
+knk:
+  - {input: "KNK 250/6", expect: {D0: 250}, via: extract_dimensions}
+length:
+  - {input: "Воздуховод Ф160 L=1000", expect: {D0: 160, L0: 1000}, via: extract_dimensions}
+  - {input: "Воздуховод Ф160 1000 мм", expect: {D0: 160, L0: 1000}, via: extract_dimensions}
+ocr_space:
+  - {input: "1 250x800", expect: {A0: 1250, B0: 800}, via: extract_dimensions}
