@@ -67,3 +67,56 @@ def test_parse_result_errors_joined_single_segment():
     assert out["order_number"] == "000001"
     assert out["errors"] == ['не найден продукт "9-9-9"', 'не найден материал "X"']
     assert out["warnings"] == ["Строка 1: цена 0 — проверьте прайс"]
+
+
+def test_execute_code_transport_tunnel_envelope(monkeypatch):
+    calls = {}
+
+    def fake_post(url, json=None, timeout=None):
+        calls["url"] = url
+        calls["json"] = json
+        calls["timeout"] = timeout
+        return _Resp({"result": SAMPLE_1C_OK})
+
+    monkeypatch.setattr(httpx, "post", fake_post)
+    tr = oc.transport_for("http://127.0.0.1:6005/api/execute_code")
+    assert isinstance(tr, oc.ExecuteCodeTransport)
+    out = tr.send([{"article": "1-2-1"}], "Задача №42", timeout=12.0)
+    assert out["order_number"] == "000000860"
+    assert out["errors"] == []
+    assert calls["timeout"] == 12.0
+    # тело запроса — execute_code-конверт {"code": "<BSL>"}
+    assert set(calls["json"].keys()) == {"code"}
+    assert "Задача №42" in calls["json"]["code"]
+
+
+def test_execute_code_transport_native_envelope(monkeypatch):
+    # нативный HTTP-API MCPToolkit: {"success": true, "data": "..."}
+    monkeypatch.setattr(
+        httpx, "post",
+        lambda url, json=None, timeout=None: _Resp(
+            {"success": True, "data": SAMPLE_1C_OK}
+        ),
+    )
+    tr = oc.ExecuteCodeTransport("http://127.0.0.1:6005/api/execute_code")
+    out = tr.send([{"article": "1-2-1"}], "c")
+    assert out["order_number"] == "000000860"
+    assert out["warnings"] == ["Строка 1 (1-2-1): цена 0 — проверьте прайс"]
+
+
+def test_execute_code_transport_failure_envelope(monkeypatch):
+    # {"success": false, "error": "..."} — исключение с текстом 1С
+    monkeypatch.setattr(
+        httpx, "post",
+        lambda url, json=None, timeout=None: _Resp(
+            {"success": False, "error": "Ошибка компиляции"}
+        ),
+    )
+    tr = oc.ExecuteCodeTransport("http://127.0.0.1:6005/api/execute_code")
+    with pytest.raises(RuntimeError, match="Ошибка компиляции"):
+        tr.send([{"article": "1-2-1"}], "c")
+
+
+def test_transport_for_unknown_url_raises():
+    with pytest.raises(ValueError, match="неизвестный URL"):
+        oc.transport_for("https://example.com/anything")

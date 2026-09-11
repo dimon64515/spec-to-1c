@@ -13,6 +13,8 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List
 
+import httpx
+
 
 def parse_1c_result(text: str) -> Dict[str, Any]:
     """Разобрать строку-результат 1С: 'ЗАКАЗ № | строк=N | ошибок=N | предупр=N | ... ## ...'."""
@@ -44,3 +46,44 @@ def parse_1c_result(text: str) -> Dict[str, Any]:
         "warnings": warnings,
         "raw": text,
     }
+
+
+class ExecuteCodeTransport:
+    """Текущий путь через MCP Toolkit execute_code (фолбэк на переходный период).
+
+    request_id не поддерживается execute_code-конвертом — параметр принимается
+    ради единой подписи send() и игнорируется.
+    """
+
+    def __init__(self, execute_url: str) -> None:
+        self.execute_url = execute_url
+
+    def send(
+        self,
+        positions: List[dict],
+        order_comment: str,
+        request_id: str | None = None,
+        timeout: float = 280.0,
+    ) -> Dict[str, Any]:
+        from tools.as_order_loader.build_execute_payload import build_payload
+
+        payload = build_payload(positions, order_comment=order_comment)
+        resp = httpx.post(self.execute_url, json=payload, timeout=timeout)
+        resp.raise_for_status()
+        data = resp.json()
+        # Два envelope ответа:
+        # - нативный HTTP-API MCPToolkit: {"success": bool, "data"|"error": str}
+        # - MCP-прокси (tunnel): {"result": ...}
+        if isinstance(data, dict) and data.get("success") is False:
+            raise RuntimeError(f"1С execute_code: {data.get('error', data)}")
+        if isinstance(data, dict):
+            text = str(data.get("data") or data.get("result") or data)
+        else:
+            text = str(data)
+        return parse_1c_result(text)
+
+
+def transport_for(url: str, api_key: str = "") -> ExecuteCodeTransport:
+    if "/api/execute_code" in url:
+        return ExecuteCodeTransport(url)
+    raise ValueError(f"неизвестный URL транспорта 1С: {url}")
