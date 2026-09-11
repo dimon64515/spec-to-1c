@@ -120,3 +120,133 @@ def test_execute_code_transport_failure_envelope(monkeypatch):
 def test_transport_for_unknown_url_raises():
     with pytest.raises(ValueError, match="неизвестный URL"):
         oc.transport_for("https://example.com/anything")
+
+
+SERVICE_URL = "https://srv1c/base/hs/vok/order"
+
+SERVICE_OK = {
+    "Успех": True,
+    "НомерЗаказа": "000000860",
+    "Ошибки": [],
+    "Предупреждения": ["Строка 1 (1-2-1): цена 0 — проверьте прайс"],
+}
+
+SERVICE_BUSINESS_ERRORS = {
+    "Успех": False,
+    "НомерЗаказа": "000000861",
+    "Ошибки": ['Строка 1: не найден продукт "9-9-9"'],
+    "Предупреждения": [],
+}
+
+SERVICE_500 = {
+    "Успех": False,
+    "НомерЗаказа": None,
+    "Ошибки": ["Ошибка при вызове метода контекста (Записать)"],
+    "Предупреждения": [],
+}
+
+
+def _capture_post(monkeypatch, resp):
+    calls = {}
+
+    def fake_post(url, content=None, json=None, headers=None, timeout=None):
+        calls["url"] = url
+        calls["content"] = content
+        calls["json"] = json
+        calls["headers"] = headers or {}
+        calls["timeout"] = timeout
+        return resp
+
+    monkeypatch.setattr(httpx, "post", fake_post)
+    return calls
+
+
+def test_service_success_200(monkeypatch):
+    calls = _capture_post(monkeypatch, _Resp(SERVICE_OK))
+    tr = oc.transport_for(SERVICE_URL, api_key="secret-1")
+    assert isinstance(tr, oc.HttpServiceTransport)
+    out = tr.send(
+        [{"article": "1-2-1"}], "Задача №42", request_id="bx1-job7", timeout=30.0
+    )
+    assert out["order_number"] == "000000860"
+    assert out["errors"] == []
+    assert out["warnings"] == ["Строка 1 (1-2-1): цена 0 — проверьте прайс"]
+    # контракт запроса (ТЗ п. 3)
+    assert calls["url"] == SERVICE_URL
+    body = json.loads(calls["content"].decode("utf-8"))
+    assert body == {
+        "order_comment": "Задача №42",
+        "request_id": "bx1-job7",
+        "positions": [{"article": "1-2-1"}],
+    }
+    assert calls["json"] is None  # тело шлём через content, не через json=
+    assert calls["headers"]["Content-Type"] == "application/json; charset=utf-8"
+    assert calls["headers"]["X-API-Key"] == "secret-1"
+    assert calls["timeout"] == 30.0
+
+
+def test_service_business_errors_200_no_exception(monkeypatch):
+    _capture_post(monkeypatch, _Resp(SERVICE_BUSINESS_ERRORS))
+    tr = oc.HttpServiceTransport(SERVICE_URL)
+    out = tr.send([{"article": "9-9-9"}], "c")
+    # бизнес-ошибки — значением, не исключением (как в текущем пути)
+    assert out["order_number"] == "000000861"
+    assert out["errors"] == ['Строка 1: не найден продукт "9-9-9"']
+
+
+def test_service_structured_500_is_result_not_exception(monkeypatch):
+    # ТЗ п. 4: 500 с валидной структурой — не исключение
+    _capture_post(monkeypatch, _Resp(SERVICE_500, status_code=500))
+    tr = oc.HttpServiceTransport(SERVICE_URL)
+    out = tr.send([{"article": "1-2-1"}], "c")
+    assert out["order_number"] is None
+    assert out["errors"] == ["Ошибка при вызове метода контекста (Записать)"]
+
+
+def test_service_unstructured_500_raises_http_error(monkeypatch):
+    _capture_post(monkeypatch, _Resp("<html>Gateway Timeout</html>", status_code=500))
+    tr = oc.HttpServiceTransport(SERVICE_URL)
+    with pytest.raises(httpx.HTTPError):
+        tr.send([{"article": "1-2-1"}], "c")
+
+
+def test_service_4xx_raises_runtime_error(monkeypatch):
+    _capture_post(monkeypatch, _Resp("Unauthorized", status_code=401))
+    tr = oc.HttpServiceTransport(SERVICE_URL)
+    with pytest.raises(RuntimeError, match="401"):
+        tr.send([{"article": "1-2-1"}], "c")
+
+
+def test_service_bad_json_raises_runtime_error(monkeypatch):
+    _capture_post(monkeypatch, _Resp(ValueError("no json"), status_code=200))
+    tr = oc.HttpServiceTransport(SERVICE_URL)
+    with pytest.raises(RuntimeError, match="битый JSON"):
+        tr.send([{"article": "1-2-1"}], "c")
+
+
+def test_service_timeout_raises_http_error(monkeypatch):
+    def boom(url, content=None, json=None, headers=None, timeout=None):
+        raise httpx.TimeoutException("read timeout")
+
+    monkeypatch.setattr(httpx, "post", boom)
+    tr = oc.HttpServiceTransport(SERVICE_URL)
+    with pytest.raises(httpx.HTTPError):
+        tr.send([{"article": "1-2-1"}], "c")
+
+
+def test_load_order_dispatches_by_url(monkeypatch):
+    # load_order — единая точка входа: auto-detect транспорта по форме URL
+    calls = _capture_post(monkeypatch, _Resp(SERVICE_OK))
+    out = oc.load_order(
+        [{"article": "1-2-1"}], SERVICE_URL, "c",
+        request_id="r-1", api_key="k",
+    )
+    assert out["order_number"] == "000000860"
+    assert calls["headers"]["X-API-Key"] == "k"
+
+    calls2 = _capture_post(monkeypatch, _Resp({"result": SAMPLE_1C_OK}))
+    out2 = oc.load_order(
+        [{"article": "1-2-1"}], "http://127.0.0.1:6005/api/execute_code", "c"
+    )
+    assert out2["order_number"] == "000000860"
+    assert set(calls2["json"].keys()) == {"code"}
