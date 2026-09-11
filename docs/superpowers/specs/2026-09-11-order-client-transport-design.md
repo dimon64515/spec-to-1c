@@ -60,8 +60,10 @@ def load_order(
     api_key: str = "",               # X-API-Key для HTTP-сервиса
     timeout: float = 280.0,
 ) -> dict:
-    # {"success": bool, "order_number": str|None, "errors": [str], "warnings": [str]}
-    # — та же форма, что сейчас возвращает parse_1c_result, для замены 1:1 в будущей интеграции.
+    # {"order_number": str|None, "errors": [str], "warnings": [str], "raw": str}
+    # — ровно те же ключи, что у parse_1c_result (будущая интеграция —
+    # замена тела load_order_to_1c одной строкой). Ответ HTTP-сервиса
+    # {Успех, НомерЗаказа, Ошибки, Предупреждения} маппится в эту же форму.
 
 def transport_for(url: str, api_key: str = "") -> HttpServiceTransport | ExecuteCodeTransport
     # auto-detect: путь содержит "/hs/" → HttpServiceTransport,
@@ -85,7 +87,8 @@ def transport_for(url: str, api_key: str = "") -> HttpServiceTransport | Execute
 | Ситуация | Поведение | Примечание |
 |---|---|---|
 | HTTP 200, `Успех=false` или непустые `Ошибки` | возврат результата-значения, без исключения | как сейчас — уходит в отчёт |
-| Сетевой сбой, таймаут, HTTP 5xx | `httpx.HTTPError` | как сейчас — бот ретраит |
+| Сетевой сбой, таймаут, HTTP 5xx без валидного JSON-тела ТЗ | `httpx.HTTPError` | как сейчас — бот ретраит |
+| HTTP 5xx с валидной структурой ТЗ (`{"Успех": false, "Ошибки": [...]}`) | возврат результата-значения с заполненными `errors` | ТЗ п. 4: 500 со структурой — не исключение |
 | HTTP 4xx (401/403/405/…) | `RuntimeError` с телом ответа | детерминированная ошибка конфигурации, ретрай бессмысленен (улучшение: текущий `raise_for_status` ретраит всё подряд) |
 | Битый JSON в ответе | `RuntimeError` с фрагментом тела | диагностика, не ретрай |
 
