@@ -306,6 +306,59 @@ AISI 430 (и оц. 0.55) или маппить нерж-спираль на др
    рассмотреть постановку «сырого» события в очередь до скачивания файла;
    (в) при пустом `webhook_verify_token` endpoint открыт — закрыть после фикса №4.
 
+### order_client: интеграция после приёмки HTTP-сервиса 1С (2026-09-11)
+
+Транспортный модуль готов и отревьюен (ветка `feature/order-client-transport`,
+16 новых тестов, регрессия 231 passed; final review: READY TO MERGE).
+Спека/план: `docs/superpowers/specs/2026-09-11-order-client-transport-design.md`,
+`docs/superpowers/plans/2026-09-11-order-client-transport.md`. После того как
+1С-разработчик поднимет сервис и пройдёт живую приёмку (чек-лист — в спеке
+и в разделе «Отложенные замечания ревью» ниже):
+
+1. Интеграция `order_client` в `bitrix_bot/pipeline.py::load_order_to_1c` и
+   `web_app.py` recreate (замена тела одной строкой; `request_id` =
+   `f"bx{task_id}-job{job_id}"` для бота, `"rt-" + md5(content)` для recreate).
+2. Конфиг-переключатель `middleware.order_transport: auto|http_service|execute_code`
+   + `order_service_url`/`order_service_key` в `bitrix.local.yaml`.
+3. После переходного периода — вывод `ExecuteCodeTransport` и MCP Toolkit
+   из эксплуатации.
+
+## Отложенные замечания ревью фичи «order_client — транспорт загрузки заказов» (ветка feature/order-client-transport, 2026-09-11)
+
+Must-do приёмки (после того как программист 1С поднимет HTTP-сервис):
+- Живая приёмка — прогнать ВСЕ позиции фикстуры `tests/fixtures/order_positions_full.json`
+  (2936 позиций, покрытие всех 198 загружаемых артикулов каталога) на копии базы
+  и сверить S/массы/типы цен/цены/шины/материалы с эталоном (заказы 853–861)
+  по каждой позиции — не 2–3 smoke-позиции. Фикстура для этого и собрана.
+- Smoke repeat: повторный вызов с тем же `request_id` → тот же номер заказа,
+  дубликата в базе нет (идемпотентность из `ДополнениеHTTP.bsl` не вырезана).
+- Файлы для передачи 1С-разработчику (все уже на main):
+  `tools/as_order_loader/extension/README.md` (инструкция сборки ~15 мин),
+  `tools/as_order_loader/extension/ДополнениеHTTP.bsl`,
+  `tools/as_order_loader/extension/МодульHTTPСервиса.bsl`,
+  `tools/as_order_loader/as_order_loader.bsl`,
+  `docs/ТЗ_HTTP_СЕРВИС_ЗАГРУЗКА_ЗАКАЗА_1С.md`,
+  `tools/as_order_loader/README.md` (контракт JSON позиций).
+
+Мелочи (можно пачкой):
+- При интеграции в пайплайн: удалить дубль `parse_1c_result` и захарднить
+  парсер ОДИН раз в обеих копиях до удаления: хвостовой сегмент
+  `ошибок=N>0`/`предупр=N>0` без хвоста → IndexError (унаследовано из
+  `bitrix_bot/pipeline.py:95,100`); пустая строка в envelope `data`/`result`
+  молча уходит в `str(dict)` (там же :81). Сейчас копии дословные —
+  parity-by-design, править только вместе.
+- Опциональный guard в `HttpServiceTransport._to_result`: строка вместо
+  массива в `Ошибки`/`Предупреждения` разъезжается посимвольно (ТЗ п. 4
+  гарантирует массивы; BSL всегда пишет `Новый Массив` — риск теоретический).
+- Покрытие фикстуры ровно на границе: `unique_articles == MIN_ARTICLES == 198`.
+  При обновлении справочника `асПродукции` перегенерировать фикстуру
+  (`tools/build_order_positions_fixture.py`) и bump `MIN_ARTICLES` в одном коммите.
+- 3xx от сервиса (httpx не следует редиректам) упадёт в «битый JSON»
+  RuntimeError — если веб-публикация 1С шлёт редиректы, обработать явно.
+- Косметика: незакрытая скобка в docstring `tests/test_order_positions_fixture.py:1`;
+  избыточный цикл assert `shina/conn0/conn1` (:38-39) — exact key-set assert выше
+  уже покрывает.
+
 ## Отложенные замечания ревью фичи «Excel-отчёт + round-trip» (ветка feature/excel-report, 2026-09-07)
 
 Must-do приёмки (до/после прода):
