@@ -338,7 +338,7 @@ def test_batching_respects_batch_size():
 
 (Проверка батчинга косвенная: runner возвращает ровно столько результатов, сколько строк в промпте; если бы `classify_sizes_batch` не разбил 3 строки на 2+1 батча при batch_size=2, zip(batch, results) дал бы неверные dims и финальный assert не сошёлся бы. Для прямой проверки числа вызовов runner может вести счётчик наружу — опционально.)
 
-
+```python
 def test_runner_failure_rejects_all_without_raising():
     def runner(prompt, cfg):
         raise FileNotFoundError("kimi")
