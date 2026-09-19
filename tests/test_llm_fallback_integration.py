@@ -97,3 +97,54 @@ def test_process_rows_llm_disabled_no_classifier_call(monkeypatch):
     xml, skipped, success = pst.process_rows(rows, defaults=DEFAULTS)
     assert not success and skipped
     assert skipped[0]["reason"] != lsc.REASON_LLM_REJECTED
+
+
+def test_silencer_name_guard_blocks_llm_adoption():
+    # «Шумоглушитель трубчатый»: fittings-путь сдаётся (slash-форма «200/160»
+    # не в его грамматике), adoptable-запись в кэше НЕ должна превращать
+    # арматуру в круглый воздуховод 1-1-2.
+    row = {"name": "Шумоглушитель трубчатый", "size": "200/160",
+           "unit": "шт", "quantity": "2"}
+    cache = {"200/160": _cls(dims={"D0": 200.0})}
+    parsed, skip = pst.parse_row(row, DEFAULTS, llm_cache=cache)
+    assert parsed is None
+    assert skip["reason"] == lsc.REASON_LLM_REJECTED
+    assert "усыновление запрещено" in skip["llm_detail"]
+
+
+def test_duct_name_adoption_positive_control():
+    # Контроль: то же adoptable-значение с именем воздуховода усыновляется.
+    row = {"name": "Воздуховод спирально-навивной", "size": "200/160",
+           "unit": "шт", "quantity": "2"}
+    cache = {"200/160": _cls(dims={"D0": 200.0})}
+    parsed, skip = pst.parse_row(row, DEFAULTS, llm_cache=cache)
+    assert skip is None
+    assert parsed["article"] == "1-1-2"
+    assert parsed["params"]["D0"] == 200.0
+
+
+def test_cache_lookup_falls_back_to_raw_row_size(monkeypatch):
+    # Pre-pass кэширует по сырому row["size"], а parse_row ищет по
+    # нормализованному (тут — OCR-исправленному) размеру: lookup должен
+    # откатиться на сырой ключ.
+    row = {"name": "Воздуховод спирально-навивной", "size": "2 00/160",
+           "unit": "шт", "quantity": "2"}
+    monkeypatch.setattr(pst, "correct_ocr_size", lambda name, size: ("200/160", []))
+    cache = {"2 00/160": _cls(dims={"D0": 200.0})}
+    parsed, skip = pst.parse_row(row, DEFAULTS, llm_cache=cache)
+    assert skip is None
+    assert parsed["article"] == "1-1-2"
+    assert parsed["params"]["D0"] == 200.0
+
+
+def test_cache_lookup_falls_back_to_raw_row_size_in_skip(monkeypatch):
+    # То же в ветке финального пропуска: rejected-запись по сырому ключу.
+    row = {"name": "Воздуховод спирально-навивной", "size": "2 00/160",
+           "unit": "шт", "quantity": "2"}
+    monkeypatch.setattr(pst, "correct_ocr_size", lambda name, size: ("200/160", []))
+    cache = {"2 00/160": _cls(status="rejected", adoptable=False,
+                              format_class="unknown", detail="spans пусты")}
+    parsed, skip = pst.parse_row(row, DEFAULTS, llm_cache=cache)
+    assert parsed is None
+    assert skip["reason"] == lsc.REASON_LLM_REJECTED
+    assert skip["llm_detail"] == "spans пусты"

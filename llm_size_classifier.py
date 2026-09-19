@@ -91,7 +91,8 @@ def _run_kimi(prompt: str, cfg: Dict) -> str:
     model = str(cfg.get("model") or "").strip()
     if model:
         cmd += ["-m", model]
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=int(cfg.get("timeout", 120)))
+    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
+                          timeout=int(cfg.get("timeout", 120)))
     if proc.returncode != 0:
         raise RuntimeError(f"kimi exit {proc.returncode}: {proc.stderr[:300]}")
     return proc.stdout
@@ -161,6 +162,12 @@ def _spans_to_dims(format_class: str, spans: List[Dict], source: str) -> Optiona
         return {"D0": ordered[0], "D1": ordered[1]}
     elif format_class == "silencer_code":
         return {}  # кодовые таблицы — забота каскада/этапа 3
+    if format_class == "round_diameter":
+        # Чужеродные spans (например, role "c") не должны протекать в dims:
+        # round_diameter — только диаметр (первый) и опционально длина.
+        return {k: values[k] for k in ("D0", "L0") if k in values}
+    if format_class == "rect_axb":
+        return {k: values[k] for k in ("A0", "B0", "L0") if k in values}
     return values or None
 
 
@@ -199,21 +206,23 @@ def _classify_one(source: str, result: Dict, raw_response: str) -> "SizeClassifi
 
 def classify_sizes_batch(strings, cfg=None, runner=None):
     """Классифицирует строки батчами. runner(prompt, cfg)->stdout инжектируется в тестах.
-    Любой сбой → status=rejected (пайплайн не падает)."""
+    Любой сбой → status=rejected (пайплайн не падает).
+
+    Несовпадение числа результатов → рекурсивное дробление батча пополам;
+    одиночная строка с несовпадением → отклонение с сохранением сырого ответа."""
     cfg = get_llm_config() if cfg is None else cfg
     run = _run_kimi if runner is None else runner
     batch_size = max(1, int(cfg.get("batch_size", 20)))
     out: Dict[str, SizeClassification] = {}
 
-    def reject_batch(batch, detail):
+    def reject_batch(batch, detail, raw=""):
         for s in batch:
-            logger.warning("LLM-классификация отклонена: %r — %s", s, detail)
-            out[s] = SizeClassification(status="rejected", detail=detail)
+            logger.warning(
+                "LLM-классификация отклонена: %r — %s; raw: %.500s", s, detail, raw
+            )
+            out[s] = SizeClassification(status="rejected", raw_response=raw, detail=detail)
 
-    for i in range(0, len(strings), batch_size):
-        batch = [s for s in strings[i:i + batch_size] if s and s not in out]
-        if not batch:
-            continue
+    def process(batch):
         prompt = _build_prompt(batch)
         raw = ""
         last_exc: Optional[Exception] = None
@@ -226,16 +235,25 @@ def classify_sizes_batch(strings, cfg=None, runner=None):
                 logger.warning("kimi вызов неудачен (попытка %d): %s", attempt + 1, exc)
         else:
             reject_batch(batch, f"LLM недоступна: {last_exc}")
-            continue
+            return
         try:
             content = _assistant_content(raw)
             obj = _extract_json_object(content)
             results = obj.get("results")
-            if not isinstance(results, list) or len(results) < len(batch):
-                raise ValueError(f"ожидалось {len(batch)} результатов, получено {len(results) if isinstance(results, list) else 0}")
+            if not isinstance(results, list) or len(results) != len(batch):
+                raise ValueError(
+                    f"ожидалось {len(batch)} результатов, получено "
+                    f"{len(results) if isinstance(results, list) else 0}"
+                )
         except ValueError as exc:
-            reject_batch(batch, f"ответ LLM не распознан: {exc}")
-            continue
+            if len(batch) > 1:
+                # Модель часто «теряет» строки в больших батчах — дробим пополам.
+                mid = len(batch) // 2
+                process(batch[:mid])
+                process(batch[mid:])
+            else:
+                reject_batch(batch, f"ответ LLM не распознан: {exc}", raw=raw)
+            return
         for source, result in zip(batch, results):
             if not isinstance(result, dict):
                 result = {}
@@ -245,4 +263,10 @@ def classify_sizes_batch(strings, cfg=None, runner=None):
                 source, cls.format_class, cls.status, cls.detail,
             )
             out[source] = cls
+
+    for i in range(0, len(strings), batch_size):
+        batch = [s for s in strings[i:i + batch_size] if s and s not in out]
+        if not batch:
+            continue
+        process(batch)
     return out

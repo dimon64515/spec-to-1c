@@ -181,3 +181,91 @@ def test_huge_digit_span_rejected_not_raised():
 
     r = lsc.classify_sizes_batch([big], cfg=CFG, runner=runner)[big]
     assert r.status == "rejected"  # и не бросило OverflowError
+
+
+def test_garbage_stdout_rejected_with_raw_preserved():
+    # Парсер не смог разобрать stdout — ответ должен сохраниться в raw_response
+    # для диагностики, а не пропасть.
+    garbage = "это не json вообще <<<garbage>>>"
+
+    def runner(prompt, cfg):
+        return garbage
+
+    r = lsc.classify_sizes_batch(["Ø315"], cfg=CFG, runner=runner)["Ø315"]
+    assert r.status == "rejected"
+    assert r.raw_response == garbage
+
+
+def test_count_mismatch_triggers_recursive_halving():
+    # Модель «теряет» строки в 4-строковом батче (возвращает 1 результат вместо
+    # 4): батч должен раздвоиться до совпадения, всё классифицируется ok.
+    import json as _json
+    import re as _re
+
+    prompt_sizes = []
+
+    def runner(prompt, cfg):
+        strings = []
+        for line in prompt.splitlines():
+            m = _re.match(r"^\d+: (\".*\")$", line)
+            if m:
+                strings.append(_json.loads(m.group(1)))
+        prompt_sizes.append(len(strings))
+        n = 1 if len(strings) >= 4 else len(strings)  # теряем строки в больших батчах
+        results = []
+        for s in strings[:n]:
+            m = _re.match(r"\d+", s)
+            results.append({"format_class": "round_diameter",
+                            "spans": [{"role": "diameter", "start": 0, "end": m.end()}]})
+        return _json.dumps({"role": "assistant", "content": _json.dumps({"results": results})})
+
+    cfg = dict(CFG, batch_size=4)
+    out = lsc.classify_sizes_batch(["315a", "400a", "500a", "630a"], cfg=cfg, runner=runner)
+    assert all(r.status == "ok" and r.adoptable for r in out.values())
+    assert {r.dims["D0"] for r in out.values()} == {315.0, 400.0, 500.0, 630.0}
+    assert prompt_sizes[0] == 4            # 4-строковый промпт был попытан
+    assert prompt_sizes.count(4) == 1      # и после дробления не повторялся
+    assert all(n < 4 for n in prompt_sizes[1:])
+
+
+def test_single_item_mismatch_rejected_with_raw():
+    # Одиночная строка, на которой модель всё равно молчит/путает счёт —
+    # отклоняется с сохранением сырого ответа, без бесконечного дробления.
+    import json as _json
+
+    def runner(prompt, cfg):
+        return _json.dumps({"role": "assistant",
+                            "content": _json.dumps({"results": []})})
+
+    raw = runner(None, None)
+    r = lsc.classify_sizes_batch(["Ø315"], cfg=CFG, runner=runner)["Ø315"]
+    assert r.status == "rejected"
+    assert r.raw_response == raw
+
+
+def test_stray_role_c_span_does_not_leak_into_round_diameter():
+    # "Ø315-160": «315» — diameter, «160» — чужеродный span role "c".
+    # round_diameter должен дать только D0; D2 не протекает.
+    content = json.dumps({"results": [
+        {"format_class": "round_diameter",
+         "spans": [{"role": "diameter", "start": 1, "end": 4},
+                   {"role": "c", "start": 5, "end": 8}]}
+    ]})
+    runner, _ = _ok_runner({"Ø315-160": content})
+    r = lsc.classify_sizes_batch(["Ø315-160"], cfg=CFG, runner=runner)["Ø315-160"]
+    assert r.status == "ok" and r.adoptable
+    assert r.dims == {"D0": 315.0}
+
+
+def test_stray_role_c_span_does_not_leak_into_rect_axb():
+    # "1250x800-300": «300» — чужеродный span role "c"; rect_axb — только A0/B0.
+    content = json.dumps({"results": [
+        {"format_class": "rect_axb",
+         "spans": [{"role": "a", "start": 0, "end": 4},
+                   {"role": "b", "start": 5, "end": 8},
+                   {"role": "c", "start": 9, "end": 12}]}
+    ]})
+    runner, _ = _ok_runner({"1250x800-300": content})
+    r = lsc.classify_sizes_batch(["1250x800-300"], cfg=CFG, runner=runner)["1250x800-300"]
+    assert r.status == "ok" and r.adoptable
+    assert r.dims == {"A0": 1250.0, "B0": 800.0}

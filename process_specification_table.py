@@ -77,6 +77,13 @@ def load_allowed_articles(path: str = None) -> set:
 
 ALLOWED_ARTICLES = load_allowed_articles()
 
+# Наименования, при которых LLM-усыновление в воздуховод запрещено
+# (арматура/фасонка, для которой fitting-путь — единственный корректный).
+NON_DUCT_NAME_RE = (
+    r"тройник|отвод|переход|клапан|шумоглушител|диффузор|решетк|дроссель"
+    r"|врезк|наконечник|заглушк|крестовин"
+)
+
 
 # Справочник кодов LITENED и длины — в config/size_notations.yaml (size_notations).
 
@@ -1284,8 +1291,9 @@ def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.Size
     # Воздуховоды
     section, dims = parse_size(size)
     if not section and llm_cache:
-        llm_result = llm_cache.get(size)
-        if llm_result is not None and llm_result.adoptable:
+        llm_result = llm_cache.get(size) or llm_cache.get(str(row.get("size", "")).strip()) or None
+        if (llm_result is not None and llm_result.adoptable
+                and not re.search(NON_DUCT_NAME_RE, name, re.IGNORECASE)):
             logger.info("LLM-фолбэк: размер %r усыновлён (%s)", size, llm_result.format_class)
             section, dims = llm_result.section, dict(llm_result.dims)
     if section:
@@ -1356,11 +1364,15 @@ def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.Size
     reason = classify_skip(name, size, unit, ptype)
     skip_dict = {"name": name, "size": size, "unit": unit, "reason": reason}
     if reason == "Не удалось распознать размер / тип" and llm_cache:
-        llm_result = llm_cache.get(size)
+        llm_result = llm_cache.get(size) or llm_cache.get(str(row.get("size", "")).strip()) or None
         if llm_result is not None:
+            detail = llm_result.detail
+            if (not detail and llm_result.adoptable
+                    and re.search(NON_DUCT_NAME_RE, name, re.IGNORECASE)):
+                detail = "усыновление запрещено: наименование арматуры/фасонки"
             skip_dict["reason"] = lsc.REASON_LLM_REJECTED
             skip_dict["llm_format_class"] = llm_result.format_class
-            skip_dict["llm_detail"] = llm_result.detail
+            skip_dict["llm_detail"] = detail
             skip_dict["llm_raw"] = llm_result.raw_response[:2000]
             logger.warning(
                 "LLM-классификация отклонена: %r → %s (%s)",
