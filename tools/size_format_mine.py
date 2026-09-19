@@ -80,6 +80,8 @@ def _sanitize_entry(entry, existing: set) -> str | None:
     e = str(entry or "").strip()
     if not e or len(e) > _MAX_SYMBOL_LEN:
         return None
+    if not e.isprintable():
+        return None                   # zero-width/BOM и прочие непечатаемые символы
     if re.search(r"\d", e):           # ЖЁСТКОЕ ОГРАНИЧЕНИЕ: никаких цифр
         return None
     low = e.lower()
@@ -193,9 +195,15 @@ def _run_pytest_gate(env: Dict[str, str]) -> tuple:
 
 
 def gate_check(patch: Dict, cluster_strings: List[str], run_pytest=None) -> tuple:
-    """Gate: (1) каждая строка кластера парсится под пропатченной КОПИЕЙ конфига;
+    """Gate: (0) НИ ОДНА строка не парсится под текущим конфигом (патч обязан быть нужен);
+    (1) каждая строка кластера парсится под пропатченной КОПИЕЙ конфига;
     (2) полный pytest зелёный. Реальный конфиг не трогаем."""
     run_pytest = run_pytest or _run_pytest_gate
+    szn.reload_notations()
+    already = [s for s in cluster_strings
+               if pst.parse_size(s)[0] is not None or pst.extract_dimensions(s)]
+    if already:
+        return False, f"уже парсится без патча: {already[:5]}"
     tmp_path = _write_temp_config(_merged_notations(patch))
     old_env = os.environ.get("SPEC_TO_1C_SIZE_NOTATIONS")
     os.environ["SPEC_TO_1C_SIZE_NOTATIONS"] = tmp_path

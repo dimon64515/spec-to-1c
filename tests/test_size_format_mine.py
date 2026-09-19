@@ -137,6 +137,34 @@ def test_gate_red_when_cluster_still_unparsed(tmp_path, monkeypatch):
     assert not ok and "парс" in reason.lower()
 
 
+def test_gate_red_when_cluster_already_parses(monkeypatch):
+    # Ф315 парсится и без патча → патч не нужен, pytest не должен вызываться.
+    calls = []
+    monkeypatch.setattr(mine, "_run_pytest_gate",
+                        lambda env: (calls.append(env), (True, ""))[1])
+    patch = {"add_prefixes": ["∅"], "add_suffixes": [], "add_separators": []}
+    ok, reason = mine.gate_check(patch, ["Ф315"])
+    assert not ok and "уже парсится" in reason
+    assert calls == []
+
+
+def test_gate_green_still_works(monkeypatch):
+    # Отрицательный пре-чек: "⊘315" под текущим конфигом НЕ парсится,
+    # под патчем (префикс ⊘) — парсится.
+    assert pst.parse_size("⊘315")[0] is None and not pst.extract_dimensions("⊘315")
+    monkeypatch.setattr(mine, "_run_pytest_gate", lambda env: (True, ""))
+    patch = {"add_prefixes": ["⊘"], "add_suffixes": [], "add_separators": []}
+    ok, reason = mine.gate_check(patch, ["⊘315"])
+    assert ok, reason
+
+
+def test_sanitize_rejects_zero_width():
+    out = mine.sanitize_proposals({"add_prefixes": ["\u200b∅"],
+                                   "add_suffixes": [], "add_separators": []},
+                                  _current())
+    assert out["add_prefixes"] == []
+
+
 def test_gate_red_when_pytest_fails(monkeypatch):
     monkeypatch.setattr(mine, "_run_pytest_gate", lambda env: (False, "3 failed"))
     ok, reason = mine.gate_check(PATCH, ["∅315"])
