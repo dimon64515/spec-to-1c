@@ -1,75 +1,67 @@
-# Task 1 Report (Excel-отчёт): material/thickness/quantity в пропущенных позициях
+# Task 1 Report: Парсер результата 1С и заглушка ответа для тестов
 
-**Статус:** DONE_WITH_CONCERNS
-**Коммит:** `69012f0` — `feat(parser): keep material/thickness/quantity in skipped rows`
-**Ветка:** `feature/excel-report`
+## What was implemented
 
-## Что сделано
+- `order_client.py` — новый модуль транспорта загрузки заказов в 1С с функцией
+  `parse_1c_result(text: str) -> dict`. Парсит строку-результат 1С формата
+  `ЗАКАЗ № | строк=N | ошибок=N | предупр=N | ... ## ...` и возвращает
+  `{"order_number", "errors", "warnings", "raw"}` — ровно те же ключи, что у
+  `bitrix_bot.pipeline.parse_1c_result` (тот же алгоритм: ошибки/предупреждения
+  приходят одним сегментом, склеенным BSL через `СтрСоединить(..., "; ")`).
+- `tests/test_order_client.py` — 2 теста (`test_parse_result_ok`,
+  `test_parse_result_errors_joined_single_segment`) + общая заглушка `_Resp`
+  (стиль `tests/test_bitrix_pipeline.py`) и константы `SAMPLE_1C_OK` /
+  `SAMPLE_1C_ERRORS` для последующих задач транспорта.
 
-Все шаги брифа выполнены по порядку (TDD):
+Код обоих файлов — verbatim из брифа, без дополнительных фич.
 
-1. **Step 1 — failing tests.** В конец существующего `tests/test_process_specification_table.py`
-   (дописан, не перезаписан) добавлены два теста из брифа:
-   `test_trading_skip_contains_material_thickness_quantity` и
-   `test_bad_quantity_skip_contains_material` (импорт `parse_row` уже был в файле).
+## TDD Evidence
 
-2. **Step 2 — подтверждение падения.**
-   Команда: `python -m pytest tests/test_process_specification_table.py -k skip_contains -v`
-   (в venv отсутствует pytest у системного python, запуск через `venv/bin/python`).
-   Результат: `2 failed, 9 deselected` — оба с `KeyError: 'material'`, как ожидал бриф.
+### RED (Step 2)
 
-3. **Step 3 — реализация в `process_specification_table.py`, функция `parse_row`:**
-   - Сразу после блока `if thick_from_name is not None: ... thickness_explicit = True`
-     добавлен блок `try/except ValueError` с `parsed_quantity` (дословно из брифа).
-   - Ветка 1 (покупная позиция, гибкие воздуховоды/трубы/K-FLEX) — добавлены ключи
-     `"quantity": parsed_quantity, "material": material, "thickness": thickness`.
-   - Ветка 2 (покупная арматура, брендовые клапаны/шумоглушители) — аналогично.
-   - Ветка 3 (нераспознанное количество): старый блок `try: quantity = float(...)`
-     заменён на `if parsed_quantity is None: return None, ...` (с `"quantity": None` в dict)
-     и `quantity = parsed_quantity`. Старый try/except удалён, логика переехала выше.
-   Поведение существующих ключей skip-dict не изменено — добавлены только новые.
+Команда: `.venv/bin/python -m pytest tests/test_order_client.py -v`
 
-4. **Step 4 — зелень.**
-   - `venv/bin/python -m pytest tests/test_process_specification_table.py -v`:
-     `11 passed in 0.37s` (9 старых + 2 новых).
-   - Полный регресс `.venv/bin/python -m pytest tests/ -x -q`:
-     **`140 passed in 14.65s`**. (Замечание: в `venv/` нет fastapi, полный прогон
-     работает только в `.venv/` — это предсуществующее состояние окружения.)
-
-5. **Step 5 — коммит.** `git add process_specification_table.py tests/test_process_specification_table.py`
-   + commit. Чужие WIP-правки в этих двух файлах, не относящиеся к таску,
-   вошли в коммит целиком — так прямо требовало задание.
-
-## Отклонение от брифа (важно)
-
-В тесте `test_bad_quantity_skip_contains_material` бриф требует
-`assert skip["material"] == "оцинкованная"` для наименования
-`"Отвод нержавеющий 0.7 300x200"`. Это противоречит поведению парсера:
-`extract_material_thickness_from_name(name)` корректно извлекает «нержавеющий»
-из наименования (ветка `if mat_from_name != material.lower() or re.search(r"(нерж|...)", ...)`,
-~строка 1077 рабочего дерева), и материал законно становится `"нержавеющая"`.
-Ожидание «оцинкованная» падало бы при любом коде, добавляющем ключ `material`.
-Поэтому в тесте ожидание скорректировано на `skip["material"] == "нержавеющая"`
-(толщина 0.7 из наименования и `quantity is None` — без изменений, совпадают с брифом).
-Функциональное требование брифа (ключи `material`/`thickness`/`quantity` во всех
-ветках пропуска, читаемые Task 2 через `.get()`) выполнено полностью.
-
-## Саморевью
-
-- `git diff 69012f0~1 69012f0 --stat`: `process_specification_table.py +244/-31`,
-  `tests/test_process_specification_table.py +29/-3`. Рост парсера больше объёма
-  правки таска — это чужой WIP, закоммиченный целиком по инструкции задания.
-- Проверил глазами diff веток пропуска в `parse_row`: все три `return None, _apply_ocr_warnings({...})`
-  до блока количества теперь содержат три новых ключа; остальные ветки пропуска
-  (unknown, за пределами брифа) не тронуты, как и требовалось.
-- Старые тесты файла и полный набор (140 шт.) зелёные — регрессий нет.
-- Незакоммиченными остались все прочие WIP-файлы (`api.py`, `bitrix_bot/*` и т.д.) —
-  не трогал, не откатывал.
-
-## Команды (для повтора)
-
-```bash
-python -m pytest tests/test_process_specification_table.py -k skip_contains -v   # FAIL: KeyError 'material'
-venv/bin/python -m pytest tests/test_process_specification_table.py -v           # 11 passed
-.venv/bin/python -m pytest tests/ -x -q                                          # 140 passed
 ```
+ERROR collecting tests/test_order_client.py
+tests/test_order_client.py:7: in <module>
+    import order_client as oc
+E   ModuleNotFoundError: No module named 'order_client'
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.22s
+```
+
+Падение ожидаемое: модуль `order_client` ещё не создан — тест написан раньше реализации.
+
+### GREEN (Step 4)
+
+Команда: `.venv/bin/python -m pytest tests/test_order_client.py -v`
+
+```
+tests/test_order_client.py::test_parse_result_ok PASSED                  [ 50%]
+tests/test_order_client.py::test_parse_result_errors_joined_single_segment PASSED [100%]
+============================== 2 passed in 0.09s ===============================
+```
+
+## Files changed / Commit
+
+- `order_client.py` (created)
+- `tests/test_order_client.py` (created)
+- Commit: `fddb545` — `feat(order_client): parser for 1C result string`
+  (branch `feature/order-client-transport`; staged ровно два файла задачи,
+  `git add -A` не использовался)
+
+## Self-review
+
+- Полнота vs бриф: оба файла совпадают с брифом посимвольно (проверено при
+  переписывании; шаги 1–5 выполнены по порядку).
+- Лишних фич нет: реализация — только `parse_1c_result`, тесты — только два
+  указанных. `SAMPLE_1C_ERRORS` и `_Resp` пока не используются тестами —
+  это по брифу, они задуманы как общая база для задач 2+ (транспорты).
+- Вывод тестов чистый: 2 passed, без warnings.
+- Состояние дерева: посторонние грязные изменения (requirements.txt, tools/,
+  docs/, отчёты других задач) не закоммичены.
+
+## Concerns
+
+- Нет. Единственное наблюдение: в тестовом файле `import pytest` и константа
+  `SAMPLE_1C_ERRORS` formally unused — оставлены verbatim по брифу.

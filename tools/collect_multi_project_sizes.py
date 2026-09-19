@@ -76,7 +76,9 @@ def main() -> None:
         for path in sorted(EXAMPLES.rglob("*.pdf")):
             try:
                 with ProcessPoolExecutor(max_workers=1) as pool:
-                    found.update(pool.submit(_collect_pdf, str(path)).result())
+                    for raw, rec in pool.submit(_collect_pdf, str(path)).result().items():
+                        if raw not in found:
+                            found[raw] = rec
             except Exception as exc:  # noqa: BLE001
                 print(f"skip {path.name}: {exc}")
                 continue

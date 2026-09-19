@@ -1,53 +1,73 @@
-# Task 4 — Отчёт: BitrixClient.send_file — загрузка файла на Диск + сообщение с attach
+# Task 4 Report: Корпус позиций полного покрытия (генератор + фикстура + контрактный тест)
 
-**Статус:** DONE
-**Дата:** 2026-09-07
-**Ветка:** feature/excel-report
-**Коммит:** `34ceb598bdb052b0323d26e182860903b9a93a27` — `feat(bitrix): send_file via disk upload + im attach with link fallback`
+Date: 2026-09-11 · Branch: `feature/order-client-transport` · Base: `a4d7adb`
 
-> Примечание: файл ранее содержал отчёт чужого Task 4 (pipeline.py, коммиты `c82af63`, `d6c70ba` —
-> фактическая работа по нему в git сохранена). Прежнее содержимое рабочей копии было незакоммичено,
-> файл перезаписан по инструкции текущего задания.
+## What was implemented
 
-## Что сделано (TDD)
+Three new files, exactly as specified in `.superpowers/sdd/task-4-brief.md`:
 
-### 1. `tests/test_bitrix_client.py` — дописаны 2 теста из брифа, verbatim
-- `test_send_file_uploads_and_attaches` — порядок вызовов `disk.storage.getlist → disk.storage.get →
-  disk.folder.uploadfile → imbot.message.add`, base64-контент, `data={"NAME": ...}`,
-  `ATTACH == [["DISK", "555"]]`, `BOT_ID == 5`.
-- `test_send_file_falls_back_to_link_on_attach_error` — при `BitrixError` из `imbot.message.add`
-  фолбэк через `send_message` с текстом `cap` + ссылка `https://portal/disk/555`.
-- Добавлен только `import base64` в шапку; существующий импорт `BitrixClient, BitrixError` не дублировался
-  (из второго теста брифа локальный импорт `BitrixError` не понадобился — класс уже импортирован в шапке).
+1. **`tools/build_order_positions_fixture.py`** — one-off generator. Runs the real PDF pipeline (`bitrix_bot.pipeline.process_pdf_to_positions` + `json_positions.build_positions`) over all 10 PDFs under `examples/`, then adds a synthetic position (per `synthetic_position` rules: round D0=200/shina=65, rect A0=400×B0=200/shina=95, L0=1000) for every catalog article from `reference/1c_products_all.json` not covered by the corpus, excluding garbage `----` articles, groups, and `BLOCKED_1C_ARTICLES` (20-2).
+2. **`tests/fixtures/order_positions_full.json`** — generated corpus, committed (1 066 944 bytes): `real_count=2768`, `synthetic_count=168`, `total=2936` positions, `blocked=["20-2"]`, sorted by article.
+3. **`tests/test_order_positions_fixture.py`** — contract test (verbatim from brief): fixture exists + coverage (`>= 198` unique articles, no `20-2`/`----`, real and synthetic counts > 0), and per-position contract (exactly 9 keys, non-empty `params` dict, utf-8 round-trip serialization).
 
-### 2. Failing-first подтверждён
-`.venv/bin/python -m pytest tests/test_bitrix_client.py -k send_file -v` → **2 failed**:
-`AttributeError: 'BitrixClient' object has no attribute 'send_file'` — как ожидает бриф.
+## TDD Evidence
 
-### 3. `bitrix_bot/bitrix_client.py` — реализация из брифа, verbatim
-- `import base64` (поставлен в блок импортов).
-- Метод `send_file(dialog_id, file_name, content, caption, bot_id=None)`:
-  `disk.storage.getlist` → пусто → `BitrixError`; `disk.storage.get` → `ROOT_OBJECT_ID`;
-  `disk.folder.uploadfile` (base64, `generateUniqueName=True`) → `ATTACH=[["DISK", ID]]`;
-  `imbot.message.add` при `bot_id` (с `CLIENT_ID`, если задан) / `im.message.add` иначе;
-  при `BitrixError` на отправке — фолбэк `send_message(dialog_id, caption + "\nФайл: <DETAIL_URL>")`.
+**RED** — `.venv/bin/python -m pytest tests/test_order_positions_fixture.py -v` (before fixture existed):
 
-## Тесты
-- `.venv/bin/python -m pytest tests/test_bitrix_client.py -v` → **7 passed**.
-- Полный пакет: `.venv/bin/python -m pytest tests/ -x -q` → **146 passed, 1 warning** (warning —
-  устаревший starlette TestClient, pre-existing, не связан с таском).
+```
+FAILED tests/test_order_positions_fixture.py::test_fixture_exists_and_covers_catalog
+FAILED tests/test_order_positions_fixture.py::test_fixture_positions_match_contract
+E  FileNotFoundError: [Errno 2] No such file or directory:
+   '/home/dimon64515/projects/xml-to-1c/tests/fixtures/order_positions_full.json'
+```
 
-## Step 5 (smoke против реального портала)
-**Пропущен сознательно** — портал недоступен из этого окружения (по инструкции оркестратора).
-Smoke из брифа + фиксация в BACKLOG.md при фолбэке-ссылке остаётся на владельца после мержа.
+**Generator run** — `.venv/bin/python tools/build_order_positions_fixture.py` (exit 0, no traceback, ~4 min). Progress lines for all 10 PDFs printed; final stdout line:
 
-## Замечания / Concerns
-1. **Коммит содержит также прежние незакоммиченные правки `bitrix_client.py`** из задач 1–3 этой же
-   ветки (`send_message(bot_id=...)` с `CLIENT_ID`, `app_client_id` в `__init__`, `resolve_download_url`,
-   `get_dialog_messages`). Инструкция была «коммить только эти два файла» — список соблюдён, но
-   `git add` всего файла вкоммитил и эту накопившуюся работу. Чистый send_file-дифф: импорт base64 +
-   метод send_file (~36 строк). Если нужен атомарный коммит — можно разделить интерактивным staging.
-2. Чужие незакоммиченные правки вне таска не трогал; `git add` делался явным списком из двух файлов.
-   Отчёт (`task-4-report.md`) в коммит не включён.
-3. `BitrixClient.call` возвращает `data["result"]`, тестовый стаб возвращает dict/list напрямую — метод
-   построен поверх `self.call`, поэтому с реальным порталом поведение соответствует контракту REST.
+```
+real=2768 synth=168 total=2936 unique_articles=198 blocked=['20-2']
+```
+
+`unique_articles=198 >= MIN_ARTICLES=198` ✓, `blocked=['20-2']` ✓.
+
+**GREEN** — `.venv/bin/python -m pytest tests/test_order_positions_fixture.py -v`:
+
+```
+tests/test_order_positions_fixture.py::test_fixture_exists_and_covers_catalog PASSED [ 50%]
+tests/test_order_positions_fixture.py::test_fixture_positions_match_contract PASSED [100%]
+2 passed in 0.11s
+```
+
+**Full suite** — `.venv/bin/python -m pytest tests/ -x -q`:
+
+```
+231 passed, 1 warning in 42.63s
+```
+
+(1 pre-existing StarletteDeprecationWarning from fastapi TestClient; unrelated.)
+
+## Files changed & commit
+
+Commit `036ca8801a439fc2a0ccf2b3bf39324b98390290` (branch `feature/order-client-transport`):
+
+```
+test(order_client): full article coverage fixture (corpus + synthetic)
+ tests/fixtures/order_positions_full.json | 43670 ++...
+ tests/test_order_positions_fixture.py    |    46 +
+ tools/build_order_positions_fixture.py   |   111 +
+ 3 files changed, 43827 insertions(+)
+```
+
+Only these three files staged (explicit `git add`, no `-A`, no amend). Pre-existing unrelated dirty files (`requirements.txt`, `tools/as_order_loader/README.md`, `tools/collect_multi_project_sizes.py`, `docs/*.md`, prior task reports) left untouched.
+
+## Self-review findings
+
+- Test and generator code are byte-for-byte the brief's verbatim code.
+- Fixture sanity-checked programmatically: all 2936 positions have exactly the key set `{article, qty, thickness, material, params, comment, shina, conn0, conn1}`; corpus top-level keys are exactly `real_count, synthetic_count, blocked, positions`.
+- `blocked` in fixture is `["20-2"]`, matching `set(BLOCKED_1C_ARTICLES)` at HEAD.
+- Coverage is exactly at the boundary (`unique_articles == 198 == MIN_ARTICLES`): 199 valid catalog articles − blocked 20-2. This is correct per plan, but brittle by design — any catalog snapshot change requires re-running the generator.
+
+## Concerns
+
+- **Boundary brittleness**: coverage equals the test minimum exactly. If `reference/1c_products_all.json` is refreshed with new articles and the fixture is not regenerated, the test fails (loudly, as intended).
+- The test file's module docstring reproduces an unclosed parenthesis from the brief verbatim (`...(фикстура для приёмки HTTP-сервиса 1С.`); harmless in a docstring, kept because the brief mandates exact code.
+- Fixture (1 MB) makes the repo heavier; accepted per plan ("фикстура коммитится").
