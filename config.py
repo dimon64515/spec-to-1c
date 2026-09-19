@@ -39,6 +39,12 @@ def reload_config(path: str | os.PathLike | None = None) -> Dict[str, Any]:
     """Reload configuration and update the cached copy."""
     global _CONFIG
     _CONFIG = load_config(path)
+    try:  # сбросить кэш паттернов размеров, если модуль загружен
+        import size_notations
+
+        size_notations.reload_notations()
+    except ImportError:
+        pass
     return _CONFIG
 
 

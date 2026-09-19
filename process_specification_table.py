@@ -30,6 +30,7 @@ from typing import List, Dict, Optional, Tuple
 
 import pandas as pd
 
+import size_notations as szn
 from config import get_config, mapping_file
 from generate_order_xml import build_characteristic, generate_order_xml, load_article_mapping
 from project_spec_xlsx import is_project_spec_xlsx, parse_project_spec_xlsx
@@ -75,20 +76,7 @@ def load_allowed_articles(path: str = None) -> set:
 ALLOWED_ARTICLES = load_allowed_articles()
 
 
-# Справочник модельных кодов LITENED NK(NKD/NKK) → сечение и длина.
-# Код X-Y означает сечение (X*100) × (Y*100) мм.
-# Источник: https://air-ned.com/tovar-271.html
-LITENED_SILENCER_SIZES = {
-    "40-20": (400, 200),
-    "50-25": (500, 250),
-    "50-30": (500, 300),
-    "60-30": (600, 300),
-    "60-35": (600, 350),
-    "70-40": (700, 400),
-    "80-50": (800, 500),
-    "90-50": (900, 500),
-    "100-50": (1000, 500),
-}
+# Справочник кодов LITENED и длины — в config/size_notations.yaml (size_notations).
 
 
 def load_article_materials(path: str = None) -> Dict[str, List[str]]:
@@ -217,10 +205,10 @@ def is_round(text: str) -> bool:
     if re.search(r"\bпрямоугольн", text):
         return False
     # Одиночный диаметр (в т.ч. с префиксом Ø/⌀)
-    if re.search(r"(?:dn|d|дн|ду|д|ф|ø|⌀)\s*\d+", text, re.IGNORECASE):
+    if re.search(rf"(?:{szn.prefix_group()})\s*\d+", text, re.IGNORECASE):
         return True
     # Суффиксный диаметр «125ø» (U+00F8)
-    if re.search(r"\d{2,5}\s*[øØ⌀]", text):
+    if re.search(rf"\d{{2,5}}\s*{szn.suffix_char_class()}", text):
         return True
     return False
 
@@ -230,13 +218,14 @@ def is_round(text: str) -> bool:
 def normalize_dimension_prefix(token: str) -> str:
     """Приводит D/DN/Ø/ø/⌀ к Ф для единообразия."""
     token = token.replace("Ø", "Ф").replace("ø", "Ф").replace("⌀", "Ф")
-    token = re.sub(r"^(?:dn|d|дн|ду|д)\b", "ф", token, flags=re.IGNORECASE)
+    token = re.sub(rf"^(?:{szn.word_prefix_group()})\b", "ф", token, flags=re.IGNORECASE)
     return token
 
 
 def _collapse_size_spaces(text: str) -> str:
     """Убирает пробелы внутри чисел, которые появляются при OCR (например, '7 00' -> '700')."""
-    text = text.replace("х", "x").replace("×", "x").replace("*", "x")
+    for sep in szn.separators():
+        text = text.replace(sep, "x")
     # Повторяем, пока пробелы между цифрами не закончатся
     while re.search(r"(\d)\s+(\d)", text):
         text = re.sub(r"(\d)\s+(\d)", r"\1\2", text)
@@ -264,11 +253,11 @@ def extract_size_token(text: str) -> str:
     # Круглое сечение: суффиксный диаметр «250ø» (FineReader ставит ø после числа).
     # «80 Ø250» из «ГОСТ 14918-80 Ø250» НЕ суффикс: ø здесь префикс следующего
     # числа, поэтому требуем, чтобы после ø не было цифры.
-    m = re.search(r"\b(\d{2,5})\s*[øØ⌀](?!\s*\d)", text)
+    m = re.search(rf"\b(\d{{2,5}})\s*{szn.suffix_char_class()}(?!\s*\d)", text)
     if m:
         return f"Ф{m.group(1)}"
     # Круглое сечение с опциональной длиной (⌀ — не буква, поэтому \b не подходит)
-    m = re.search(r"(?<![\w.])(?:(?:DN|D|ДН|ДУ|Д|Ф|Ø|⌀)\s*\d{2,5}(?:\s*[-_]\s*\d{2,5})?)", text, re.IGNORECASE)
+    m = re.search(rf"(?<![\w.])(?:(?:{szn.prefix_group()})\s*\d{{2,5}}(?:\s*[-_]\s*\d{{2,5}})?)", text, re.IGNORECASE)
     if m:
         return normalize_dimension_prefix(m.group(0)).replace(" ", "")
     return ""
@@ -352,8 +341,8 @@ def extract_material_thickness_from_name(name: str) -> Tuple[str, Optional[float
 # --- Исправление OCR-ошибок в размерах ---
 
 # Сторона прямоугольного воздуховода/фасонки менее 100 мм в проектной
-# спецификации почти всегда означает потерянный ноль при распознавании.
-_OCR_MIN_RECT_SIDE = 100
+# спецификации почти всегда означает потерянный ноль при распознавании
+# (порог — size_notations.min_rect_side_mm()).
 
 
 def _is_rectangular_product(name: str) -> bool:
@@ -386,9 +375,9 @@ def correct_ocr_size(name: str, size: str) -> Tuple[str, List[str]]:
         a = int(match.group(1))
         b = int(match.group(2))
         orig_a, orig_b = a, b
-        if 10 <= a < _OCR_MIN_RECT_SIDE:
+        if 10 <= a < szn.min_rect_side_mm():
             a *= 10
-        if 10 <= b < _OCR_MIN_RECT_SIDE:
+        if 10 <= b < szn.min_rect_side_mm():
             b *= 10
         if a != orig_a or b != orig_b:
             return f"{a}x{b}"
@@ -410,7 +399,8 @@ def parse_size(size: str) -> Tuple[Optional[str], Dict[str, float]]:
     Возвращает: (section, {D0/A0/B0/...})
     """
     size = size.strip().lower()
-    size = size.replace("х", "x").replace("×", "x").replace("*", "x")
+    for sep in szn.separators():
+        size = size.replace(sep, "x")
 
     # Прямоугольное сечение AxBxL: 600x400x1250
     m = re.match(r"^(\d{2,5})\s*x\s*(\d{2,5})\s*x\s*(\d{2,5})$", size)
@@ -428,12 +418,12 @@ def parse_size(size: str) -> Tuple[Optional[str], Dict[str, float]]:
         return "rectangular", {"A0": float(m.group(1)), "B0": float(m.group(2))}
 
     # Круглое сечение с длиной: Ф100-3000, D160-1250
-    m = re.match(r"^(?:dn|d|дн|ду|д|ф)\s*(\d{2,5})\s*[-_]\s*(\d{2,5})$", size)
+    m = re.match(rf"^(?:{szn.prefix_group()})\s*(\d{{2,5}})\s*[-_]\s*(\d{{2,5}})$", size)
     if m:
         return "round", {"D0": float(m.group(1)), "L0": float(m.group(2))}
 
     # D160, DN160, Ф160
-    m = re.match(r"^(?:dn|d|дн|ду|д|ф)\s*(\d{2,5})$", size)
+    m = re.match(rf"^(?:{szn.prefix_group()})\s*(\d{{2,5}})$", size)
     if m:
         return "round", {"D0": float(m.group(1))}
 
@@ -456,7 +446,8 @@ def extract_dimensions(text: str) -> Dict[str, float]:
     """
     dims = {}
     text = _strip_gost_designation(text)
-    text = text.replace("х", "x").replace("×", "x").replace("*", "x")
+    for sep in szn.separators():
+        text = text.replace(sep, "x")
     text_lower = text.lower()
 
     # Все прямоугольные сечения AxB
@@ -466,11 +457,7 @@ def extract_dimensions(text: str) -> Dict[str, float]:
     # Все круглые диаметры: префиксные (D/DN/Ф/Ø/⌀) и суффиксные «125ø» (U+00F8).
     # Суффиксный паттерн с отрицательным просмотром вперёд: «80 Ø250» из
     # «ГОСТ 14918-80 Ø250» не диаметр 80 — Ø там префикс следующего числа.
-    round_matches = re.findall(
-        r"(?:\d{2,5}\s*[øØ⌀](?!\s*\d)|(?:dn|d|дн|ду|д|ф|ø|⌀)\s*\d{2,5})",
-        text,
-        re.IGNORECASE,
-    )
+    round_matches = szn.round_diameter_pattern().findall(text)
     round_tokens = [
         float(re.search(r"\d{2,5}", m.replace("ø", "").replace("Ø", "").replace("⌀", "")).group(0))
         for m in round_matches
@@ -542,11 +529,12 @@ def extract_dimensions(text: str) -> Dict[str, float]:
     if m:
         code = m.group(1)
         variant = m.group(2).upper()
-        if code in LITENED_SILENCER_SIZES:
-            a0, b0 = LITENED_SILENCER_SIZES[code]
+        sizes = szn.litened_sizes()
+        if code in sizes:
+            a0, b0 = sizes[code]
             dims["A0"] = a0
             dims["B0"] = b0
-            dims["L0"] = 1100 if variant == "NKD" else 510
+            dims["L0"] = float(szn.litened_lengths().get(variant, 1100))
 
     # Оборудование по псевдонимам: MSN, KPN-S, PPK, ГЕРМИК, NKD, KNK, CHR, KCH
     if "D0" not in dims and "A0" not in dims:
