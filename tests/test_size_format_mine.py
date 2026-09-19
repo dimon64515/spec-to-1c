@@ -3,6 +3,8 @@ import json
 
 import pytest
 
+import llm_size_classifier as lsc
+import size_notations as szn
 import tools.size_format_mine as mine
 
 
@@ -47,3 +49,69 @@ def test_cluster_filter_min_occurrences():
     counter = {"∅315": 5, "Ø400": 1, "Х500": 3}
     clusters = mine.stable_clusters(counter, min_occurrences=3)
     assert clusters == {"∅315": 5, "Х500": 3}
+
+
+def _current():
+    n = szn.get_notations()
+    return {
+        "diameter_prefixes": list(n["diameter_prefixes"]),
+        "diameter_suffixes": list(n["diameter_suffixes"]),
+        "separators": list(n["separators"]),
+    }
+
+
+def test_sanitize_drops_digits_and_too_long():
+    prop = {"add_prefixes": ["dia315", "∅", "toolongprefix"],
+            "add_suffixes": ["øØ"],
+            "add_separators": ["✕"]}
+    out = mine.sanitize_proposals(prop, _current())
+    assert out["add_prefixes"] == ["∅"]            # dia315 содержит цифры, toolongprefix >3
+    assert out["add_suffixes"] == []               # ø и Ø уже в конфиге
+    assert out["add_separators"] == ["✕"]
+
+
+def test_sanitize_drops_duplicates_and_nonadditive():
+    cur = _current()
+    prop = {"add_prefixes": [cur["diameter_prefixes"][0], "новый"],
+            "add_suffixes": [], "add_separators": cur["separators"]}
+    out = mine.sanitize_proposals(prop, cur)
+    assert cur["diameter_prefixes"][0] not in out["add_prefixes"]
+    assert out["add_separators"] == []
+
+
+def test_propose_additions_parses_kimi_response(monkeypatch):
+    import json as _json
+    content = _json.dumps({
+        "add_prefixes": ["∅"], "add_suffixes": [], "add_separators": ["✕"]
+    })
+    stdout = _json.dumps({"role": "assistant", "content": content})
+
+    monkeypatch.setattr(lsc, "llm_enabled", lambda cfg=None: True)
+    runner_calls = []
+
+    def runner(prompt, cfg):
+        runner_calls.append(prompt)
+        return stdout
+
+    out = mine.propose_additions({"∅315": 5, "1250✕800": 3}, runner=runner)
+    assert runner_calls, "kimi не вызван"
+    assert "∅315" in runner_calls[0] and "1250✕800" in runner_calls[0]
+    assert out["add_prefixes"] == ["∅"]
+
+
+def test_propose_additions_failure_returns_empty(monkeypatch):
+    monkeypatch.setattr(lsc, "llm_enabled", lambda cfg=None: True)
+
+    def runner(prompt, cfg):
+        raise RuntimeError("kimi down")
+
+    assert mine.propose_additions({"∅315": 5}, runner=runner) == {}
+
+
+def test_sanitize_rejects_unknown_sections_and_types():
+    out = mine.sanitize_proposals(
+        {"add_prefixes": ["∅"], "validation": {"min_side_mm": 50}, "add_lengths": {"X": 1}},
+        _current(),
+    )
+    assert "validation" not in out and "add_lengths" not in out
+    assert out["add_prefixes"] == ["∅"]
