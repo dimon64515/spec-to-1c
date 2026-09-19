@@ -61,12 +61,14 @@ def suffix_char_class() -> str:
 
 def round_diameter_pattern() -> re.Pattern:
     """Префиксный ИЛИ суффиксный диаметр. Эквивалент исторического
-    (?:\\d{2,5}\\s*[øØ⌀](?!\\s*\\d)|(?:dn|d|дн|ду|д|ф|ø|⌀)\\s*\\d{2,5})."""
+    (?:\\d{2,5}\\s*[øØ⌀](?!\\s*\\d)|(?:dn|d|дн|ду|д|ф|ø|⌀)\\s*\\d{2,5}),
+    но префикс не должен быть концом слова: «переход 125/100», «Отвод 45»
+    иначе дают ложный диаметр из буквы «д»/«d» конца слова."""
     key = "round_diameter"
     if key not in _PATTERN_CACHE:
         _PATTERN_CACHE[key] = re.compile(
             rf"(?:\d{{2,5}}\s*{suffix_char_class()}(?!\s*\d)"
-            rf"|(?:{prefix_group()})\s*\d{{2,5}})",
+            rf"|(?<![\w])(?:{prefix_group()})\s*\d{{2,5}})",
             re.IGNORECASE,
         )
     return _PATTERN_CACHE[key]

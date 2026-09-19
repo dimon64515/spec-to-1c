@@ -658,7 +658,27 @@ def try_parse_fitting(
     if ptype not in ("elbow", "transition", "tee", "cross", "cap", "saddle", "offset", "flange", "silencer", "damper", "throttle", "mounting_cup", "nipple", "roof_cap"):
         return None
 
-    dims = extract_dimensions(name + " " + size)
+    # «Отвод 45 …» / «Отвод ∠45 …» (ГОСТ-ведомости): угол — в наименовании,
+    # сечение — в колонке размера. Убираем угол из текста, чтобы он не
+    # превратился в диаметр/сечение, и фиксируем U0 явно. Если же колонка
+    # размера пуста, число после «Отвод» без уточнения считаем диаметром
+    # (старые форматы: «Отвод 160»), а не углом.
+    dims_text = name + " " + size
+    elbow_angle = None
+    if ptype == "elbow":
+        m_angle = re.search(r"\bотвод\s+∠?\s*(\d{1,3})\s*(?:°|град)?\b",
+                            name, re.IGNORECASE)
+        if m_angle:
+            candidate = float(m_angle.group(1))
+            _, size_dims = parse_size(size) if size.strip() else (None, {})
+            if size_dims or candidate in (15, 30, 45, 60, 75, 90):
+                elbow_angle = candidate
+                dims_text = (name[:m_angle.start()] + " "
+                             + name[m_angle.end():] + " " + size).strip()
+
+    dims = extract_dimensions(dims_text)
+    if elbow_angle is not None:
+        dims["U0"] = elbow_angle
 
     # Тройник/переход без префиксов Ø: «315/315/200», «200/125» (проект
     # Владикавказ) — диаметры через слэш.
@@ -670,6 +690,21 @@ def try_parse_fitting(
             dims["D1"] = float(m.group(2))
             if m.group(3):
                 dims["D2"] = float(m.group(3))
+
+    # «Голый» размер из колонки size без префиксов (ГОСТ-ведомости: «100»,
+    # «400x300») — основное сечение, если extract_dimensions его не нашла.
+    if "D0" not in dims and "A0" not in dims and size:
+        _, size_dims = parse_size(size)
+        if size_dims:
+            dims.update(size_dims)
+
+    # Переход/тройник «голый диаметр + прямоугольное сечение»:
+    # «Переход 710/700x500» — круглый патрубок 710 рядом с AxB.
+    if ptype in ("transition", "tee") and "A0" in dims and "D0" not in dims:
+        rest = re.sub(r"\d{2,5}\s*x\s*\d{2,5}", " ", name + " " + size)
+        m = re.search(r"(?<![\d.,])(\d{2,5})(?![\d.,])", rest)
+        if m:
+            dims["D0"] = float(m.group(1))
 
     if not dims:
         return None
@@ -719,8 +754,9 @@ def try_parse_fitting(
     # Переход
     elif ptype == "transition":
         if rectangular:
-            if round_ and "A0" in dims and "D0" in dims:
-                # Переход с прямоугольного на круглое
+            if "A0" in dims and "D0" in dims:
+                # Переход с прямоугольного на круглое (круглая сторона —
+                # «голый» диаметр рядом с AxB, см. выше)
                 article = "3-3-1"
                 params = {"A0": dims["A0"], "B0": dims["B0"], "D0": dims["D0"]}
             else:

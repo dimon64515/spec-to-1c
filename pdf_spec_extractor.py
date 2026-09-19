@@ -328,6 +328,8 @@ def parse_spec_text_blocks(lines: List[str]) -> List[dict]:
     qty_re = re.compile(r"^\d+(?:[.,]\d+)?$")
     unit_re = re.compile(r"^(м|м2|м²|шт|компл)\.?$", re.IGNORECASE)
 
+    lines = _normalize_pogonny_metraj(lines)
+
     rows: List[dict] = []
     i, n = 0, len(lines)
     while i < n:
@@ -399,9 +401,16 @@ def parse_spec_text_blocks(lines: List[str]) -> List[dict]:
                 i += 1
         # Единица приклеена к концу наименования, а «размер» — на самом деле
         # количество: «…Ровен шт.» + «1» → unit=шт, quantity=1, size="".
+        # «м» в конце наименования при этом НЕ единица измерения, если это
+        # обрезанное при извлечении «мм» толщины («…толщиной 0.5 м»).
         if not unit and size and qty_re.match(size):
             m = re.search(r"(м|м2|м²|шт|компл)\.?\s*$", name)
-            if m:
+            thickness_mm_truncated = (
+                m and m.group(1).lower() == "м"
+                and "толщин" in name.lower()
+                and re.search(r"\d\s*м\.?\s*$", name)
+            )
+            if m and not thickness_mm_truncated:
                 unit = m.group(1).rstrip(".")
                 name = name[:m.start()].strip()
                 try:
@@ -411,8 +420,42 @@ def parse_spec_text_blocks(lines: List[str]) -> List[dict]:
                 size = ""
         if resell_note:
             name = f"{name} [{resell_note}]" if name else resell_note
+        # Одинокий «п.»/«п.м.» с количеством — оторванная единица «п.м.»
+        # предыдущей позиции (строка вида {name, size, unit="", qty=0}):
+        # вливаем в предыдущую строку вместо отдельной позиции.
+        if (name.replace(" ", "").lower().rstrip(".") in ("п", "пм", "мп")
+                and unit == "м" and quantity > 0
+                and rows and not rows[-1]["unit"] and not rows[-1]["quantity"]):
+            rows[-1]["unit"] = "м"
+            rows[-1]["quantity"] = quantity
+            continue
         rows.append({"name": name, "size": size, "unit": unit, "quantity": quantity})
     return rows
+
+
+_POGONNY_METRAJ_RE = re.compile(r"^(?:п\.\s*м|м\.\s*п)\.?$", re.IGNORECASE)
+
+
+def _normalize_pogonny_metraj(lines: List[str]) -> List[str]:
+    """Канонизирует «п.м.»/«м.п.» текстового слоя в единицу «м».
+
+    Текстовый слой ГОСТ-ведомостей даёт единицу то склеенной («п.м.»), то
+    разорванной на два токена («п.» + «м.»). Обе формы приводим к «м» до
+    основного цикла разбора, чтобы unit_re увидел единицу.
+    """
+    result: List[str] = []
+    for line in lines:
+        token = line.strip()
+        if _POGONNY_METRAJ_RE.match(token):
+            result.append("м")
+            continue
+        if (token.rstrip(".").lower() == "м" and result
+                and result[-1].strip().rstrip(".").lower() == "п"):
+            # разорванная пара «п.» + «м.» → «м»
+            result[-1] = "м"
+            continue
+        result.append(token)
+    return result
 
 
 def _norm_block_token(token: str) -> str:
