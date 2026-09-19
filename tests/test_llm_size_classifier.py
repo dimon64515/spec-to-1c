@@ -167,3 +167,17 @@ def test_malformed_json_rejected():
     runner, _ = _ok_runner({"Ø315": "не json вообще"})
     r = lsc.classify_sizes_batch(["Ø315"], cfg=CFG, runner=runner)["Ø315"]
     assert r.status == "rejected"
+
+
+def test_huge_digit_span_rejected_not_raised():
+    big = "1" * 400
+    content = json.dumps({"results": [
+        {"format_class": "round_diameter",
+         "spans": [{"role": "diameter", "start": 0, "end": len(big)}]}
+    ]})
+
+    def runner(prompt, cfg):
+        return json.dumps({"role": "assistant", "content": content})
+
+    r = lsc.classify_sizes_batch([big], cfg=CFG, runner=runner)[big]
+    assert r.status == "rejected"  # и не бросило OverflowError

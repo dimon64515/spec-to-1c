@@ -136,7 +136,10 @@ def _spans_to_dims(format_class: str, spans: List[Dict], source: str) -> Optiona
         token = source[start:end].strip()
         if not re.fullmatch(r"\d+", token):
             return None  # LLM прислала не цифры — отказ
-        value = float(int(token))
+        try:
+            value = float(int(token))
+        except (ValueError, OverflowError):
+            return None
         ordered.append(value)
         if role in _ROLE_KEYS and _ROLE_KEYS[role] not in values:
             values[_ROLE_KEYS[role]] = value
