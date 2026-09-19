@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from process_specification_table import extract_dimensions
+from process_specification_table import extract_dimensions, parse_size
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -61,6 +61,7 @@ def test_size_format_matrix_recall():
         ok = sum(1 for e in entries if _check_matrix_entry(e))
         measured[fmt] = round(ok / len(entries), 4)
     print(f"\nBASELINE_MATRIX_RECALL = {measured}")
+    assert set(measured) == set(BASELINE_MATRIX_RECALL), "matrix classes changed — re-pin baselines"
     for fmt, rate in measured.items():
         assert rate >= BASELINE_MATRIX_RECALL.get(fmt, 0.0), f"{fmt}: {rate} below baseline"
 
@@ -70,7 +71,11 @@ BASELINE_MULTI_COVERAGE = 1.0  # PINNED
 
 def test_multi_project_coverage():
     corpus = json.loads((FIXTURES / "multi_project_sizes.json").read_text(encoding="utf-8"))
-    covered = sum(1 for r in corpus if r["parse_size_ok"] or r["extract_ok"])
+    covered = sum(
+        1
+        for r in corpus
+        if parse_size(r["raw"])[0] is not None or extract_dimensions(r["raw"])
+    )
     rate = covered / len(corpus)
     print(f"\nBASELINE_MULTI_COVERAGE = {rate:.4f} ({covered}/{len(corpus)})")
     assert rate >= BASELINE_MULTI_COVERAGE
