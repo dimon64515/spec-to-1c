@@ -1,7 +1,307 @@
 [
   {
+    "source": "Convertowfb-.pdf",
+    "raw": "1000x700",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.pdf",
+    "raw": "1000x800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.pdf",
+    "raw": "1070x770",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.pdf",
+    "raw": "1500x850",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.pdf",
+    "raw": "200x300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.pdf",
+    "raw": "600x600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1000x1000",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1000x200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1000x300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1000x400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1000x500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1000x600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1000x700-900",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1000x800-1000",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1000х600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1000х800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1070x1270-1000",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1070х1270",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1070х770",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1100x1100-900",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "11x10",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "11x15",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "11x30",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1200x1000",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1200x1100",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1200x500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1200x600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "125x125",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "13x028",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "13x032",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "13x042",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "13x048",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "13x060",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "13x076",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "13x089",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "13x108",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "13x133",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1400x300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1400x800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1500x2000",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1500x400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "150x150",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "1900x1100",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "2000x1500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "2000x1500-1200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "2000x1500-2000",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "2000x1800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "2000x800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
     "source": "Convertowfb-.xlsx",
     "raw": "200x10",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "200x100",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "200x100-200",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -13,7 +313,91 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "200x150-200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "200x200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "200x30",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "200x300-200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "200х150",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "200х300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "250x100",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "250x150",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "250x200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "250x250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "250x300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "250x300-250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "300x100",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "300x150",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "300x160",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -31,7 +415,79 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "300x250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "300x250-200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "300x250-300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "300x30",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "300x300-300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "300x500-300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "300x600-300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "300х200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "300х250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "350x200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "350x250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "350x350",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "37х30",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -43,7 +499,79 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "400x200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "400x200-400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "400x250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "400x30",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "400x300-300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "400x300-400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "400x400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "400x700-400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "400х200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "450x250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "450x450-300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500x100",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500x200",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -55,7 +583,61 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "500x250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500x250-300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500x250-500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "500x30",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500x300-400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500x300-500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500x350",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500x400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500x450",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500x500",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -67,7 +649,73 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "500x700",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500х300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "500х700",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "520x520-600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "550x250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "55х30",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "600x200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "600x250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "600x30",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "600x300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "600x300-600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "600x350",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -79,7 +727,19 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "600x400-600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "600x50",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "600x500-600",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -91,7 +751,37 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "600x600-600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "600х600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "700x40",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "700x400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "700x400-600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "700x400-700",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -103,7 +793,67 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "700x500-550",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "700x500-700",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "700x700",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "700х400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "750x45",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "750x450",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "750х450",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "770x1070-770",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "800x1000-800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "800x300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "800x400",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -115,7 +865,55 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "800x500-600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "800x500-700",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "800x500-800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "800x60",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "800x600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "800x600-800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "800x800-600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "800х500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "800х800",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -127,7 +925,43 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "850x1500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "850x1500-850",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "850x55",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "850x550",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "850x550-850",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "850х550",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "900x500",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -139,13 +973,253 @@
   },
   {
     "source": "Convertowfb-.xlsx",
+    "raw": "900x600-800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "900x700",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
     "raw": "900x90",
     "parse_size_ok": true,
     "extract_ok": true
   },
   {
+    "source": "Convertowfb-.xlsx",
+    "raw": "900x900-600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "900x900-800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "900x900-900",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "900х700",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø100",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø108",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø125",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø133",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø160",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø200",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø22",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø250",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø315",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø32",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø400",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø42",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø48",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø60",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø76",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "Ø89",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "ø12",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "ø15",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "ø20",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "ø25",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "ø34",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀100",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀12",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀125",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀15",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀160",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀200",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀200-160",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀25",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀250",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀315",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀34",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "Convertowfb-.xlsx",
+    "raw": "⌀400",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
     "source": "Заявка №854.xls",
     "raw": "1100x1100",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "160x160",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -169,6 +1243,12 @@
   },
   {
     "source": "Заявка №854.xls",
+    "raw": "300x200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
     "raw": "300x200-100",
     "parse_size_ok": true,
     "extract_ok": true
@@ -176,6 +1256,12 @@
   {
     "source": "Заявка №854.xls",
     "raw": "300x200-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "300x200-300",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -194,6 +1280,12 @@
   {
     "source": "Заявка №854.xls",
     "raw": "300x200-500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "300x300",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -223,6 +1315,24 @@
   },
   {
     "source": "Заявка №854.xls",
+    "raw": "400x200-250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "400x300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "400x300-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
     "raw": "400x300-260",
     "parse_size_ok": true,
     "extract_ok": true
@@ -230,6 +1340,24 @@
   {
     "source": "Заявка №854.xls",
     "raw": "400x300-500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "450x450",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "500x300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "500x300-1250",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -277,7 +1405,31 @@
   },
   {
     "source": "Заявка №854.xls",
+    "raw": "600x400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "600x400-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
     "raw": "600x400-20",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "600x400-500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "600x500",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -307,7 +1459,31 @@
   },
   {
     "source": "Заявка №854.xls",
+    "raw": "700x500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "700x500-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
     "raw": "700x500-20",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "800x500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "800x500-1250",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -325,7 +1501,19 @@
   },
   {
     "source": "Заявка №854.xls",
+    "raw": "800x800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
     "raw": "800x800-500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "900x600",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -349,6 +1537,12 @@
   },
   {
     "source": "Заявка №854.xls",
+    "raw": "900x900",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
     "raw": "900x900-1250",
     "parse_size_ok": true,
     "extract_ok": true
@@ -361,7 +1555,43 @@
   },
   {
     "source": "Заявка №854.xls",
+    "raw": "д 200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
     "raw": "д 400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "д 500",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "д 600",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "д 700",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "д 800",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Заявка №854.xls",
+    "raw": "д 900",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -403,6 +1633,12 @@
   },
   {
     "source": "КП №1090 (№69451).pdf",
+    "raw": "1100x700",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КП №1090 (№69451).pdf",
     "raw": "1200x800",
     "parse_size_ok": true,
     "extract_ok": true
@@ -415,13 +1651,7 @@
   },
   {
     "source": "КП №1090 (№69451).pdf",
-    "raw": "300*300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "300x100",
+    "raw": "300x350",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -475,19 +1705,7 @@
   },
   {
     "source": "КП №1090 (№69451).pdf",
-    "raw": "400x300-1250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
     "raw": "400x300-20",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "400x300-300",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -500,12 +1718,6 @@
   {
     "source": "КП №1090 (№69451).pdf",
     "raw": "400x400-1000",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "400x400-1250",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -559,31 +1771,19 @@
   },
   {
     "source": "КП №1090 (№69451).pdf",
-    "raw": "500x300-1250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
     "raw": "500x300-300",
     "parse_size_ok": true,
     "extract_ok": true
   },
   {
     "source": "КП №1090 (№69451).pdf",
-    "raw": "500x350-1250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "500x500-1250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
     "raw": "500x700-90",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КП №1090 (№69451).pdf",
+    "raw": "500x800",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -613,19 +1813,7 @@
   },
   {
     "source": "КП №1090 (№69451).pdf",
-    "raw": "600*600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
     "raw": "600x1200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "600x400-1250",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -679,19 +1867,7 @@
   },
   {
     "source": "КП №1090 (№69451).pdf",
-    "raw": "700x400-1250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
     "raw": "700x400-300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "700x500-1250",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -703,31 +1879,13 @@
   },
   {
     "source": "КП №1090 (№69451).pdf",
-    "raw": "700x700-1250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
     "raw": "700x700-90",
     "parse_size_ok": true,
     "extract_ok": true
   },
   {
     "source": "КП №1090 (№69451).pdf",
-    "raw": "800x400-1250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
     "raw": "800x400-25",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "800x500-1250",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -800,12 +1958,6 @@
   {
     "source": "КП №1090 (№69451).pdf",
     "raw": "900x500-\n137",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "900x500-1250",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -973,12 +2125,6 @@
   },
   {
     "source": "КП №1090 (№69451).pdf",
-    "raw": "д 200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
     "raw": "д 250",
     "parse_size_ok": true,
     "extract_ok": true
@@ -1002,110 +2148,8 @@
     "extract_ok": true
   },
   {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "д 500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "д 600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "д 700",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "д 800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КП №1090 (№69451).pdf",
-    "raw": "д 900",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "100ø",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "125ø",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "150x150-100",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "150x150-125",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "150x150-150",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
     "source": "КР-0324-ОВ (1).pdf",
     "raw": "150х150",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "200x150",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "200x150-150",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "200x150-200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "200x400-200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "200х150",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "250ø",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "300x150-150",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -1117,104 +2161,8 @@
   },
   {
     "source": "КР-0324-ОВ (1).pdf",
-    "raw": "350x150",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "350x150-150",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "350x150-200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "350x150-300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "350x150-350",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
     "raw": "350х150",
     "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "400*200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "400x200-250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "400x200-400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "400x550",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "400x550-250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "400x550-400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "400х200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "550*400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "ø100",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "ø12",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "КР-0324-ОВ (1).pdf",
-    "raw": "ø125",
-    "parse_size_ok": false,
     "extract_ok": true
   },
   {
@@ -1224,25 +2172,139 @@
     "extract_ok": true
   },
   {
-    "source": "КР-0324-ОВ (1).pdf",
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "100ø",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "125ø",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "150x150-100",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "150x150-125",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "150x150-150",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "200x150",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "200x150-150",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "200x400-200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "250ø",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "300x150-150",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "350x150",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "350x150-150",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "350x150-200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "350x150-300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "350x150-350",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "400x550",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "400x550-250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "400x550-400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
+    "raw": "550*400",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "КР-0324-ОВ_страницы.xlsx",
     "raw": "ф100",
     "parse_size_ok": true,
     "extract_ok": true
   },
   {
-    "source": "КР-0324-ОВ (1).pdf",
+    "source": "КР-0324-ОВ_страницы.xlsx",
     "raw": "ф12",
     "parse_size_ok": true,
     "extract_ok": true
   },
   {
-    "source": "КР-0324-ОВ (1).pdf",
+    "source": "КР-0324-ОВ_страницы.xlsx",
     "raw": "ф125",
     "parse_size_ok": true,
     "extract_ok": true
   },
   {
-    "source": "КР-0324-ОВ (1).pdf",
+    "source": "КР-0324-ОВ_страницы.xlsx",
     "raw": "ф16",
     "parse_size_ok": true,
     "extract_ok": true
@@ -1405,6 +2467,12 @@
   },
   {
     "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
+    "raw": "300*300",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
     "raw": "300x100-1250",
     "parse_size_ok": true,
     "extract_ok": true
@@ -1435,6 +2503,12 @@
   },
   {
     "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
+    "raw": "400*200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
     "raw": "400x200-1250",
     "parse_size_ok": true,
     "extract_ok": true
@@ -1442,6 +2516,12 @@
   {
     "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
     "raw": "400x250-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
+    "raw": "400x400-1250",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -1489,6 +2569,12 @@
   },
   {
     "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
+    "raw": "500x350-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
     "raw": "500x400-1250",
     "parse_size_ok": true,
     "extract_ok": true
@@ -1501,6 +2587,12 @@
   },
   {
     "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
+    "raw": "500x500-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
     "raw": "550x250-1250",
     "parse_size_ok": true,
     "extract_ok": true
@@ -1508,6 +2600,12 @@
   {
     "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
     "raw": "600*200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
+    "raw": "600*600",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -1543,7 +2641,25 @@
   },
   {
     "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
+    "raw": "700x400-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
+    "raw": "700x700-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
     "raw": "800x300-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
+    "raw": "800x400-1250",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -1556,6 +2672,12 @@
   {
     "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
     "raw": "800x800-1250",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "Капитальный ремонт зданияГБОУ №599 (1).xls",
+    "raw": "900x500-1250",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -1765,715 +2887,13 @@
   },
   {
     "source": "ОВ (3).pdf",
-    "raw": "1000x700",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1000x700-900",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1000x800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1000x800-1000",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1000х800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1070x1270-1000",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1070x770",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1070х1270",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1070х770",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1100x1100-900",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1200x1000",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "125x125",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1500x2000",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "1500x850",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "160x160",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "2000x1500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "2000x1500-1200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "2000x1500-2000",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "200x100",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "200x100-200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "200x300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "200x300-200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "200х300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "250x300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "250x300-250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "300x160",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "300x200-300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "300x250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "300x250-200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "300x250-300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "300x300-300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "300x500-300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "300x600-300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "300х200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "300х250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "400x300-400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "400x700-400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "450x450-300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "500x250-300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "500x250-500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "500x300-400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "500x300-500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "500x700",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "520x520-600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "600x300-600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "600x400-500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "600x400-600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "600x500-600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "600x600-600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "700x400-600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "700x400-700",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "700x500-550",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "700x500-700",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "750x450",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "750х450",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "770x1070-770",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "800x1000-800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "800x500-600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "800x500-700",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "800x500-800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "800x600-800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "800x800-600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "800х800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "850x1500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "850x1500-850",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "850x550",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "850x550-850",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "850х550",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "900x600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "900x600-800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "900x700",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "900x900",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "900x900-600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "900x900-800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "900x900-900",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "900х700",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "Ø400",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "ø15",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "ø20",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "ø25",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "ø34",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀100",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀12",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀125",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀15",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀160",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
     "raw": "⌀20",
     "parse_size_ok": false,
     "extract_ok": true
   },
   {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀200",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀200-160",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀25",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀250",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀315",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀34",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ (3).pdf",
-    "raw": "⌀400",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1000x1000",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1000x200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1000x300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1000x400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1000x500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1000x600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1000х600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
     "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
     "raw": "1100х900 -720",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "11x10",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "11x15",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "11x30",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1200x1100",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1200x500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1200x600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "13x028",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "13x032",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "13x042",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "13x048",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "13x060",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "13x076",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "13x089",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "13x108",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "13x133",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1400x300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1400x800",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -2485,49 +2905,7 @@
   },
   {
     "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1500x400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
     "raw": "1500х800 -200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "150x150",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1600х2000",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1900x1100",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "1900х1200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "2000x1800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "2000x800",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -2535,234 +2913,6 @@
     "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
     "raw": "2000х800 -300",
     "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "200x200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "250x100",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "250x150",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "250x200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "250x250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "300x150",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "300x200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "350x200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "350x250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "350x350",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "37х30",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "400x200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "400x250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "450x250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "500x100",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "500x200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "500x250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "500x400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "500x450",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "550x250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "55х30",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "600x200",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "600x250",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "600x300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "600x350",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "600x500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "600х600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "800x300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "800x600",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "800x800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "Ø108",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "Ø133",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "Ø22",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "Ø42",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "Ø48",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "Ø60",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "Ø76",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).pdf",
-    "raw": "Ø89",
-    "parse_size_ok": false,
     "extract_ok": true
   },
   {
@@ -2780,6 +2930,18 @@
   {
     "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).xlsx",
     "raw": "1500х800                    -200",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).xlsx",
+    "raw": "1600х2000",
+    "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "ОВ2_СТР_Шипиловский_26-03-02 МОЭК (1).xlsx",
+    "raw": "1900х1200",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -2816,12 +2978,6 @@
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "1100*1000",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "1100x700",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -2869,18 +3025,6 @@
   },
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "300x300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "300x350",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "300х350",
     "parse_size_ok": true,
     "extract_ok": true
@@ -2911,18 +3055,6 @@
   },
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "400x300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "400x400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "400x800",
     "parse_size_ok": true,
     "extract_ok": true
@@ -2947,12 +3079,6 @@
   },
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "450x450",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "496x186",
     "parse_size_ok": true,
     "extract_ok": true
@@ -2960,36 +3086,6 @@
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "496х186",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "500x300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "500x350",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "500x500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "500x800",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "500х300",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -3007,12 +3103,6 @@
   },
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "500х700",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "500х900",
     "parse_size_ok": true,
     "extract_ok": true
@@ -3020,18 +3110,6 @@
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "560х560",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "600x400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "600x600",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -3055,31 +3133,7 @@
   },
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "700x400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "700x500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "700x700",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "700х300",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "700х400",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -3097,25 +3151,7 @@
   },
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "800x400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "800x500",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "800х400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "800х500",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -3146,12 +3182,6 @@
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "900x400",
-    "parse_size_ok": true,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "900x500",
     "parse_size_ok": true,
     "extract_ok": true
   },
@@ -3205,49 +3235,7 @@
   },
   {
     "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "Ø100",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "Ø125",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "Ø160",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "Ø200",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
     "raw": "Ø25",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "Ø250",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "Ø315",
-    "parse_size_ok": false,
-    "extract_ok": true
-  },
-  {
-    "source": "Проект_Владикавказ_Московский_ВиТ_ОВ.pdf",
-    "raw": "Ø32",
     "parse_size_ok": false,
     "extract_ok": true
   },
@@ -3363,6 +3351,18 @@
     "source": "софт1200 КП №69649 №1,5 (1).xls",
     "raw": "d 16",
     "parse_size_ok": true,
+    "extract_ok": true
+  },
+  {
+    "source": "софт1200 КП №69649 №1,5 (1).xls",
+    "raw": "ø100",
+    "parse_size_ok": false,
+    "extract_ok": true
+  },
+  {
+    "source": "софт1200 КП №69649 №1,5 (1).xls",
+    "raw": "ø125",
+    "parse_size_ok": false,
     "extract_ok": true
   },
   {
