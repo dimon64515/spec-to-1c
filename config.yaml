@@ -34,3 +34,16 @@ middleware:
   report_limit: 3500
   request_timeout: 280
   task_comment_prefix: "Задача Битрикс24"
+
+# LLM-фолбэк классификации форматов записи размеров (только для строк,
+# которые regex-каскад не распознал). Цифры размеров LLM не генерирует —
+# извлекаются детерминированно по spans из исходной строки.
+# Бэкенд kimi-cli использует локальную аутентификацию Kimi Code CLI.
+llm:
+  enabled: false
+  backend: "kimi-cli"
+  command: "kimi"
+  model: ""           # опциональный -m alias, "" = модель по умолчанию
+  batch_size: 20
+  timeout: 120
+  max_retries: 2
