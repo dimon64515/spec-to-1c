@@ -31,6 +31,8 @@ from typing import List, Dict, Optional, Tuple
 import pandas as pd
 
 import size_notations as szn
+
+import llm_size_classifier as lsc
 from config import get_config, mapping_file
 from generate_order_xml import build_characteristic, generate_order_xml, load_article_mapping
 from project_spec_xlsx import is_project_spec_xlsx, parse_project_spec_xlsx
@@ -1102,7 +1104,7 @@ def normalize_unit_value(unit: str) -> str:
     return unit.strip()
 
 
-def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]]:
+def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.SizeClassification"]] = None) -> Tuple[Optional[dict], Optional[dict]]:
     """Преобразует одну строку таблицы в строку для XML или причину пропуска."""
     name = str(row.get("name", "")).strip()
     size = str(row.get("size", "")).strip()
@@ -1281,6 +1283,11 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
 
     # Воздуховоды
     section, dims = parse_size(size)
+    if not section and llm_cache:
+        llm_result = llm_cache.get(size)
+        if llm_result is not None and llm_result.adoptable:
+            logger.info("LLM-фолбэк: размер %r усыновлён (%s)", size, llm_result.format_class)
+            section, dims = llm_result.section, dict(llm_result.dims)
     if section:
         if section == "rectangular" and dims.get("A0", 0) < dims.get("B0", 0):
             # Правило техотдела: воздуховоды — от большего размера к меньшему
@@ -1346,10 +1353,20 @@ def parse_row(row: dict, defaults: dict) -> Tuple[Optional[dict], Optional[dict]
         }), ocr_warnings), None
 
     # Диффузоры и прочее без возможности автозагрузки
-    return None, _apply_ocr_warnings(
-        {"name": name, "size": size, "unit": unit, "reason": classify_skip(name, size, unit, ptype)},
-        ocr_warnings,
-    )
+    reason = classify_skip(name, size, unit, ptype)
+    skip_dict = {"name": name, "size": size, "unit": unit, "reason": reason}
+    if reason == "Не удалось распознать размер / тип" and llm_cache:
+        llm_result = llm_cache.get(size)
+        if llm_result is not None:
+            skip_dict["reason"] = lsc.REASON_LLM_REJECTED
+            skip_dict["llm_format_class"] = llm_result.format_class
+            skip_dict["llm_detail"] = llm_result.detail
+            skip_dict["llm_raw"] = llm_result.raw_response[:2000]
+            logger.warning(
+                "LLM-классификация отклонена: %r → %s (%s)",
+                size, llm_result.format_class, llm_result.detail,
+            )
+    return None, _apply_ocr_warnings(skip_dict, ocr_warnings)
 
 
 def process_rows(
@@ -1383,12 +1400,25 @@ def process_rows(
     success_rows: List[dict] = []
     skipped: List[dict] = []
 
+    llm_cache: Optional[Dict[str, lsc.SizeClassification]] = None
+    if lsc.llm_enabled():
+        candidates = []
+        seen = set()
+        for row in rows:
+            size = str(row.get("size", "")).strip()
+            if size and size not in seen and parse_size(size)[0] is None:
+                seen.add(size)
+                candidates.append(size)
+        if candidates:
+            logger.info("LLM-фолбэк: классификация %d нераспознанных размеров", len(candidates))
+            llm_cache = lsc.classify_sizes_batch(candidates)
+
     for row in rows:
         name = str(row.get("name", "")).strip()
         size = str(row.get("size", "")).strip()
         if not name and not size:
             continue
-        parsed, skip = parse_row(row, defaults)
+        parsed, skip = parse_row(row, defaults, llm_cache=llm_cache)
         if parsed:
             if ALLOWED_ARTICLES and parsed["article"] not in ALLOWED_ARTICLES:
                 skipped.append(

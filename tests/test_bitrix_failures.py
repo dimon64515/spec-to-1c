@@ -22,7 +22,7 @@ def test_process_rows_broken_row_goes_to_skipped_not_kills_file(monkeypatch):
            "connection_0": "2", "connection_1": "2",
            "connection_2": "0", "connection_3": "0",
            "system": "", "comment": "Врезка прямоугольная 300"}
-    monkeypatch.setattr(pst, "parse_row", lambda row, defaults: (dict(bad), None)
+    monkeypatch.setattr(pst, "parse_row", lambda row, defaults, llm_cache=None: (dict(bad), None)
                         if "Врезка" in row.get("name", "")
                         else (dict(good), None))
 
