@@ -1,5 +1,447 @@
 [
  {
+  "article": "19-2-1",
+  "params": {
+   "A0": 350.0,
+   "B0": 250.0,
+   "L0": 1000.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Местный отсос 1000х350х250(h) мм 1000x350x250"
+ },
+ {
+  "article": "1-1-1",
+  "params": {
+   "D0": 280.0,
+   "L0": 1250.0
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Прямик D=280 мм; L=1250 мм ф280"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 280.0,
+   "R0": 560.0,
+   "U0": 90.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод ∠ 90°; R=560 мм; D=280 мм ф280"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 280.0,
+   "R0": 560.0,
+   "U0": 75.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод ∠ 75°; R=560 мм; D=280 мм ф280"
+ },
+ {
+  "article": "4-1-1",
+  "params": {
+   "D0": 355.0,
+   "D2": 280.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник D355/D225/D280 D355"
+ },
+ {
+  "article": "19-2-1",
+  "params": {
+   "A0": 250.0,
+   "B0": 250.0,
+   "L0": 800.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Местный отсос 800х250х250(h) мм 800x250x250"
+ },
+ {
+  "article": "1-1-1",
+  "params": {
+   "D0": 225.0,
+   "L0": 1250.0
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Прямик D=225 мм; L=1250 мм ф225"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 225.0,
+   "R0": 450.0,
+   "U0": 90.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод ∠ 90°; R=450 мм; D=225 мм ф225"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 225.0,
+   "R0": 450.0,
+   "U0": 75.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод ∠ 75°; R=450 мм; D=225 мм ф225"
+ },
+ {
+  "article": "1-1-1",
+  "params": {
+   "D0": 355.0,
+   "L0": 1250.0
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Прямик D=355 мм; L=1250 мм ф355"
+ },
+ {
+  "article": "19-2-1",
+  "params": {
+   "A0": 250.0,
+   "B0": 250.0,
+   "L0": 800.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Местный отсос 800х250х250(h) мм 800x250x250"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 315.0,
+   "R0": 630.0,
+   "U0": 90.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод ∠ 90°; R=630 мм; D=315 мм ф315"
+ },
+ {
+  "article": "1-1-1",
+  "params": {
+   "D0": 315.0,
+   "L0": 1250.0
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Прямик D=315 мм; L=1250 мм ф315"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 315.0,
+   "R0": 630.0,
+   "U0": 60.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод ∠ 60°; R=630 мм; D=315 мм ф315"
+ },
+ {
+  "article": "4-1-1",
+  "params": {
+   "D0": 500.0,
+   "D2": 315.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник 500/315/500 "
+ },
+ {
+  "article": "3-1-1",
+  "params": {
+   "D0": 500.0,
+   "D1": 355.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переходник D500/D355 D500"
+ },
+ {
+  "article": "19-2-1",
+  "params": {
+   "A0": 300.0,
+   "B0": 250.0,
+   "L0": 950.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Местный отсос 950х300х250(h) мм 950x300x250"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 250.0,
+   "R0": 500.0,
+   "U0": 90.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод ∠ 90°; R=500 мм; D=250 мм ф250"
+ },
+ {
+  "article": "1-1-1",
+  "params": {
+   "D0": 250.0,
+   "L0": 1250.0
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Прямик D=250 мм; L=1250 мм ф250"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 250.0,
+   "R0": 500.0,
+   "U0": 60.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод ∠ 60°; R=500 мм; D=250 мм ф250"
+ },
+ {
+  "article": "4-1-1",
+  "params": {
+   "D0": 500.0,
+   "D2": 250.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник 500/250/500 "
+ },
+ {
+  "article": "1-1-1",
+  "params": {
+   "D0": 500.0,
+   "L0": 1250.0
+  },
+  "quantity": 22,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Прямик D=500 мм; L=1250 мм ф500"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 500.0,
+   "R0": 1000.0,
+   "U0": 90.0
+  },
+  "quantity": 7,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод ∠ 90°; R=1000 мм; D=500 мм ф500"
+ },
+ {
+  "article": "3-3-1",
+  "params": {
+   "A0": 672.0,
+   "B0": 396.0,
+   "D0": 500.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "6",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переходник 672х396/D500 672x396"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 378.0,
+   "B0": 378.0,
+   "A1": 500.0,
+   "B1": 500.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переходник 378х378/500х500 378x378"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 500.0,
+   "B0": 500.0,
+   "L0": 1250.0
+  },
+  "quantity": 18,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Прямик 500х500 мм; L=1250 мм 500x500"
+ },
+ {
   "article": "2-2-2",
   "params": {
    "A0": 500.0,
@@ -7,14 +449,29 @@
    "U0": 90.0,
    "R0": 500.0
   },
-  "quantity": 29,
+  "quantity": 1,
   "material_code": "1",
-  "thickness": 0.7,
+  "thickness": 0.8,
   "connection_0": "6",
   "connection_1": "6",
   "connection_2": "0",
   "connection_3": "0",
   "system": "",
-  "comment": "Отвод ∠ 90°; 500х500 м 500x500"
+  "comment": "Отвод ∠ 90°; 500х500 мм 500x500"
+ },
+ {
+  "article": "9-1-2",
+  "params": {
+   "D0": 500.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.8,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Зонт вентиляционный круглый D500 D500"
  }
 ]

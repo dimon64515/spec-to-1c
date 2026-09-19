@@ -850,6 +850,38 @@
   "comment": "Заглушка 700.0"
  },
  {
+  "article": "6-1-1",
+  "params": {
+   "D0": 250.0,
+   "P0": 25
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Заглушка 250.0"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 200
+  },
+  "quantity": 5,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Дроссель клапан круглый КВК 125 Арктика "
+ },
+ {
   "article": "9-1-2",
   "params": {
    "D0": 250.0
@@ -863,5 +895,21 @@
   "connection_3": "0",
   "system": "",
   "comment": "Зонт-искрогаситель Crafr HF d250 Craft d250"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 200
+  },
+  "quantity": 5,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Гигрорегулируемый приточный клапан SILEМ KIT HY 125 Soler&palau "
  }
 ]

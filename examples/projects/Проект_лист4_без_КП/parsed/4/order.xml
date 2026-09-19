@@ -9,18 +9,326 @@
   <contact/>
   <Tabl>
     <productRow>
-      <article>2-2-2</article>
-      <name>Отвод прямоугольного сечения прямой</name>
-      <characteristic>A00800A0_B00300B0_L10000L1_L20000L2_U060U0_</characteristic>
+      <article>19-2-1</article>
+      <name>Зонт вытяжной прямоугольного сечения тип 1</name>
+      <characteristic>A00250A0_A10250A1_B00250B0_B10250B1_D10100D1_L01900L0_L10000L1_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
-      <thickness>0.7</thickness>
+      <thickness>0.8</thickness>
       <connection_0>6</connection_0>
       <connection_1>6</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
-      <comment>Переходник D280/D200 Отвод ∠ 60°; R=400 мм; D=200 мм Тройник D280/D200/D200 Переходник D355/D280 Тройник D355/D200/D280 Прямик D=280 мм; L=1250 мм Прямик D=355 мм; L=1250 мм Отвод ∠ 90°; R=710 мм; D=355 мм Местный отсос 800х300х400(h) мм Прямик D=225 мм; L=1250 мм Отвод ∠ 90°; R=450 мм; D=225 мм Отвод ∠ 60°; R=450 мм; D=225 мм Тройник D400/D225/D355 Прямик D=400 мм; L=1250 мм Отвод ∠ 90°; R=800 мм; D=400 мм Прямик 400х400 мм; L=1250 мм Переходник 336х396/D400 Переходник 378х378/400х400 Переходник D500/D400 Зонт вентиляционный прямоугольный 400х400 м 800x300x400</comment>
+      <comment>Местный отсос 1900х250х250(h) мм 1900x250x250</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00200D0_L01250L0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=200 мм; L=1250 мм ф200</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00200D0_R0400R0_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; R=400 мм; D=200 мм ф200</comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00280D0_D10200D1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переходник D280/D200 D280</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00200D0_R0400R0_U060U0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 60°; R=400 мм; D=200 мм ф200</comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00280D0_D20200D2_L00200L0_L20100L2_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник D280/D200/D200 D280</comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00355D0_D10280D1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переходник D355/D280 D355</comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00355D0_D20280D2_L00200L0_L20100L2_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник D355/D200/D280 D355</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00280D0_L01250L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=280 мм; L=1250 мм ф280</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00355D0_L01250L0_</characteristic>
+      <quantity>8</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=355 мм; L=1250 мм ф355</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00355D0_R0710R0_U090U0_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; R=710 мм; D=355 мм ф355</comment>
+    </productRow>
+    <productRow>
+      <article>19-2-1</article>
+      <name>Зонт вытяжной прямоугольного сечения тип 1</name>
+      <characteristic>A00400A0_A10400A1_B00300B0_B10300B1_D10100D1_L00800L0_L10000L1_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Местный отсос 800х300х400(h) мм 800x300x400</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00225D0_L01250L0_</characteristic>
+      <quantity>6</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=225 мм; L=1250 мм ф225</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00225D0_R0450R0_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; R=450 мм; D=225 мм ф225</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00225D0_R0450R0_U060U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 60°; R=450 мм; D=225 мм ф225</comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00400D0_D20355D2_L00200L0_L20100L2_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник D400/D225/D355 D400</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00400D0_L01250L0_</characteristic>
+      <quantity>32</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=400 мм; L=1250 мм ф400</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00400D0_R0800R0_U090U0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; R=800 мм; D=400 мм ф400</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00400A0_B00400B0_L01250L0_</characteristic>
+      <quantity>8</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик 400х400 мм; L=1250 мм 400x400</comment>
+    </productRow>
+    <productRow>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00336A0_B00396B0_D00400D0_L00300L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переходник 336х396/D400 336x396</comment>
+    </productRow>
+    <productRow>
+      <article>3-2-5</article>
+      <name>Переход прямоугольного сечения тип 5</name>
+      <characteristic>A00378A0_A10400A1_B00378B0_B10400B1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переходник 378х378/400х400 378x378</comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00500D0_D10400D1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переходник D500/D400 D500</comment>
+    </productRow>
+    <productRow>
+      <article>9-2-1</article>
+      <name>Зонт прямоугольного сечения с коньком</name>
+      <characteristic>A00400A0_A10400A1_B00400B0_B10400B1_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Зонт вентиляционный прямоугольный 400х400 мм 400x400</comment>
     </productRow>
   </Tabl>
 </Order>

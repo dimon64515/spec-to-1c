@@ -37,6 +37,34 @@
       <comment>Тройник 25/25/16 SPL </comment>
     </productRow>
     <productRow>
+      <article>18-1-3</article>
+      <name>Обратный клапан круглого сечения бабочка (RSK)</name>
+      <characteristic>D00435D0_L00200L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Обратный клапан JCA-435 Soler&amp;palau </comment>
+    </productRow>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00125D0_L00200L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Гигрорегулируемый приточный клапан SILEМ KIT HY 125 Soler&amp;palau </comment>
+    </productRow>
+    <productRow>
       <article>1-1-2</article>
       <name>Воздуховод круглого сечения спирально-навивной</name>
       <characteristic>D00100D0_L03000L0_</characteristic>
@@ -81,7 +109,7 @@
     <productRow>
       <article>2-1-1</article>
       <name>Отвод круглого сечения</name>
-      <characteristic>D00100D0_R0100R0_U090U0_</characteristic>
+      <characteristic>D00100D0_R0100R0_U030U0_</characteristic>
       <quantity>2</quantity>
       <material>1</material>
       <thickness>0.55</thickness>

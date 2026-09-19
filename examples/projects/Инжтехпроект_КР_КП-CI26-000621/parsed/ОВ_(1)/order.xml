@@ -9,12 +9,12 @@
   <contact/>
   <Tabl>
     <productRow>
-      <article>4-2-3</article>
-      <name>Тройник прямоугольного сечения с прямоугольной прямой врезкой</name>
-      <characteristic>A00016A0_A20016A2_B00016B0_B20016B2_L00200L0_L20100L2_</characteristic>
+      <article>4-2-1</article>
+      <name>Тройник прямоугольного сечения с круглой прямой врезкой</name>
+      <characteristic>A00016A0_B00016B0_D20090D2_L00200L0_L20100L2_</characteristic>
       <quantity>135</quantity>
       <material>1</material>
-      <thickness>0.7</thickness>
+      <thickness>0.55</thickness>
       <connection_0>6</connection_0>
       <connection_1>6</connection_1>
       <connection_2>0</connection_2>

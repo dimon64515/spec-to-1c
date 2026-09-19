@@ -41,8 +41,16 @@ CATEGORY_ARTICLES = {
     "transition_rect_round": ("3-3",),
     "transition_rect": ("3-2",),
     "tee_round": ("4-1",),
+    "tee_rect": ("4-2",),
     "nipple_round": ("12-1",),
     "nipple_rect": ("12-2",),
+    "cap_round": ("6-1",),
+    "cap_rect": ("6-2",),
+    "throttle_round": ("16-1",),
+    "throttle_rect": ("16-2",),
+    "roof_cap_round": ("9-1",),
+    "roof_cap_rect": ("9-2",),
+    "hood_rect": ("19-2",),
 }
 
 
@@ -58,13 +66,22 @@ def kp_category(name: str, designation: str = "") -> str:
     if "отвод" in n:
         return "elbow_round" if round_ else "elbow_rect"
     if "тройник" in n:
-        return "tee_round"
+        return "tee_round" if round_ else "tee_rect"
     if "ниппель" in n:
         return "nipple_round" if round_ else "nipple_rect"
+    if "заглушк" in n:
+        return "cap_round" if round_ else "cap_rect"
+    if "дроссель" in n:
+        return "throttle_round" if round_ else "throttle_rect"
     if "переход" in n:
         if "с прямоугольного на круглое" in n:
             return "transition_rect_round"
         return "transition_round" if round_ else "transition_rect"
+    # Зонты: крышный (дефлектор) 9-x, вытяжной/островной 19-x
+    if "зонт" in n:
+        if "вытяжной" in n:
+            return "hood_rect"
+        return "roof_cap_round" if round_ else "roof_cap_rect"
     if "воздуховод" in n:
         return "duct_round" if round_ else "duct_rect"
     return "unknown"
@@ -118,10 +135,24 @@ def parse_kp_designation(designation: str) -> dict:
             "A1": int(m.group(3)),
             "B1": int(m.group(4)),
         }
+    # 500x700-600/500x700-100 (тройник прямоугольный: A0xB0-L0/A2xB2-L2)
+    m = re.fullmatch(r"(\d+)x(\d+)-\d+/(\d+)x(\d+)-\d+", d)
+    if m:
+        return {
+            "A0": int(m.group(1)),
+            "B0": int(m.group(2)),
+            "A2": int(m.group(3)),
+            "B2": int(m.group(4)),
+        }
     # 150x150-90-100-100 (отвод прямоугольный: AxB-U-L1-L2)
     m = re.fullmatch(r"(\d+)x(\d+)-(\d+)-(\d+)-(\d+)", d)
     if m:
         return {"A0": int(m.group(1)), "B0": int(m.group(2)), "U0": int(m.group(3))}
+    # 250/350x1000 (зонт вытяжной: сечение A/B — длина L; порядок A/B не важен)
+    m = re.fullmatch(r"(\d+)/(\d+)x(\d+)", d)
+    if m:
+        a, b = int(m.group(1)), int(m.group(2))
+        return {"A0": max(a, b), "B0": min(a, b), "L0": int(m.group(3))}
     return {}
 
 
@@ -165,6 +196,10 @@ def match_position(pos: dict, xml_rows: list, used: set) -> tuple:
     """
     cat = kp_category(pos["name"], pos["designation"])
     expected = parse_kp_designation(pos["designation"])
+    if cat in ("saddle_round", "saddle_rect") and "D1" in expected:
+        # Обозначение КП «Ф125/Ф125-100» даёт D1, а в XML у 8-1-1/8-2-1
+        # ветвь обозначена D2 (магистраль) — приводим к общему виду.
+        expected = {("D2" if k == "D1" else k): v for k, v in expected.items()}
     for i, row in enumerate(xml_rows):
         if i in used:
             continue
@@ -174,10 +209,29 @@ def match_position(pos: dict, xml_rows: list, used: set) -> tuple:
             continue
         params = row["params"]
         ok = True
+        # Для круглых переходов D0/D1 сравниваем как множество ниже — здесь
+        # пропускаем (порядок сторон в спецификации может быть обратным).
+        skip_keys = {"D0", "D1"} if cat == "transition_round" else set()
+        # Пары сторон прямоугольных сечений сравниваем без учёта порядка
+        # («300x400» в КП vs «400x300» в XML): (A0,B0) — основное, (A2,B2) — ветвь.
+        rect_pairs = [
+            (a, b) for a, b in (("A0", "B0"), ("A2", "B2"))
+            if a in expected and b in expected and a in params and b in params
+        ]
         for key, val in expected.items():
+            if key in skip_keys:
+                continue
+            if any(key in pair for pair in rect_pairs):
+                continue  # сравниваем парой ниже
             if key not in params or float(params[key]) != float(val):
                 ok = False
                 break
+        if ok:
+            for a, b in rect_pairs:
+                if {params[a], params[b]} != {float(expected[a]),
+                                              float(expected[b])}:
+                    ok = False
+                    break
         if cat == "transition_round" and ok:
             # Порядок сторон в спецификации может быть обратным
             d0, d1 = expected.get("D0"), expected.get("D1")

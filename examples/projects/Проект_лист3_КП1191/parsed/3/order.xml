@@ -9,18 +9,396 @@
   <contact/>
   <Tabl>
     <productRow>
-      <article>2-2-2</article>
-      <name>Отвод прямоугольного сечения прямой</name>
-      <characteristic>A00500A0_B00500B0_L10000L1_L20000L2_U090U0_</characteristic>
-      <quantity>29</quantity>
+      <article>19-2-1</article>
+      <name>Зонт вытяжной прямоугольного сечения тип 1</name>
+      <characteristic>A00350A0_A10350A1_B00250B0_B10250B1_D10100D1_L01000L0_L10000L1_</characteristic>
+      <quantity>1</quantity>
       <material>1</material>
-      <thickness>0.7</thickness>
+      <thickness>0.8</thickness>
       <connection_0>6</connection_0>
       <connection_1>6</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
-      <comment>Отвод ∠ 90°; 500х500 м 500x500</comment>
+      <comment>Местный отсос 1000х350х250(h) мм 1000x350x250</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00280D0_L01250L0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=280 мм; L=1250 мм ф280</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00280D0_R0560R0_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; R=560 мм; D=280 мм ф280</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00280D0_R0560R0_U075U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 75°; R=560 мм; D=280 мм ф280</comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00355D0_D20280D2_L00200L0_L20100L2_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник D355/D225/D280 D355</comment>
+    </productRow>
+    <productRow>
+      <article>19-2-1</article>
+      <name>Зонт вытяжной прямоугольного сечения тип 1</name>
+      <characteristic>A00250A0_A10250A1_B00250B0_B10250B1_D10100D1_L00800L0_L10000L1_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Местный отсос 800х250х250(h) мм 800x250x250</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00225D0_L01250L0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=225 мм; L=1250 мм ф225</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00225D0_R0450R0_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; R=450 мм; D=225 мм ф225</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00225D0_R0450R0_U075U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 75°; R=450 мм; D=225 мм ф225</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00355D0_L01250L0_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=355 мм; L=1250 мм ф355</comment>
+    </productRow>
+    <productRow>
+      <article>19-2-1</article>
+      <name>Зонт вытяжной прямоугольного сечения тип 1</name>
+      <characteristic>A00250A0_A10250A1_B00250B0_B10250B1_D10100D1_L00800L0_L10000L1_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Местный отсос 800х250х250(h) мм 800x250x250</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00315D0_R0630R0_U090U0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; R=630 мм; D=315 мм ф315</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00315D0_L01250L0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=315 мм; L=1250 мм ф315</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00315D0_R0630R0_U060U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 60°; R=630 мм; D=315 мм ф315</comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00500D0_D20315D2_L00200L0_L20100L2_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 500/315/500 </comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00500D0_D10355D1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переходник D500/D355 D500</comment>
+    </productRow>
+    <productRow>
+      <article>19-2-1</article>
+      <name>Зонт вытяжной прямоугольного сечения тип 1</name>
+      <characteristic>A00300A0_A10300A1_B00250B0_B10250B1_D10100D1_L00950L0_L10000L1_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Местный отсос 950х300х250(h) мм 950x300x250</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00250D0_R0500R0_U090U0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; R=500 мм; D=250 мм ф250</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00250D0_L01250L0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=250 мм; L=1250 мм ф250</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00250D0_R0500R0_U060U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 60°; R=500 мм; D=250 мм ф250</comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00500D0_D20250D2_L00200L0_L20100L2_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 500/250/500 </comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00500D0_L01250L0_</characteristic>
+      <quantity>22</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик D=500 мм; L=1250 мм ф500</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00500D0_R01000R0_U090U0_</characteristic>
+      <quantity>7</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; R=1000 мм; D=500 мм ф500</comment>
+    </productRow>
+    <productRow>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00672A0_B00396B0_D00500D0_L00300L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переходник 672х396/D500 672x396</comment>
+    </productRow>
+    <productRow>
+      <article>3-2-5</article>
+      <name>Переход прямоугольного сечения тип 5</name>
+      <characteristic>A00378A0_A10500A1_B00378B0_B10500B1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переходник 378х378/500х500 378x378</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00500A0_B00500B0_L01250L0_</characteristic>
+      <quantity>18</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Прямик 500х500 мм; L=1250 мм 500x500</comment>
+    </productRow>
+    <productRow>
+      <article>2-2-2</article>
+      <name>Отвод прямоугольного сечения прямой</name>
+      <characteristic>A00500A0_B00500B0_L10000L1_L20000L2_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; 500х500 мм 500x500</comment>
+    </productRow>
+    <productRow>
+      <article>9-1-2</article>
+      <name>Зонт крышный круглого сечения (дефлектор)</name>
+      <characteristic>D00500D0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.8</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Зонт вентиляционный круглый D500 D500</comment>
     </productRow>
   </Tabl>
 </Order>

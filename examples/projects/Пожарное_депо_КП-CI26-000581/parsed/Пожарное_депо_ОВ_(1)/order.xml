@@ -163,6 +163,34 @@
       <comment>Воздуховод из тонколистовой оцинкованной стали, Ø200 мм ГОСТ 14918-2020 Ф200</comment>
     </productRow>
     <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00100D0_D20100D2_L00100L0_</characteristic>
+      <quantity>8</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Фасонные детали воздуховодов Врезка круглого воздуховода =100-=100 </comment>
+    </productRow>
+    <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00160D0_D20160D2_L00100L0_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Врезка круглого воздуховода =160-=160 </comment>
+    </productRow>
+    <productRow>
       <article>2-2-2</article>
       <name>Отвод прямоугольного сечения прямой</name>
       <characteristic>A00300A0_B00200B0_L10000L1_L20000L2_U045U0_</characteristic>
@@ -245,6 +273,48 @@
       <connection_3>0</connection_3>
       <system/>
       <comment>Отвод прямоугольного воздуховода 90° 600x300-600x300 600x300</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U045U0_</characteristic>
+      <quantity>10</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 45° =100-=100 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U090U0_</characteristic>
+      <quantity>28</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 90° =100-=100 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00125D0_R0125R0_U090U0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 90° =125-=125 </comment>
     </productRow>
     <productRow>
       <article>16-1-1</article>
@@ -387,6 +457,20 @@
       <comment>Воздуховод из тонколистовой оцинкованной стали 600х300 мм ГОСТ 14918-2020 600x300</comment>
     </productRow>
     <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00125D0_D20125D2_L00100L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Врезка круглая =125-=125 </comment>
+    </productRow>
+    <productRow>
       <article>2-2-2</article>
       <name>Отвод прямоугольного сечения прямой</name>
       <characteristic>A00250A0_B00300B0_L10000L1_L20000L2_U045U0_</characteristic>
@@ -457,13 +541,83 @@
       <comment>Отвод прямоугольного воздуховода 90° 600x300-600x300 600x300</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00160A0_A10160A1_B00160B0_B10160B1_L00200L0_</characteristic>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U045U0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 45° =100-=100 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U090U0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 90° =100-=100 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00125D0_R0125R0_U045U0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.55</thickness>
-      <connection_0>2</connection_0>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 45° =125-=125 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00125D0_R0125R0_U090U0_</characteristic>
+      <quantity>9</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 90° =125-=125 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00250D0_R0250R0_U090U0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 90° =250-=250 </comment>
+    </productRow>
+    <productRow>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00160A0_B00160B0_D00200D0_L00300L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
       <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
@@ -471,13 +625,13 @@
       <comment>Переход воздуховода с круглого на прямоугольное сечение 160x160-=160,L=200 160x160</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00300A0_A10300A1_B00200B0_B10200B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00300A0_B00200B0_D00200D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.55</thickness>
-      <connection_0>2</connection_0>
+      <connection_0>6</connection_0>
       <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
@@ -485,13 +639,13 @@
       <comment>Переход воздуховода с круглого на прямоугольное сечение 300x200-=160,L=200 300x200</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00300A0_A10300A1_B00200B0_B10200B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00300A0_B00200B0_D00200D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.55</thickness>
-      <connection_0>2</connection_0>
+      <connection_0>6</connection_0>
       <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
@@ -499,27 +653,27 @@
       <comment>Переход воздуховода с круглого на прямоугольное сечение 300x200-=200,L=200 300x200</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00300A0_A10300A1_B00250B0_B10200B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00300A0_B00250B0_D00300D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.55</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
       <comment>Переход прямоугольного сечения 300x250-300x200,L=300 300x250</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00300A0_A10300A1_B00250B0_B10250B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00300A0_B00250B0_D00200D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.55</thickness>
-      <connection_0>2</connection_0>
+      <connection_0>6</connection_0>
       <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
@@ -527,13 +681,13 @@
       <comment>Переход воздуховода с круглого на прямоугольное сечение 300x250-=200,L=200 300x250</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00300A0_A10300A1_B00250B0_B10250B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00300A0_B00250B0_D00200D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.55</thickness>
-      <connection_0>2</connection_0>
+      <connection_0>6</connection_0>
       <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
@@ -541,14 +695,14 @@
       <comment>Переход воздуховода с круглого на прямоугольное сечение 300x250-=250,L=200 300x250</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00600A0_A10300A1_B00300B0_B10250B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00600A0_B00300B0_D00300D0_L00300L0_</characteristic>
       <quantity>2</quantity>
       <material>1</material>
       <thickness>0.7</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
@@ -821,126 +975,126 @@
       <comment>Отвод прямоугольного воздуховода 90° 800x500-800x500 800x500</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00400A0_A10300A1_B00300B0_B10200B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00400A0_B00300B0_D00300D0_L00300L0_</characteristic>
       <quantity>4</quantity>
       <material>1</material>
       <thickness>0.7</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
       <comment>Переход прямоугольного сечения 400x300-300x200,L=300 400x300</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00500A0_A10400A1_B00300B0_B10300B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00500A0_B00300B0_D00300D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.7</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
       <comment>Переход прямоугольного сечения 500x300-400x300,L=300 500x300</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00600A0_A10400A1_B00300B0_B10300B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00600A0_B00300B0_D00300D0_L00300L0_</characteristic>
       <quantity>2</quantity>
       <material>1</material>
       <thickness>0.7</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
       <comment>Переход прямоугольного сечения 600x300-400x300,L=300 600x300</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00600A0_A10500A1_B00300B0_B10300B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00600A0_B00300B0_D00300D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.7</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
       <comment>Переход прямоугольного сечения 600x300-500x300,L=300 600x300</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00600A0_A10600A1_B00400B0_B10300B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00600A0_B00400B0_D00300D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.7</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
       <comment>Переход прямоугольного сечения 600x400-600x300,L=300 600x400</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00800A0_A10400A1_B00450B0_B10300B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00800A0_B00450B0_D00300D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.7</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
       <comment>Переход прямоугольного сечения 800x450-400x300,L=300 800x450</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00800A0_A10600A1_B00450B0_B10300B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00800A0_B00450B0_D00300D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.7</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
       <comment>Переход прямоугольного сечения 800x450-600x300,L=300 800x450</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00800A0_A10600A1_B00450B0_B10400B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00800A0_B00450B0_D00300D0_L00300L0_</characteristic>
       <quantity>1</quantity>
       <material>1</material>
       <thickness>0.7</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
       <comment>Переход прямоугольного сечения 800x450-600x400,L=300 800x450</comment>
     </productRow>
     <productRow>
-      <article>3-2-5</article>
-      <name>Переход прямоугольного сечения тип 5</name>
-      <characteristic>A00800A0_A10800A1_B00500B0_B10450B1_L00200L0_</characteristic>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00800A0_B00500B0_D00300D0_L00300L0_</characteristic>
       <quantity>2</quantity>
       <material>1</material>
       <thickness>0.7</thickness>
       <connection_0>6</connection_0>
-      <connection_1>6</connection_1>
+      <connection_1>2</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
@@ -1073,6 +1227,34 @@
       <comment>Воздуховод из тонколистовой оцинкованной стали, Ø125 мм ГОСТ 14918-2020 Ф125</comment>
     </productRow>
     <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U090U0_</characteristic>
+      <quantity>7</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>ПВ4(П) Фасонные детали воздуховодов Отвод круглого воздуховода 90° =100-=100 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00125D0_R0125R0_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 90° =125-=125 </comment>
+    </productRow>
+    <productRow>
       <article>9-1-2</article>
       <name>Зонт крышный круглого сечения (дефлектор)</name>
       <characteristic>D00200D0_</characteristic>
@@ -1143,6 +1325,62 @@
       <comment>Воздуховод из тонколистовой оцинкованной стали, Ø200 мм ГОСТ 14918-2020 Ф200</comment>
     </productRow>
     <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U090U0_</characteristic>
+      <quantity>5</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Фасонные детали воздуховодов Отвод круглого воздуховода 90° =100-=100 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00125D0_R0125R0_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 90° =125-=125 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00160D0_R0160R0_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 90° =160-=160 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00200D0_R0200R0_U090U0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод круглого воздуховода 90° =200-=200 </comment>
+    </productRow>
+    <productRow>
       <article>16-1-1</article>
       <name>Дроссель круглого сечения</name>
       <characteristic>D00100D0_L00100L0_</characteristic>
@@ -1211,6 +1449,20 @@
       <connection_3>0</connection_3>
       <system/>
       <comment>Воздуховод из тонколистовой оцинкованной стали, Ø315 мм ГОСТ 14918-2020 Ф315</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00160D0_R0160R0_U090U0_</characteristic>
+      <quantity>11</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Фасонные детали воздуховодов Отвод круглого воздуховода 90° =160-=160 </comment>
     </productRow>
   </Tabl>
 </Order>

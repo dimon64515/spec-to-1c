@@ -48,5 +48,21 @@
   "connection_3": "0",
   "system": "",
   "comment": "Переход из оцинкованной стали толщиной 0.5 мм Ф100/Ф125 Ф100"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 200
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Гигрорегулируемый приточный клапан SILEМ KIT HY 125 Soler&palau "
  }
 ]

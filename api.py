@@ -16,6 +16,8 @@ import pandas as pd
 
 from pdf_spec_extractor import (
     df_to_spec_rows,
+    extract_drawing_spec_rows,
+    extract_ocr_spec_rows,
     extract_tables_from_pdf,
     extract_text_lines_from_pdf,
     normalize_columns,
@@ -26,6 +28,7 @@ from equipment_pdf_extractor import extract_equipment_from_pdf
 from map_customer_equipment import map_equipment_rows
 from process_specification_table import process_rows
 from project_spec_xlsx import is_project_spec_xlsx, parse_project_spec_xlsx
+from zayavka_xlsx import is_zayavka_xlsx, parse_zayavka_xlsx
 
 
 @dataclass
@@ -39,13 +42,23 @@ class ProcessResult:
     equipment_skipped: List[Dict[str, Any]] = field(default_factory=list)
 
 
-def load_tables_from_pdf(file_bytes: bytes, selected_pages: Optional[List[int]] = None):
+def load_tables_from_pdf(
+    file_bytes: bytes,
+    selected_pages: Optional[List[int]] = None,
+    ocr_cache_path: Optional[str] = None,
+):
     """Save PDF bytes to a temporary file and extract tables or text fallback.
 
     Если таблицы найдены, но строки съезжаются (меньше 25% строк имеют и имя,
     и размер — типично для ГОСТ-бланков с многострочными ячейками), падаем
-    в разбор текстового слоя блоками (parse_spec_text_blocks) и возвращаем
-    {"text_fallback": ..., "block_rows": [...]}.
+    в разбор текстового слоя: сначала позиционный разбор встроенной в чертёж
+    таблицы «Спецификация изделий и материалов» (extract_drawing_spec_rows),
+    при её отсутствии — блоками по текстовому слою (parse_spec_text_blocks).
+    Страницы без текстового слоя вообще (текст преобразован в кривые), но с
+    сеткой ведомости ГОСТ 21.602 разбираются через OCR (extract_ocr_spec_rows,
+    tesseract); результаты кэшируются в ocr_cache_path, чтобы повторные
+    прогоны не перезапускали распознавание.
+    Возвращаем {"text_fallback": ..., "block_rows": [...], "ocr_pages": [...]}.
     """
     with NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
         tmp.write(file_bytes)
@@ -65,7 +78,31 @@ def load_tables_from_pdf(file_bytes: bytes, selected_pages: Optional[List[int]] 
                 return {"tables": tables_by_page}
         text_by_page = extract_text_lines_from_pdf(str(tmp_path), pages=selected_pages)
         all_lines = [line for page in sorted(text_by_page) for line in text_by_page[page]]
-        return {"text_fallback": text_by_page, "block_rows": parse_spec_text_blocks(all_lines)}
+        # Чертёж с встроенной таблицей «Спецификация изделий и материалов»:
+        # строки восстанавливаются по координатам колонок точнее, чем блоками
+        # по текстовому слою; если таблица найдена — блокный разбор не нужен
+        # (иначе те же позиции продублируются).
+        drawing_rows = extract_drawing_spec_rows(str(tmp_path), pages=selected_pages)
+        if drawing_rows:
+            block_rows = [
+                row for page in sorted(drawing_rows) for row in drawing_rows[page]
+            ]
+        else:
+            block_rows = parse_spec_text_blocks(all_lines)
+        # OCR-фолбэк: страницы-ведомости без текстового слоя (векторные
+        # кривые вместо текста). Страницы с текстовым слоем и страницы без
+        # сетки ведомости (чертежи, планы) внутри функции пропускаются.
+        ocr_rows = extract_ocr_spec_rows(
+            str(tmp_path), pages=selected_pages, cache_path=ocr_cache_path)
+        if ocr_rows:
+            block_rows = block_rows + [
+                row for page in sorted(ocr_rows) for row in ocr_rows[page]
+            ]
+        return {
+            "text_fallback": text_by_page,
+            "block_rows": block_rows,
+            "ocr_pages": sorted(ocr_rows),
+        }
     finally:
         tmp_path.unlink(missing_ok=True)
 
@@ -113,6 +150,18 @@ def read_project_spec_bytes(file_bytes: bytes, file_name: str) -> list[dict]:
         tmp_path.unlink(missing_ok=True)
 
 
+def read_zayavka_bytes(file_bytes: bytes, file_name: str) -> list[dict]:
+    """Read a manager «заявка» Excel (loose per-system position list)."""
+    suffix = Path(file_name).suffix or ".xlsx"
+    with NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(file_bytes)
+        tmp_path = Path(tmp.name)
+    try:
+        return parse_zayavka_xlsx(tmp_path)
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
 def count_pdf_pages(file_bytes: bytes) -> int:
     """Return the number of pages in a PDF byte stream."""
     with NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
@@ -140,10 +189,21 @@ def process_specification_file(
     options = options or {}
     header = header or {}
     df = read_csv_or_excel_bytes(file_bytes, file_name)
-    if file_name.lower().endswith((".xlsx", ".xls", ".xlsm")) and is_project_spec_xlsx(df):
+    is_excel = file_name.lower().endswith((".xlsx", ".xls", ".xlsm"))
+    if is_excel and is_project_spec_xlsx(df):
         # Распознанный проектный Excel (FineReader) с ГОСТ-разметкой: колонки
         # не совпадают с name/size/unit/quantity, разбираем постранично.
         rows = read_project_spec_bytes(file_bytes, file_name)
+    elif is_excel:
+        # Заявка менеджера: без шапки колонок, секции-системы, единицы
+        # «шт»/«п.м.»/«м2»/«пара». Детект требует df с header=None.
+        df_raw = pd.read_excel(
+            pd.io.common.BytesIO(file_bytes), header=None, dtype=object)
+        if is_zayavka_xlsx(df_raw):
+            rows = read_zayavka_bytes(file_bytes, file_name)
+        else:
+            df = normalize_columns(df)
+            rows = df_to_spec_rows(df)
     else:
         df = normalize_columns(df)
         rows = df_to_spec_rows(df)

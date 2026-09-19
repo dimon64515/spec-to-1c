@@ -9,62 +9,6 @@
   <contact/>
   <Tabl>
     <productRow>
-      <article>16-1-1</article>
-      <name>Дроссель круглого сечения</name>
-      <characteristic>D00015D0_L00200L0_</characteristic>
-      <quantity>216</quantity>
-      <material>1</material>
-      <thickness>0.55</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Клапан запорный прямой, Ду15 RLV-15 &quot;Danfoss&quot; Ду15</comment>
-    </productRow>
-    <productRow>
-      <article>16-1-1</article>
-      <name>Дроссель круглого сечения</name>
-      <characteristic>D00025D0_L00200L0_</characteristic>
-      <quantity>9</quantity>
-      <material>1</material>
-      <thickness>0.55</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Ручной балансировочный клапан Ду25 MVT &quot;Danfoss&quot; Ду25</comment>
-    </productRow>
-    <productRow>
-      <article>16-1-1</article>
-      <name>Дроссель круглого сечения</name>
-      <characteristic>D00065D0_L00200L0_</characteristic>
-      <quantity>3</quantity>
-      <material>1</material>
-      <thickness>0.55</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Ручной балансировочный клапан Ду65 MNF &quot;Danfoss&quot; Ду65</comment>
-    </productRow>
-    <productRow>
-      <article>16-1-1</article>
-      <name>Дроссель круглого сечения</name>
-      <characteristic>D00050D0_L00200L0_</characteristic>
-      <quantity>2</quantity>
-      <material>1</material>
-      <thickness>0.55</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Заслонка CHR 50-30 </comment>
-    </productRow>
-    <productRow>
       <article>15-2-1</article>
       <name>Шумоглушитель трубчатый прямоугольный ГТП</name>
       <characteristic>A00500A0_B00300B0_A10500A1_B10300B1_L01100L0_</characteristic>
@@ -79,20 +23,6 @@
       <comment>Шумоглушитель LITENED 50-30 NKD </comment>
     </productRow>
     <productRow>
-      <article>16-1-1</article>
-      <name>Дроссель круглого сечения</name>
-      <characteristic>D00050D0_L00200L0_</characteristic>
-      <quantity>1</quantity>
-      <material>1</material>
-      <thickness>0.55</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Заслонка CHR 50-30 </comment>
-    </productRow>
-    <productRow>
       <article>15-2-1</article>
       <name>Шумоглушитель трубчатый прямоугольный ГТП</name>
       <characteristic>A00500A0_B00300B0_A10500A1_B10300B1_L01100L0_</characteristic>
@@ -105,20 +35,6 @@
       <connection_3>0</connection_3>
       <system/>
       <comment>Шумоглушитель LITENED 50-30 NKD </comment>
-    </productRow>
-    <productRow>
-      <article>16-1-1</article>
-      <name>Дроссель круглого сечения</name>
-      <characteristic>D00160D0_L00200L0_</characteristic>
-      <quantity>1</quantity>
-      <material>1</material>
-      <thickness>0.55</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Заслонка регулирующая KCH 160 </comment>
     </productRow>
     <productRow>
       <article>15-1-1</article>
@@ -261,6 +177,356 @@
       <comment>Шумоглушитель KNK 125/6 </comment>
     </productRow>
     <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00100D0_L03000L0_</characteristic>
+      <quantity>6</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали Ø100, толщина стали 0,5мм ГОСТ 14918-80 Ф100</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00125D0_L03000L0_</characteristic>
+      <quantity>35</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали Ø125, толщина стали 0,5мм ГОСТ 14918-80 Ф125</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00160D0_L03000L0_</characteristic>
+      <quantity>11</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали Ø160, толщина стали 0,5мм ГОСТ 14918-80 Ф160</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00200D0_L03000L0_</characteristic>
+      <quantity>15</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали Ø200, толщина стали 0,5мм ГОСТ 14918-80 Ф200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00200A0_B00100B0_L01250L0_</characteristic>
+      <quantity>132</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 200х100, толщина стали 0,5мм ГОСТ 14918-80 200x100</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00200A0_B00200B0_L01250L0_</characteristic>
+      <quantity>16</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 200х200, толщина стали 0,5мм ГОСТ 14918-80 200x200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00250A0_B00150B0_L01250L0_</characteristic>
+      <quantity>16</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 250х150, толщина стали 0,5мм ГОСТ 14918-80 250x150</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00250A0_B00200B0_L01250L0_</characteristic>
+      <quantity>12</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 250х200, толщина стали 0,5мм ГОСТ 14918-80 250x200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00250A0_B00250B0_L01250L0_</characteristic>
+      <quantity>20</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 250х250, толщина стали 0,5мм ГОСТ 14918-80 250x250</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00300A0_B00150B0_L01250L0_</characteristic>
+      <quantity>7</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 300х150, толщина стали 0,7мм ГОСТ 14918-80 300x150</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00300A0_B00200B0_L01250L0_</characteristic>
+      <quantity>13</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 300х200, толщина стали 0,7мм ГОСТ 14918-80 300x200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00300A0_B00250B0_L01250L0_</characteristic>
+      <quantity>17</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 300х250, толщина стали 0,7мм ГОСТ 14918-80 300x250</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00400A0_B00150B0_L01250L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 400х150, толщина стали 0,7мм ГОСТ 14918-80 400x150</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00400A0_B00250B0_L01250L0_</characteristic>
+      <quantity>13</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 400х250, толщина стали 0,7мм ГОСТ 14918-80 400x250</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00450A0_B00200B0_L01250L0_</characteristic>
+      <quantity>12</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 450х200, толщина стали 0,7мм ГОСТ 14918-80 450x200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00450A0_B00450B0_L01250L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 450х450, толщина стали 0,7мм ГОСТ 14918-80 450x450</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00500A0_B00200B0_L01250L0_</characteristic>
+      <quantity>12</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 500х200, толщина стали 0,7мм ГОСТ 14918-80 500x200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00500A0_B00250B0_L01250L0_</characteristic>
+      <quantity>22</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 500х250, толщина стали 0,7мм ГОСТ 14918-80 500x250</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00500A0_B00300B0_L01250L0_</characteristic>
+      <quantity>19</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 500х300, толщина стали 0,7мм ГОСТ 14918-80 500x300</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00600A0_B00200B0_L01250L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 600х200, толщина стали 0,7мм ГОСТ 14918-80 600x200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00600A0_B00300B0_L01250L0_</characteristic>
+      <quantity>8</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 600х300, толщина стали 0,7мм ГОСТ 14918-80 600x300</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A01500A0_B00500B0_L01250L0_</characteristic>
+      <quantity>23</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 1500х500, толщина стали 0,9мм ГОСТ 14918-80 1500x500</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00125D0_L01250L0_</characteristic>
+      <quantity>296</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали ф125, толщина стали 0,9мм (под огнезащиту) ГОСТ 14918-80 ф125</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00500A0_B00250B0_L01250L0_</characteristic>
+      <quantity>152</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 500х250, толщина стали 0,9мм (под огнезащиту) ГОСТ 14918-80 500x250</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00600A0_B00300B0_L01250L0_</characteristic>
+      <quantity>100</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали 600х300, толщина стали 0,9мм (под огнезащиту) ГОСТ 14918-80 600x300</comment>
+    </productRow>
+    <productRow>
       <article>16-2-1</article>
       <name>Дроссель прямоугольного сечения</name>
       <characteristic>A00200A0_B00100B0_L00200L0_</characteristic>
@@ -401,116 +667,46 @@
       <comment>Зонт вытяжной ЗП-500х250 Лиссант 500x250</comment>
     </productRow>
     <productRow>
-      <article>29-1-3</article>
-      <name>Монтажный стакан</name>
-      <characteristic>D00710D0_L00200L0_</characteristic>
-      <quantity>1</quantity>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00150A0_B00150B0_L01250L0_</characteristic>
+      <quantity>2112</quantity>
       <material>1</material>
-      <thickness>0.7</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
-      <comment>Стакан монтажный неутепленный MSN-710 </comment>
+      <comment>Воздуховод из оцинкованной стали 150х150, толщина стали 0,9мм (под огнезащиту) ГОСТ 14918-80 150x150</comment>
     </productRow>
     <productRow>
-      <article>29-1-3</article>
-      <name>Монтажный стакан</name>
-      <characteristic>D00710D0_L00200L0_</characteristic>
-      <quantity>1</quantity>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00400A0_B00200B0_L01250L0_</characteristic>
+      <quantity>1144</quantity>
       <material>1</material>
-      <thickness>0.7</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
-      <comment>Стакан монтажный неутепленный MSN-710 </comment>
+      <comment>Воздуховод из оцинкованной стали 400х200, толщина стали 0,9мм (под огнезащиту) ГОСТ 14918-80 400x200</comment>
     </productRow>
     <productRow>
-      <article>29-1-3</article>
-      <name>Монтажный стакан</name>
-      <characteristic>D00560D0_L00200L0_</characteristic>
-      <quantity>1</quantity>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00700A0_B00250B0_L01250L0_</characteristic>
+      <quantity>968</quantity>
       <material>1</material>
-      <thickness>0.7</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
-      <comment>Стакан монтажный неутепленный MSN-560 </comment>
-    </productRow>
-    <productRow>
-      <article>29-1-3</article>
-      <name>Монтажный стакан</name>
-      <characteristic>D00560D0_L00200L0_</characteristic>
-      <quantity>1</quantity>
-      <material>1</material>
-      <thickness>0.7</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Стакан монтажный неутепленный MSN-560 </comment>
-    </productRow>
-    <productRow>
-      <article>29-1-3</article>
-      <name>Монтажный стакан</name>
-      <characteristic>D00560D0_L00200L0_</characteristic>
-      <quantity>1</quantity>
-      <material>1</material>
-      <thickness>0.7</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Стакан монтажный неутепленный MSN-560 </comment>
-    </productRow>
-    <productRow>
-      <article>29-1-3</article>
-      <name>Монтажный стакан</name>
-      <characteristic>D00560D0_L00200L0_</characteristic>
-      <quantity>1</quantity>
-      <material>1</material>
-      <thickness>0.7</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Стакан монтажный неутепленный MSN-560 </comment>
-    </productRow>
-    <productRow>
-      <article>29-1-3</article>
-      <name>Монтажный стакан</name>
-      <characteristic>D00560D0_L00200L0_</characteristic>
-      <quantity>1</quantity>
-      <material>1</material>
-      <thickness>0.7</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Стакан монтажный неутепленный MSN-560 </comment>
-    </productRow>
-    <productRow>
-      <article>29-1-3</article>
-      <name>Монтажный стакан</name>
-      <characteristic>D00560D0_L00200L0_</characteristic>
-      <quantity>1</quantity>
-      <material>1</material>
-      <thickness>0.7</thickness>
-      <connection_0>0</connection_0>
-      <connection_1>0</connection_1>
-      <connection_2>0</connection_2>
-      <connection_3>0</connection_3>
-      <system/>
-      <comment>Стакан монтажный неутепленный MSN-560 </comment>
+      <comment>Воздуховод из оцинкованной стали 700х250, толщина стали 0,9мм (под огнезащиту) ГОСТ 14918-80 700x250</comment>
     </productRow>
     <productRow>
       <article>1-1-1</article>

@@ -426,6 +426,34 @@
       <connection_2>0</connection_2>
       <connection_3>0</connection_3>
       <system/>
+      <comment>Врезка прямоугольного сечения в круглый воздуховод 400x400-400x400 400x400</comment>
+    </productRow>
+    <productRow>
+      <article>8-2-1</article>
+      <name>Врезка прямоугольного сечения прямая в прямоугольный воздуховод</name>
+      <characteristic>A00800A0_B00250B0_L00100L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Врезка прямоугольного сечения в круглый воздуховод 800x250-800x250 800x250</comment>
+    </productRow>
+    <productRow>
+      <article>8-2-1</article>
+      <name>Врезка прямоугольного сечения прямая в прямоугольный воздуховод</name>
+      <characteristic>A00400A0_B00400B0_L00100L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
       <comment>Врезка прямоугольного сечения в плоскость 400x400-400x400 400x400</comment>
     </productRow>
     <productRow>

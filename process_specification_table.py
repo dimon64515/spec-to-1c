@@ -37,6 +37,7 @@ from config import get_config, mapping_file
 from generate_order_xml import build_characteristic, generate_order_xml, load_article_mapping
 from project_spec_xlsx import is_project_spec_xlsx, parse_project_spec_xlsx
 from spec_common import material_to_code
+from zayavka_xlsx import is_zayavka_xlsx, parse_zayavka_xlsx
 
 
 logger = logging.getLogger(__name__)
@@ -152,12 +153,18 @@ PRODUCT_TYPE_PATTERNS = [
     # Фасонные изделия — проверяем раньше воздуховодов, т.к. в их названиях часто
     # встречается слово "воздуховод(а)": "Отвод прямоугольного воздуховода ..."
     (r"\bотвод\b", "elbow"),
-    (r"\bпереход\b", "transition"),
+    # «Переходник» — то же изделие, что «переход» (чертёжные спецификации
+    # аспирационных систем: «Переходник D500/D355», «Переходник 672х396/D500»).
+    (r"\bпереход", "transition"),
     (r"\bтройник\b", "tee"),
     (r"\bкрестовина\b", "cross"),
     (r"\bзаглушка\b", "cap"),
     (r"\bврезка\b", "saddle"),
     (r"\bутка\b", "offset"),
+    # «Опуск» — жаргон завода для отвода-ниппеля, которым магистраль
+    # «опускается» вниз (заявки менеджера: «Опуск н.ж. (воздуховод 315-500)»).
+    # По номенклатуре завода в КП это отвод круглого сечения.
+    (r"\bопуск\b", "elbow"),
     (r"\bзонт\b", "roof_cap"),
     (r"\bдефлектор\b", "roof_cap"),
     (r"\bпленум\b", "plenum"),
@@ -177,8 +184,14 @@ PRODUCT_TYPE_PATTERNS = [
     (r"\bдк[-–\s]?\d", "throttle"),
     (r"\bстакан\b", "mounting_cup"),
     (r"\bвентилятор\b", "fan"),
-    # Воздуховоды — самый общий случай
+    # Воздуховоды — самый общий случай. «Прямик» — локальное название
+    # прямого участка круглого воздуховода (чертёжные спецификации
+    # аспирационных систем, г. Ростов-на-Дону: «Прямик D=280 мм; L=1250 мм»).
+    (r"\bпрямик\b", "duct"),
     (r"воздуховод", "duct"),
+    # «Местный отсос AxBxH(h)» — вытяжной зонт над участком (по номенклатуре
+    # завода — зонт вытяжной прямоугольного сечения тип 1, арт. 19-2-1).
+    (r"\bотсос\b", "hood"),
     # Агрегатные / неопределённые фасонные изделия
     (r"фасонные\s+изделия", "aggregate_fittings"),
 ]
@@ -189,6 +202,13 @@ def detect_product_type(name: str) -> Optional[str]:
     # Агрегатные строки фасонных изделий проверяем первыми, чтобы не спутать с воздуховодами
     if re.search(r"фасонные\s+изделия", text):
         return "aggregate_fittings"
+    # «Зонт пристенный/вытжной над кухонной плитой» — вытяжной зонт
+    # прямоугольного сечения тип 1 (арт. 19-2-1), а не крышный зонт-дефлектор
+    # 9-x. Практика завода (КП №1003 поз.44): «Зонт вытяжной пристенный
+    # (Тип1)». Крышные зонты «вытяжные» (по Владикавказу, КП №1090) слова
+    # «пристенный» не содержат.
+    if re.search(r"\bзонт\b", text) and "пристенн" in text:
+        return "hood"
     for pattern, ptype in PRODUCT_TYPE_PATTERNS:
         if re.search(pattern, text):
             return ptype
@@ -247,10 +267,21 @@ def _strip_gost_designation(text: str) -> str:
     return re.sub(r"(?i)гост\s*\d{4,5}\s*-\s*\d{2,3}\b", " ", text)
 
 
+# Диаметр со знаком равенства: «D=280», «Ду=315» (чертёжные спецификации
+# аспирационных систем). Знак убираем — дальше срабатывают префиксные паттерны.
+_EQ_DIAMETER_RE = re.compile(
+    rf"(?<![\w])((?:{szn.prefix_group()}))\s*=\s*(?=\d{{2,5}})", re.IGNORECASE)
+
+
+def _normalize_eq_diameters(text: str) -> str:
+    return _EQ_DIAMETER_RE.sub(lambda m: m.group(1) + " ", text)
+
+
 def extract_size_token(text: str) -> str:
     """Ищет в тексте размер в формате AxB[-L], AxBxL или D/DN/Ф/Ø/⌀D[-L]."""
     text = _strip_gost_designation(text)
     text = _collapse_size_spaces(text)
+    text = _normalize_eq_diameters(text)
     # Прямоугольное сечение с длиной через x: AxBxL
     m = re.search(r"\b(\d{2,5}\s*x\s*\d{2,5}\s*x\s*\d{2,5})\b", text, re.IGNORECASE)
     if m:
@@ -275,7 +306,7 @@ def extract_size_token(text: str) -> str:
 def _material_from_name(name: str) -> str:
     """Определяет тип материала стали по наименованию."""
     n = name.lower().replace("ё", "е")
-    if "нерж" in n or "aisi" in n:
+    if "нерж" in n or "aisi" in n or "н.ж" in n:
         return "нержавеющая"
     if "черн" in n or "ст3" in n or "ст.3" in n or "ст-3" in n:
         return "черная"
@@ -455,6 +486,7 @@ def extract_dimensions(text: str) -> Dict[str, float]:
     """
     dims = {}
     text = _strip_gost_designation(text)
+    text = _normalize_eq_diameters(text)
     for sep in szn.separators():
         text = text.replace(sep, "x")
     text_lower = text.lower()
@@ -524,12 +556,15 @@ def extract_dimensions(text: str) -> Dict[str, float]:
     # Угол для отводов
     m = re.search(r"(\d{2,3})\s*°?\s*град", text, re.IGNORECASE)
     if not m:
+        # Сокращение «гр.» без «а»: «Отвод 30гр.», «отвод 45гр»
+        m = re.search(r"(\d{2,3})\s*(?:град\w*|гр)\.?(?=\s|$)", text, re.IGNORECASE)
+    if not m:
         m = re.search(r"\b(90|45|30|60|15|75)\b", text)
     if m:
         dims["U0"] = float(m.group(1))
 
     # Радиус
-    m = re.search(r"r\s*(\d{2,4})", text, re.IGNORECASE)
+    m = re.search(r"r\s*[=:]?\s*(\d{2,4})", text, re.IGNORECASE)
     if m:
         dims["R0"] = float(m.group(1))
 
@@ -547,7 +582,7 @@ def extract_dimensions(text: str) -> Dict[str, float]:
 
     # Оборудование по псевдонимам: MSN, KPN-S, PPK, ГЕРМИК, NKD, KNK, CHR, KCH
     if "D0" not in dims and "A0" not in dims:
-        m = re.search(r"\b(?:MSN|KPN-S|PPK|ГЕРМИК|NKD|KNK|CHR|KCH|RV[NCS]|RSK|KON|ДК)[-\s]?(\d{2,4})\b", text, re.IGNORECASE)
+        m = re.search(r"\b(?:MSN|KPN-S|PPK|ГЕРМИК|NKD|KNK|CHR|KCH|RV[NCS]|RSK|KON|ДК|КВК)[-\s]?(\d{2,4})\b", text, re.IGNORECASE)
         if m:
             dims["D0"] = float(m.group(1))
 
@@ -588,6 +623,20 @@ def classify_skip(name: str, size: str, unit: str, ptype: Optional[str]) -> str:
     if unit.lower() in ("м2", "м²", "кв.м", "кв м"):
         return "Единица м² — агрегатная площадь, нельзя разбить на позиции без детализации"
     return "Не удалось распознать размер / тип"
+
+
+# Покупные позиции заявки менеджера (завод не производит, в КП не входят):
+# оборудование, арматура сторонних брендов, КИПиА, монтажный крепёж,
+# изоляция. Применяется только к строкам с source="zayavka" — в проектных
+# спецификациях часть этих изделий (шумоглушители 15-x, обратные клапаны
+# 18-x) завод производит.
+ZAYAVKA_BUYOUT_RE = re.compile(
+    r"вентилятор|обратн\w*\s+клапан|фильтр|шумоглушител|диффузор"
+    r"|реш[её]тк|сетк|пенофол|гибк|кронштейн|виброизолятор"
+    r"|симистор|шкаф|автомат|кабель|преобразовател|электропривод"
+    r"|смесительн\w*\s+узел|алюминиев",
+    re.IGNORECASE,
+)
 
 
 def try_parse_ksd(size: str, name: str, material_code: str = "1", thickness: float = 0.7) -> Optional[dict]:
@@ -655,7 +704,7 @@ def try_parse_fitting(
 ) -> Optional[dict]:
     """Пытается распознать фасонное изделие."""
     ptype = detect_product_type(name)
-    if ptype not in ("elbow", "transition", "tee", "cross", "cap", "saddle", "offset", "flange", "silencer", "damper", "throttle", "mounting_cup", "nipple", "roof_cap"):
+    if ptype not in ("elbow", "transition", "tee", "cross", "cap", "saddle", "offset", "flange", "silencer", "damper", "throttle", "mounting_cup", "nipple", "roof_cap", "hood"):
         return None
 
     # «Отвод 45 …» / «Отвод ∠45 …» (ГОСТ-ведомости): угол — в наименовании,
@@ -680,9 +729,9 @@ def try_parse_fitting(
     if elbow_angle is not None:
         dims["U0"] = elbow_angle
 
-    # Тройник/переход без префиксов Ø: «315/315/200», «200/125» (проект
-    # Владикавказ) — диаметры через слэш.
-    if ptype in ("transition", "tee") and "D0" not in dims and "A0" not in dims:
+    # Тройник/переход/врезка без префиксов Ø: «315/315/200», «200/125»,
+    # «Врезка 315/200» (заявки менеджера) — диаметры через слэш.
+    if ptype in ("transition", "tee", "saddle") and "D0" not in dims and "A0" not in dims:
         m = re.search(r"(?<![\d.,])(\d{2,5})\s*/\s*(\d{2,5})(?:\s*/\s*(\d{2,5}))?(?![\d.,])",
                       name + " " + size)
         if m:
@@ -698,10 +747,33 @@ def try_parse_fitting(
         if size_dims:
             dims.update(size_dims)
 
+    # «Голые» числа в наименовании без префиксов Ø (жаргон заявок
+    # менеджера): «Отвод (90) 400», «Заглушка 200», «Дроссель-клапан
+    # н.ж. 315», «Прямая врезка 160». Угол отвода и длина в кандидаты
+    # не включаем. Берём первое число — это сечение (глубина заглушки,
+    # длина ниппеля и прочие хвосты дальше отфильтровываются по params).
+    if (
+        ptype in ("elbow", "cap", "saddle", "damper", "throttle",
+                  "nipple", "mounting_cup")
+        and "D0" not in dims and "A0" not in dims
+    ):
+        skip_vals = {dims.get("U0"), dims.get("L0")}
+        candidates = [
+            float(x)
+            for x in re.findall(r"(?<![\d.,])(\d{2,5})(?![\d.,])", dims_text)
+            if float(x) not in skip_vals
+        ]
+        if candidates:
+            dims["D0"] = candidates[0]
+
     # Переход/тройник «голый диаметр + прямоугольное сечение»:
     # «Переход 710/700x500» — круглый патрубок 710 рядом с AxB.
+    # Сепараторы учитываем в обеих раскладках: иначе кириллическое «х» в
+    # «378х378/400х400» не удаляется и «378» из прямоугольного сечения
+    # становится ложным D0. Пробелы между числами не трогаем — соседние
+    # размеры («500x700 500x700») иначе склеиваются.
     if ptype in ("transition", "tee") and "A0" in dims and "D0" not in dims:
-        rest = re.sub(r"\d{2,5}\s*x\s*\d{2,5}", " ", name + " " + size)
+        rest = re.sub(r"\d{2,5}\s*[xх×*]\s*\d{2,5}", " ", name + " " + size)
         m = re.search(r"(?<![\d.,])(\d{2,5})(?![\d.,])", rest)
         if m:
             dims["D0"] = float(m.group(1))
@@ -778,7 +850,13 @@ def try_parse_fitting(
     # Тройник
     elif ptype == "tee":
         # Для тройника с 3+ диаметрами ветвь — последний диаметр
-        branch_d = dims.get("D2") if "D2" in dims else dims.get("D1")
+        # («Тройник 125/125/100» → ветвь 100). Исключение — запись
+        # «Dглавн/Dветвь/Dглавн» («Тройник 500/315/500»): первый и последний
+        # совпадают, ветвь посередине.
+        if "D2" in dims:
+            branch_d = dims["D1"] if dims.get("D0") == dims.get("D2") else dims["D2"]
+        else:
+            branch_d = dims.get("D1")
         # Если основное сечение прямоугольное, а в тексте есть диаметр — это диаметр круглой врезки
         if not branch_d and rectangular and "D0" in dims:
             branch_d = dims["D0"]
@@ -826,8 +904,14 @@ def try_parse_fitting(
 
     # Заглушка
     elif ptype == "cap":
-        article = "6-1-1" if round_ else "6-2-1"
+        # Форма — по извлечённому сечению: «Заглушка 250» (голый размер без
+        # слова «круглый») — это круглая заглушка 6-1-1, а не 6-2-1.
+        cap_rect = "A0" in dims or (
+            "D0" not in dims and is_rectangular(name + " " + size))
+        article = "6-2-1" if cap_rect else "6-1-1"
         params = {k: v for k, v in dims.items() if k in ("D0", "A0", "B0")}
+        if cap_rect and ("A0" not in params or "B0" not in params):
+            return None
         if "P0" not in params:
             # Стандартная глубина заглушки:
             # для A/D 100..950 мм -> 25 мм, для 1000 мм и выше -> 35 мм
@@ -839,9 +923,16 @@ def try_parse_fitting(
 
     # Врезка
     elif ptype == "saddle":
-        article = "8-1-1" if round_ else "8-2-1"
+        # Форму сечения определяет сама врезка, а не воздуховод-носитель:
+        # «Врезка прямоугольного сечения в круглый воздуховод 400x400-…»
+        # — это 8-2-1 (A0/B0), а не 8-1-1.
+        saddle_rect = is_rectangular(name + " " + size) or (
+            "A0" in dims and "D0" not in dims)
+        article = "8-2-1" if saddle_rect else "8-1-1"
         params = {k: v for k, v in dims.items() if k in ("D0", "A0", "B0")}
-        if round_:
+        if saddle_rect and ("A0" not in params or "B0" not in params):
+            return None
+        if not saddle_rect:
             # Врезка с двумя диаметрами «Ø315/Ø125»: D0 — патрубок (меньший),
             # D2 — основной воздуховод (больший); у одиночного Ø200 — оба равны.
             # Без D2 расчёт 8-1-1 в 1С падает с «Геометрия недопустима»
@@ -967,6 +1058,20 @@ def try_parse_fitting(
         else:
             return None
 
+    # Местный отсос «LxAxH(h)» — вытяжной зонт (19-2-1). Первое число —
+    # длина зонта, далее сечение AxB, последнее с пометкой (h) — высота
+    # (обозначение КП: «250/350x1000» ↔ «Местный отсос 1000х350х250(h)»).
+    elif ptype == "hood":
+        rectangular = True
+        m = re.search(
+            r"(\d{2,5})\s*[xх×*]\s*(\d{2,5})\s*[xх×*]\s*(\d{2,5})",
+            name + " " + size)
+        if not m:
+            return None
+        length, a, b = float(m.group(1)), float(m.group(2)), float(m.group(3))
+        article = "19-2-1"
+        params = {"A0": max(a, b), "B0": min(a, b), "L0": length}
+
     # Клапаны / дроссели / заслонки
     elif ptype in ("damper", "throttle"):
         name_lower = name.lower()
@@ -1006,7 +1111,7 @@ def try_parse_fitting(
     # для сечений до 350 мм). Переходы уже получают свои соединения выше.
     # Заглушка — одностороннее изделие: шина только на стороне 0, иначе в 1С
     # появляется шина на несуществующем соединении 1.
-    if rectangular and ptype in ("elbow", "tee", "cross", "saddle", "offset", "roof_cap"):
+    if rectangular and ptype in ("elbow", "tee", "cross", "saddle", "offset", "roof_cap", "hood"):
         if connections == ["0", "0", "0", "0"]:
             connections = ["6", "6", "0", "0"]
     if rectangular and ptype == "cap":
@@ -1162,9 +1267,11 @@ def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.Size
         # «Голый» диаметр в конце наименования (проектные спецификации):
         # «... класс воздуховодов "П" 200» → Ф200. Для фасонки не применяем:
         # «Тройник ... 315/315/200» — это не диаметр 200, а ветвь.
-        m = re.search(r"\b(\d{3,4})\s*$", name)
+        # Опционально захватываем и длину: «Воздуховод с/н 315-3000» →
+        # Ф315-3000 (жаргон заявок менеджера: диаметр и длина через дефис).
+        m = re.search(r"\b(\d{3,4})(?:\s*[-–]\s*(\d{3,5}))?\s*$", name)
         if m:
-            size = f"Ф{m.group(1)}"
+            size = f"Ф{m.group(1)}-{m.group(2)}" if m.group(2) else f"Ф{m.group(1)}"
 
     # Исправляем типичные OCR-ошибки (потерянный ноль) в прямоугольных размерах
     size, ocr_warnings = correct_ocr_size(name, size)
@@ -1207,11 +1314,34 @@ def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.Size
         ("гибкий" in name_lower and "воздуховод" in name_lower)
         or re.search(r"\bтруба\b|\bтрубка\b", name_lower)
         or "k-flex" in name_lower
+        # Полиуретановые (PUR/«Юнифлекс») воздуховоды — покупные рукава,
+        # завод не производит (чертёжные спецификации аспирационных систем).
+        or "полиуретановый" in name_lower
+        or "pur fr" in name_lower
+        or "юнифлекс" in name_lower
     ):
         return None, _apply_ocr_warnings(
             {"name": name, "size": size, "unit": unit,
              "quantity": parsed_quantity, "material": material, "thickness": thickness,
              "reason": "Покупная позиция (гибкий воздуховод/трубопровод/изоляция) — завод не производит"},
+            ocr_warnings,
+        )
+
+    # Покупные брендовые серии — завод не производит, в заказ не входят
+    # (решение по Грозному/1274 19.09.2026): арматура отопления Danfoss
+    # (RLV/MVT/MNF), заслонки CHR/KCH, стаканы монтажные СТАМ. Шумоглушители
+    # LITENED/KNK — производимые 15-x, здесь не режем. Применяется к любому
+    # типу, т.к. «Клапан запорный RLV-15» иначе уходил бы в дроссель 16-1-1,
+    # а стакан — в 29-1-3.
+    if re.search(
+        r"danfoss|\brlv\b|\bmvt\b|\bmnf\b|\bchr\b|\bkch\b"
+        r"|стакан\s+монтажн|\bстам-\d",
+        name_lower
+    ):
+        return None, _apply_ocr_warnings(
+            {"name": name, "size": size, "unit": unit,
+             "quantity": parsed_quantity, "material": material, "thickness": thickness,
+             "reason": "Покупная позиция (стороннее оборудование) — завод не производит"},
             ocr_warnings,
         )
 
@@ -1230,6 +1360,19 @@ def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.Size
             {"name": name, "size": size, "unit": unit,
              "quantity": parsed_quantity, "material": material, "thickness": thickness,
              "reason": "Покупная арматура (брендовый клапан/шумоглушитель) — завод не производит"},
+            ocr_warnings,
+        )
+
+    # Покупные позиции заявки менеджера (оборудование, КИПиА, крепёж,
+    # изоляция). Проверяем до try_parse_fitting, иначе «Шумоглушитель
+    # 315/600» стал бы 15-1-1, «Обратный клапан 315» — 18-1-3, а
+    # «Воздушный алюминиевый клапан 600х350» — 21-2-1 (в КП этих позиций
+    # нет — завод их не производит).
+    if row.get("source") == "zayavka" and ZAYAVKA_BUYOUT_RE.search(name):
+        return None, _apply_ocr_warnings(
+            {"name": name, "size": size, "unit": unit,
+             "quantity": parsed_quantity, "material": material, "thickness": thickness,
+             "reason": "Покупная позиция по заявке (оборудование/КИПиА/крепёж) — завод не производит"},
             ocr_warnings,
         )
 
@@ -1291,12 +1434,14 @@ def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.Size
     if ksd:
         ksd["quantity"] = int(quantity) if unit in ("шт", "штук", "pcs", "pc", "шт.") else max(1, int(round(quantity)))
         ksd["thickness_explicit"] = thickness_explicit
+        ksd["system"] = row.get("system", "")
         return _apply_ocr_warnings(_finalize_row(ksd), ocr_warnings), None
 
     # Попытка распознать фасонное изделие / арматуру (в том числе для м²)
     fitting = try_parse_fitting(name, size, unit, quantity, material_code=material_code, thickness=thickness)
     if fitting:
         fitting["thickness_explicit"] = thickness_explicit
+        fitting["system"] = row.get("system", "")
         return _apply_ocr_warnings(_finalize_row(fitting), ocr_warnings), None
 
     # Агрегатные строки фасонных изделий / оборудование без артикула
@@ -1339,15 +1484,23 @@ def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.Size
         if section == "round":
             # Выбор артикула по типу круглого воздуховода
             name_lower = name.lower()
-            if "прямошовный" in name_lower:
+            if "прямошовный" in name_lower or "прямик" in name_lower:
+                # «Прямик» — локальное название прямошовного прямого участка
                 article = "1-1-1"
-            elif "спирально-навивной" in name_lower:
+            elif "спирально-навивной" in name_lower or "с/н" in name_lower:
+                # «с/н» — жаргон заявок менеджера для спирально-навивного
                 article = "1-1-2"
             else:
                 article = DEFAULT_ROUND_ARTICLE
             # Ø ≥ 500 или стенка ≥ 0.9 — прямошовной из рулона по ГОСТ 16523
-            # (КП №1090 поз.198: Ф630-1250 Рулон оц. 1.00)
-            if article == "1-1-2" and (thickness >= 0.9 or dims.get("D0", 0) >= 500):
+            # (КП №1090 поз.198: Ф630-1250 Рулон оц. 1.00). Нержавеющая и
+            # чёрная сталь — всегда прямошовные из листа/рулона (КП №1003
+            # поз.20: «Воздуховод н.ж. 400-1250» → прямошовной).
+            if article == "1-1-2" and (
+                thickness >= 0.9
+                or dims.get("D0", 0) >= 500
+                or material_to_code(material) != "1"
+            ):
                 article = "1-1-1"
             length_mm = DEFAULT_ROUND_LENGTH_MM
         else:
@@ -1359,6 +1512,15 @@ def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.Size
 
         # Если размер уже содержит длину (например, Ф100-3000), используем её
         length_mm = dims.get("L0", length_mm)
+        if "L0" not in dims:
+            # Длина в наименовании: «Прямик D=280; L=1250», «…500х500; L=1250».
+            # «L2160м3/ч» (расход воздуха на схеме) — не длина.
+            m = re.search(
+                r"(?<![a-zа-я])l\s*[=:]?\s*(\d{3,5})(?!\s*м\s*[3³])",
+                name + " " + size, re.IGNORECASE)
+            if m:
+                dims["L0"] = float(m.group(1))
+                length_mm = dims["L0"]
 
         if unit in ("м", "m", "метр", "mtr"):
             # Единое правило техотдела (ответ по КП №1090): все воздуховоды
@@ -1545,6 +1707,26 @@ def process_csv(
         df = pd.read_excel(input_path, dtype=str)
         if is_project_spec_xlsx(df):
             rows = parse_project_spec_xlsx(input_path)
+            xml_text, skipped, success_rows = process_rows(
+                rows, header=header, defaults=defaults
+            )
+            if not success_rows:
+                logger.warning("Не удалось распознать ни одной строки.")
+                return success_rows, skipped
+
+            Path(output_xml).write_text(xml_text, encoding="utf-8")
+            report_path = str(Path(output_xml).with_suffix("")) + "_skipped.json"
+            with open(report_path, "w", encoding="utf-8") as f:
+                json.dump(skipped, f, ensure_ascii=False, indent=2)
+
+            logger.info("Сгенерировано строк: %d", len(success_rows))
+            logger.info("Пропущено строк: %d", len(skipped))
+            return success_rows, skipped
+        # Заявка менеджера: без заголовков колонок, секции-системы и
+        # «магазинные» наименования. Читаем с header=None для детекта.
+        df_raw = pd.read_excel(input_path, header=None, dtype=object)
+        if is_zayavka_xlsx(df_raw):
+            rows = parse_zayavka_xlsx(input_path)
             xml_text, skipped, success_rows = process_rows(
                 rows, header=header, defaults=defaults
             )

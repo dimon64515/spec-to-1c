@@ -50,5 +50,19 @@
       <system/>
       <comment>Переход из оцинкованной стали толщиной 0.5 мм Ф100/Ф125 Ф100</comment>
     </productRow>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00125D0_L00200L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Гигрорегулируемый приточный клапан SILEМ KIT HY 125 Soler&amp;palau </comment>
+    </productRow>
   </Tabl>
 </Order>

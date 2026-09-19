@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order>
+  <numberDate/>
+  <numberOrder/>
+  <INN/>
+  <customer/>
+  <email/>
+  <phone/>
+  <contact/>
+  <Tabl>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00315D0_L03000L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Приток (1000 м3/ч; 250 Па)</system>
+      <comment>Воздуховод с/н 315 Ф315</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00250D0_L03000L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Приток (1000 м3/ч; 250 Па)</system>
+      <comment>Воздуховод с/н 250 Ф250</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00200D0_L03000L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Приток (1000 м3/ч; 250 Па)</system>
+      <comment>Воздуховод с/н 200 Ф200</comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00315D0_D10250D1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Приток (1000 м3/ч; 250 Па)</system>
+      <comment>Переход односторонний 315/250 </comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00250D0_D10200D1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Приток (1000 м3/ч; 250 Па)</system>
+      <comment>Переход односторонний 250/200 </comment>
+    </productRow>
+    <productRow>
+      <article>6-1-1</article>
+      <name>Заглушка круглого сечения</name>
+      <characteristic>D00200D0_P00025P0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Приток (1000 м3/ч; 250 Па)</system>
+      <comment>Заглушка 200 200.0</comment>
+    </productRow>
+    <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00200D0_D20315D2_L00100L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Приток (1000 м3/ч; 250 Па)</system>
+      <comment>Врезка 315/200 </comment>
+    </productRow>
+    <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00200D0_D20250D2_L00100L0_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Приток (1000 м3/ч; 250 Па)</system>
+      <comment>Врезка 250/200 </comment>
+    </productRow>
+    <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00200D0_D20200D2_L00100L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Приток (1000 м3/ч; 250 Па)</system>
+      <comment>Врезка 200/200 </comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00315D0_L03000L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Вытяжка (1000 м3/ч; 250 Па)</system>
+      <comment>Воздуховод с/н 315-3000 Ф315-3000</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00250D0_L03000L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Вытяжка (1000 м3/ч; 250 Па)</system>
+      <comment>Воздуховод с/н 250-3000 Ф250-3000</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00200D0_L03000L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Вытяжка (1000 м3/ч; 250 Па)</system>
+      <comment>Воздуховод с/н 200-3000 Ф200-3000</comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00315D0_D10250D1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Вытяжка (1000 м3/ч; 250 Па)</system>
+      <comment>Переход односторонний 315/250 </comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00250D0_D10200D1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Вытяжка (1000 м3/ч; 250 Па)</system>
+      <comment>Переход односторонний 250/200 </comment>
+    </productRow>
+    <productRow>
+      <article>6-1-1</article>
+      <name>Заглушка круглого сечения</name>
+      <characteristic>D00200D0_P00025P0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Вытяжка (1000 м3/ч; 250 Па)</system>
+      <comment>Заглушка 200 200.0</comment>
+    </productRow>
+    <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00200D0_D20315D2_L00100L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Вытяжка (1000 м3/ч; 250 Па)</system>
+      <comment>Врезка 315/200 </comment>
+    </productRow>
+    <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00200D0_D20250D2_L00100L0_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Вытяжка (1000 м3/ч; 250 Па)</system>
+      <comment>Врезка 250/200 </comment>
+    </productRow>
+    <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00200D0_D20200D2_L00100L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Молельная/Вытяжка (1000 м3/ч; 250 Па)</system>
+      <comment>Врезка 200/200 </comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00400D0_R0400R0_U090U0_</characteristic>
+      <quantity>2</quantity>
+      <material>2</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)</system>
+      <comment>Отвод н.ж. (90) 400 </comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00400D0_L01250L0_</characteristic>
+      <quantity>5</quantity>
+      <material>2</material>
+      <thickness>0.7</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)</system>
+      <comment>Воздуховод н.ж. 400-1250 Ф400-1250</comment>
+    </productRow>
+    <productRow>
+      <article>6-1-1</article>
+      <name>Заглушка круглого сечения</name>
+      <characteristic>D00400D0_P00025P0_</characteristic>
+      <quantity>1</quantity>
+      <material>2</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)</system>
+      <comment>Заглушка н.ж. 400 400.0</comment>
+    </productRow>
+    <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00315D0_D20400D2_L00100L0_</characteristic>
+      <quantity>2</quantity>
+      <material>2</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)</system>
+      <comment>Врезка н.ж. 400/315 </comment>
+    </productRow>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00315D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>2</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)</system>
+      <comment>Дроссель-клапан н.ж. 315 </comment>
+    </productRow>
+    <productRow>
+      <article>19-2-1</article>
+      <name>Зонт вытяжной прямоугольного сечения тип 1</name>
+      <characteristic>A01500A0_A11500A1_B00400B0_B10400B1_D10100D1_L01500L0_L10000L1_</characteristic>
+      <quantity>2</quantity>
+      <material>2</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)</system>
+      <comment>Зонт пристенный н.ж. с лабиринтными жироуловителями 1500х1500х400 со встроенными врезками 315 1500x1500x400</comment>
+    </productRow>
+    <productRow>
+      <article>3-2-5</article>
+      <name>Переход прямоугольного сечения тип 5</name>
+      <characteristic>A00600A0_A10600A1_B00350B0_B10300B1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Переход  односторонний 600х350/600х300 600x350</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00600A0_B00300B0_L01250L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Воздуховод 600х300-1250 600x300-1250</comment>
+    </productRow>
+    <productRow>
+      <article>3-2-5</article>
+      <name>Переход прямоугольного сечения тип 5</name>
+      <characteristic>A00600A0_A10600A1_B00300B0_B10250B1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Переход  односторонний 600х300/600х250 600x300</comment>
+    </productRow>
+    <productRow>
+      <article>2-2-2</article>
+      <name>Отвод прямоугольного сечения прямой</name>
+      <characteristic>A00600A0_B00250B0_L10000L1_L20000L2_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Отвод (90) 600х250 600x250</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00600A0_B00250B0_L01250L0_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Воздуховод 600х250-1250 600x250-1250</comment>
+    </productRow>
+    <productRow>
+      <article>3-2-5</article>
+      <name>Переход прямоугольного сечения тип 5</name>
+      <characteristic>A00600A0_A10600A1_B00250B0_B10200B1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Переход односторонний 600х250/600х200 600x250</comment>
+    </productRow>
+    <productRow>
+      <article>2-2-2</article>
+      <name>Отвод прямоугольного сечения прямой</name>
+      <characteristic>A00600A0_B00200B0_L10000L1_L20000L2_U090U0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Отвод (90) 600х200 600x200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00600A0_B00200B0_L01250L0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Воздуховод 600х200-1250 600x200-1250</comment>
+    </productRow>
+    <productRow>
+      <article>8-1-1</article>
+      <name>Врезка круглого сечения прямая в круглый воздуховод</name>
+      <characteristic>D00160D0_D20160D2_L00100L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Прямая врезка 160 </comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00160D0_L03000L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Воздуховод с/н 160-3000 Ф160-3000</comment>
+    </productRow>
+    <productRow>
+      <article>6-2-1</article>
+      <name>Заглушка прямоугольного сечения</name>
+      <characteristic>A00600A0_B00200B0_P00025P0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Заглушка 600х200 600.0</comment>
+    </productRow>
+    <productRow>
+      <article>8-2-1</article>
+      <name>Врезка прямоугольного сечения прямая в прямоугольный воздуховод</name>
+      <characteristic>A00600A0_B00600B0_L00100L0_</characteristic>
+      <quantity>6</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system>Столовая/Приток столовая (3500 м3/ч; 450 Па)</system>
+      <comment>Врезка 600х600-100 600x600-100</comment>
+    </productRow>
+  </Tabl>
+</Order>
