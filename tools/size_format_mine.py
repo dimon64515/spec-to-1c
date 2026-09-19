@@ -28,6 +28,17 @@ from config import get_config
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# Шапка config/size_notations.yaml — пишется обратно при apply_patch,
+# т.к. yaml.safe_dump комментарии не сохраняет.
+_CONFIG_HEADER = (
+    "# Варианты записи размеров в проектных спецификациях.\n"
+    "# Канонизация: префиксные диаметры → «Ф…» (normalize_dimension_prefix),\n"
+    "# суффиксный «125ø» → «Ф125». Только СТРУКТУРА записи — числовые значения\n"
+    "# размеров сюда не добавляются (жёсткое ограничение: цифры — только из\n"
+    "# исходной строки детерминированным парсером).\n"
+    "\n"
+)
+
 UNRECOGNIZED_REASONS = (
     "Не удалось распознать размер / тип",
     "LLM-классификация отклонена",
@@ -228,22 +239,32 @@ def gate_check(patch: Dict, cluster_strings: List[str], run_pytest=None) -> tupl
 
 def apply_patch(patch: Dict, cluster_info: Dict[str, int], session: str,
                 path: str = "config/size_notations.yaml") -> str:
-    """Пишет принятый патч в реальный конфиг + provenance. Возвращает итоговый текст."""
-    merged = _merged_notations(patch)
+    """Пишет принятый патч в реальный конфиг + provenance. Возвращает итоговый текст.
+
+    Идемпотентна: записи, уже присутствующие в секции (без учёта регистра),
+    и их provenance-строки не дублируются."""
+    merged = copy.deepcopy(szn.get_notations())
     merged.setdefault("provenance", [])
     today = datetime.date.today().isoformat()
     for section, key in (("add_prefixes", "diameter_prefixes"),
                          ("add_suffixes", "diameter_suffixes"),
                          ("add_separators", "separators")):
+        existing = {str(x).lower() for x in merged.get(key) or []}
         for entry in patch.get(section) or []:
+            e = str(entry)
+            if e.lower() in existing:
+                continue                           # уже в секции — пропуск (идемпотентность)
+            existing.add(e.lower())
+            merged.setdefault(key, []).append(e)
             merged["provenance"].append({
-                "entry": entry, "section": key,
+                "entry": e, "section": key,
                 "source": ", ".join(list(cluster_info)[:5]),
                 "count": sum(cluster_info.values()),
                 "date": today, "session": session,
             })
     p = ROOT / path
-    p.write_text(yaml.safe_dump(merged, allow_unicode=True, sort_keys=False), encoding="utf-8")
+    p.write_text(_CONFIG_HEADER + yaml.safe_dump(merged, allow_unicode=True, sort_keys=False),
+                 encoding="utf-8")
     szn.reload_notations()
     return p.read_text(encoding="utf-8")
 
@@ -254,12 +275,16 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reports", nargs="+", required=True)
     parser.add_argument("--min-occurrences", type=int, default=None)
-    parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--apply", action="store_true")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--dry-run", action="store_true")
+    group.add_argument("--apply", action="store_true")
     parser.add_argument("--no-commit", action="store_true")
     args = parser.parse_args(argv)
 
     lcfg = get_learning_config()
+    if not lcfg.get("enabled"):
+        print("майнер выключен: learning.enabled=false в config.yaml")
+        return 2
     if not args.apply:                       # default = dry-run
         args.dry_run = True
     min_occ = args.min_occurrences or int(lcfg.get("min_occurrences", 3))

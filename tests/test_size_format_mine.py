@@ -203,9 +203,50 @@ def test_main_dry_run_reports_without_writing(tmp_path, monkeypatch):
                         lambda clusters, runner=None: {"add_prefixes": ["∅"],
                                                        "add_suffixes": [], "add_separators": []})
     monkeypatch.setattr(mine, "_run_pytest_gate", lambda env: (True, ""))
+    monkeypatch.setattr(mine, "get_learning_config",
+                        lambda: {"enabled": True, "min_occurrences": 2, "auto_commit": False})
     rc = mine.main(["--reports", str(rp), "--min-occurrences", "2", "--dry-run"])
     assert rc == 0
     assert Path("config/size_notations.yaml").read_text(encoding="utf-8") == before
+
+
+def test_apply_patch_preserves_header_and_roundtrips(tmp_path, monkeypatch):
+    monkeypatch.setattr(mine, "ROOT", tmp_path)
+    (tmp_path / "config").mkdir()
+    text = mine.apply_patch(PATCH, {"∅315": 3}, "test-session")
+    assert text.startswith("# Варианты записи размеров")
+    assert "# исходной строки детерминированным парсером)." in text
+    assert "- ∅" in text                     # добавленная запись
+    loaded = yaml.safe_load(text)            # комментарии не ломают парсинг
+    assert "∅" in loaded["diameter_prefixes"]
+    assert loaded["provenance"][-1]["entry"] == "∅"
+
+
+def test_apply_patch_idempotent_on_repeat(tmp_path, monkeypatch):
+    monkeypatch.setattr(mine, "ROOT", tmp_path)
+    (tmp_path / "config").mkdir()
+    mine.apply_patch(PATCH, {"∅315": 3}, "test-session")
+    first = yaml.safe_load((tmp_path / "config" / "size_notations.yaml").read_text("utf-8"))
+    mine.apply_patch(PATCH, {"∅315": 3}, "test-session")
+    second = yaml.safe_load((tmp_path / "config" / "size_notations.yaml").read_text("utf-8"))
+    assert second["diameter_prefixes"].count("∅") == 1
+    assert len(second["provenance"]) == len(first["provenance"])
+    assert second["provenance"] == first["provenance"]
+
+
+def test_main_disabled_returns_2(tmp_path, monkeypatch):
+    monkeypatch.setattr(mine, "get_learning_config",
+                        lambda: {"enabled": False, "min_occurrences": 2, "auto_commit": False})
+    rp = tmp_path / "x_skipped.json"
+    rp.write_text("[]", encoding="utf-8")
+    assert mine.main(["--reports", str(rp)]) == 2
+
+
+def test_main_rejects_dry_run_with_apply(tmp_path):
+    rp = tmp_path / "x_skipped.json"
+    rp.write_text("[]", encoding="utf-8")
+    with pytest.raises(SystemExit):
+        mine.main(["--reports", str(rp), "--dry-run", "--apply"])
 
 
 def test_module_entrypoint_wires_main():
