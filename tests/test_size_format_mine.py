@@ -1,11 +1,17 @@
 """Майнер автообучения форматов. Все внешние части замоканы."""
 import json
+import os
+from pathlib import Path
 
 import pytest
+import yaml
 
 import llm_size_classifier as lsc
+import process_specification_table as pst
 import size_notations as szn
 import tools.size_format_mine as mine
+
+PATCH = {"add_prefixes": ["∅"], "add_suffixes": [], "add_separators": []}
 
 
 def test_get_learning_config_defaults():
@@ -115,3 +121,60 @@ def test_sanitize_rejects_unknown_sections_and_types():
     )
     assert "validation" not in out and "add_lengths" not in out
     assert out["add_prefixes"] == ["∅"]
+
+
+def test_gate_green_when_cluster_parses(tmp_path, monkeypatch):
+    # Патч добавляет префикс ∅: под пропатченной копией "∅315" должен парситься.
+    monkeypatch.setattr(mine, "_run_pytest_gate", lambda env: (True, ""))
+    ok, reason = mine.gate_check(PATCH, ["∅315"])
+    assert ok, reason
+
+
+def test_gate_red_when_cluster_still_unparsed(tmp_path, monkeypatch):
+    # Слэш-форма не символьная — патч её не берёт.
+    monkeypatch.setattr(mine, "_run_pytest_gate", lambda env: (True, ""))
+    ok, reason = mine.gate_check(PATCH, ["315/315/160"])
+    assert not ok and "парс" in reason.lower()
+
+
+def test_gate_red_when_pytest_fails(monkeypatch):
+    monkeypatch.setattr(mine, "_run_pytest_gate", lambda env: (False, "3 failed"))
+    ok, reason = mine.gate_check(PATCH, ["∅315"])
+    assert not ok and "3 failed" in reason
+
+
+def test_gate_restores_config_after_check():
+    # Усиление слабой версии из брифа (сравнение `szn.prefix_group() == szn.prefix_group()`
+    # тавтологично): сверяем реальное состояние кэша и env ДО/ПОСЛЕ.
+    before_prefixes = list(szn.get_notations()["diameter_prefixes"])
+    before_group = szn.prefix_group()
+    old_env = os.environ.get("SPEC_TO_1C_SIZE_NOTATIONS")
+    mine.gate_check(PATCH, ["∅315"], run_pytest=lambda env: (True, ""))
+    assert szn.get_notations()["diameter_prefixes"] == before_prefixes
+    assert szn.prefix_group() == before_group
+    assert "∅" not in szn.get_notations()["diameter_prefixes"]
+    assert os.environ.get("SPEC_TO_1C_SIZE_NOTATIONS") == old_env
+
+
+def test_apply_patch_writes_provenance(tmp_path):
+    n = szn.get_notations()
+    patched = mine._merged_notations(PATCH)   # helper: dict = текущий конфиг + патч
+    assert "∅" in patched["diameter_prefixes"]
+    assert n["diameter_prefixes"] != patched["diameter_prefixes"]  # исходный не мутирован
+
+
+def test_main_dry_run_reports_without_writing(tmp_path, monkeypatch):
+    # Сквозной dry-run: отчёт формируется, реальный конфиг не тронут.
+    report = [{"name": "a", "size": "∅315",
+               "reason": "Не удалось распознать размер / тип"}] * 3
+    rp = tmp_path / "x_skipped.json"
+    rp.write_text(json.dumps(report, ensure_ascii=False), encoding="utf-8")
+    before = Path("config/size_notations.yaml").read_text(encoding="utf-8")
+    monkeypatch.setattr(lsc, "llm_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(mine, "propose_additions",
+                        lambda clusters, runner=None: {"add_prefixes": ["∅"],
+                                                       "add_suffixes": [], "add_separators": []})
+    monkeypatch.setattr(mine, "_run_pytest_gate", lambda env: (True, ""))
+    rc = mine.main(["--reports", str(rp), "--min-occurrences", "2", "--dry-run"])
+    assert rc == 0
+    assert Path("config/size_notations.yaml").read_text(encoding="utf-8") == before
