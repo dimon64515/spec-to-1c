@@ -1,0 +1,1532 @@
+[
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 100.0,
+   "L0": 100.0
+  },
+  "quantity": 11,
+  "material_code": "1",
+  "thickness": 1.0,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Беликова Товкань Н.контр. Система ПВ1. Спецификация материалов и оборудования. Оборудование Ведомость арматуры воздуховодов Дроссель-клапан общего назначения круглый  =100 мм ДК-Ф100 Ф100"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Дроссель-клапан общего назначения круглый  Ф125 мм. ДК-Ф125 Ф125"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 160.0,
+   "L0": 160.0
+  },
+  "quantity": 5,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Дроссель-клапан общего назначения круглый  =160 мм ДК-Ф160 Ф160"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 250.0,
+   "B0": 200.0,
+   "L0": 1250
+  },
+  "quantity": 9,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Прямоугольные воздуховоды Воздуховод из тонколистовой оцинкованной стали 250х200 мм ГОСТ 14918-2020 250x200"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "L0": 1250
+  },
+  "quantity": 25,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 300х200 мм ГОСТ 14918-2020 300x200"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 300.0,
+   "B0": 250.0,
+   "L0": 1250
+  },
+  "quantity": 8,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 300х250 мм ГОСТ 14918-2020 300x250"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "L0": 1250
+  },
+  "quantity": 9,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 600х300 мм ГОСТ 14918-2020 600x300"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 100.0,
+   "L0": 3000
+  },
+  "quantity": 28,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "43.71 м² Круглые воздуховоды Воздуховод из тонколистовой оцинкованной стали, Ø100 мм ГОСТ 14918-2020 Ф100"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 125.0,
+   "L0": 3000
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали, Ø125 мм ГОСТ 14918-2020 Ф125"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 160.0,
+   "L0": 3000
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали, Ø160 мм ГОСТ 14918-2020 Ф160"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 200.0,
+   "L0": 3000
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали, Ø200 мм ГОСТ 14918-2020 Ф200"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "U0": 45.0,
+   "R0": 300.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 45° 300x200-300x200 300x200"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "U0": 90.0,
+   "R0": 300.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 300x200-300x200 300x200"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 300.0,
+   "B0": 250.0,
+   "U0": 45.0,
+   "R0": 300.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 45° 300x250-300x250 300x250"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 300.0,
+   "B0": 600.0,
+   "U0": 90.0,
+   "R0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 300x600-300x600 300x600"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "U0": 45.0,
+   "R0": 600.0
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 45° 600x300-600x300 600x300"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "U0": 90.0,
+   "R0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 600x300-600x300 600x300"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 100.0,
+   "L0": 100.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Ведомость арматуры воздуховодов Дроссель-клапан общего назначения круглый  =100 мм ДК-Ф100 Ф100"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Дроссель-клапан общего назначения круглый  Ф125 мм. ДК-Ф125 Ф125"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 160.0,
+   "L0": 160.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Дроссель-клапан общего назначения круглый  =160 мм ДК-Ф160 Ф160"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 250.0,
+   "L0": 250.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Дроссель-клапан общего назначения круглый  =250 мм ДК-Ф250 Ф250"
+ },
+ {
+  "article": "16-2-1",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Дроссель-клапан прямоугольного сечения ДК 300x200 Гост 14918-80 300x200"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 100.0,
+   "L0": 3000
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Круглые воздуховоды Воздуховод из тонколистовой оцинкованной стали, Ø100 мм ГОСТ 14918-2020 Ф100"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 160.0,
+   "L0": 3000
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали, Ø160 мм ГОСТ 14918-2020 Ф160"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "L0": 1250
+  },
+  "quantity": 6,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Система ПВ2 Прямоугольные воздуховоды Воздуховод из тонколистовой оцинкованной стали 300х200 мм ГОСТ 14918-2020 300x200"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 300.0,
+   "B0": 250.0,
+   "L0": 1250
+  },
+  "quantity": 33,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 300х250 мм ГОСТ 14918-2020 300x250"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "L0": 1250
+  },
+  "quantity": 8,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 600х300 мм ГОСТ 14918-2020 600x300"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 250.0,
+   "B0": 300.0,
+   "U0": 45.0,
+   "R0": 300.0
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 45° 250x300-250x300 250x300"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 300.0,
+   "B0": 250.0,
+   "U0": 90.0,
+   "R0": 300.0
+  },
+  "quantity": 5,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 300x250-300x250 300x250"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 300.0,
+   "B0": 600.0,
+   "U0": 90.0,
+   "R0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 300x600-300x600 300x600"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "U0": 45.0,
+   "R0": 600.0
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 45° 600x300-600x300 600x300"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "U0": 90.0,
+   "R0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 600x300-600x300 600x300"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 160.0,
+   "B0": 160.0,
+   "A1": 160.0,
+   "B1": 160.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход воздуховода с круглого на прямоугольное сечение 160x160-=160,L=200 160x160"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "A1": 300.0,
+   "B1": 200.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход воздуховода с круглого на прямоугольное сечение 300x200-=160,L=200 300x200"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "A1": 300.0,
+   "B1": 200.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход воздуховода с круглого на прямоугольное сечение 300x200-=200,L=200 300x200"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 300.0,
+   "B0": 250.0,
+   "A1": 300.0,
+   "B1": 200.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 300x250-300x200,L=300 300x250"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 300.0,
+   "B0": 250.0,
+   "A1": 300.0,
+   "B1": 250.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход воздуховода с круглого на прямоугольное сечение 300x250-=200,L=200 300x250"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 300.0,
+   "B0": 250.0,
+   "A1": 300.0,
+   "B1": 250.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход воздуховода с круглого на прямоугольное сечение 300x250-=250,L=200 300x250"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "A1": 300.0,
+   "B1": 250.0,
+   "L0": 200
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 600x300-300x250,L=300 600x300"
+ },
+ {
+  "article": "4-2-3",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "A2": 300.0,
+   "B2": 200.0,
+   "A1": 300.0,
+   "B1": 200.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник прямоугольного воздуховода 300x200-300x200-300x200 300x200"
+ },
+ {
+  "article": "4-2-3",
+  "params": {
+   "A0": 300.0,
+   "B0": 250.0,
+   "A2": 160.0,
+   "B2": 160.0,
+   "A1": 300.0,
+   "B1": 250.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник прямоугольного воздуховода 300x250-300x250-160x160 300x250"
+ },
+ {
+  "article": "4-2-3",
+  "params": {
+   "A0": 300.0,
+   "B0": 250.0,
+   "A2": 300.0,
+   "B2": 250.0,
+   "A1": 300.0,
+   "B1": 250.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник прямоугольного воздуховода 300x250-300x250-300x250 300x250"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "L0": 1250
+  },
+  "quantity": 48,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Прямоугольные воздуховоды Воздуховод из тонколистовой оцинкованной стали 300х200 мм ГОСТ 14918-2020 300x200"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 400.0,
+   "B0": 300.0,
+   "L0": 1250
+  },
+  "quantity": 13,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 400х300 мм ГОСТ 14918-2020 400x300"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 500.0,
+   "B0": 300.0,
+   "L0": 1250
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 500х300 мм ГОСТ 14918-2020 500x300"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "L0": 1250
+  },
+  "quantity": 21,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 600х300 мм ГОСТ 14918-2020 600x300"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 400.0,
+   "L0": 1250
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 600х400 мм ГОСТ 14918-2020 600x400"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 800.0,
+   "B0": 450.0,
+   "L0": 1250
+  },
+  "quantity": 12,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 800х450 мм ГОСТ 14918-2020 800x450"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 800.0,
+   "B0": 500.0,
+   "L0": 1250
+  },
+  "quantity": 16,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали 800х500 мм ГОСТ 14918-2020 800x500"
+ },
+ {
+  "article": "6-2-1",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "P0": 25
+  },
+  "quantity": 10,
+  "material_code": "1",
+  "thickness": 3.0,
+  "connection_0": "6",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Система ПВ3. Фасонные детали воздуховодов Заглушка для прямоугольного воздуховода 300x200 300.0"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 200.0,
+   "B0": 300.0,
+   "U0": 90.0,
+   "R0": 300.0
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 200x300-200x300 200x300"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "U0": 90,
+   "R0": 300.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 89.88° 300x200-300x200 300x200"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 300.0,
+   "B0": 200.0,
+   "U0": 90.0,
+   "R0": 300.0
+  },
+  "quantity": 5,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 300x200-300x200 300x200"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 500.0,
+   "B0": 800.0,
+   "U0": 90.0,
+   "R0": 800.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 500x800-500x800 500x800"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "U0": 90.0,
+   "R0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 600x300-600x300 600x300"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 800.0,
+   "B0": 450.0,
+   "U0": 90.0,
+   "R0": 800.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 800x450-800x450 800x450"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 800.0,
+   "B0": 500.0,
+   "U0": 45.0,
+   "R0": 800.0
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 45° 800x500-800x500 800x500"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 800.0,
+   "B0": 500.0,
+   "U0": 90.0,
+   "R0": 800.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод прямоугольного воздуховода 90° 800x500-800x500 800x500"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 400.0,
+   "B0": 300.0,
+   "A1": 300.0,
+   "B1": 200.0,
+   "L0": 200
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 400x300-300x200,L=300 400x300"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 500.0,
+   "B0": 300.0,
+   "A1": 400.0,
+   "B1": 300.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 500x300-400x300,L=300 500x300"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "A1": 400.0,
+   "B1": 300.0,
+   "L0": 200
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 600x300-400x300,L=300 600x300"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "A1": 500.0,
+   "B1": 300.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 600x300-500x300,L=300 600x300"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 600.0,
+   "B0": 400.0,
+   "A1": 600.0,
+   "B1": 300.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 600x400-600x300,L=300 600x400"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 800.0,
+   "B0": 450.0,
+   "A1": 400.0,
+   "B1": 300.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 800x450-400x300,L=300 800x450"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 800.0,
+   "B0": 450.0,
+   "A1": 600.0,
+   "B1": 300.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 800x450-600x300,L=300 800x450"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 800.0,
+   "B0": 450.0,
+   "A1": 600.0,
+   "B1": 400.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 800x450-600x400,L=300 800x450"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 800.0,
+   "B0": 500.0,
+   "A1": 800.0,
+   "B1": 450.0,
+   "L0": 200
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход прямоугольного сечения 800x500-800x450,L=300 800x500"
+ },
+ {
+  "article": "4-2-3",
+  "params": {
+   "A0": 400.0,
+   "B0": 300.0,
+   "A2": 300.0,
+   "B2": 200.0,
+   "A1": 400.0,
+   "B1": 300.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник прямоугольного воздуховода 400x300-400x300-300x200 400x300"
+ },
+ {
+  "article": "4-2-3",
+  "params": {
+   "A0": 500.0,
+   "B0": 300.0,
+   "A2": 300.0,
+   "B2": 200.0,
+   "A1": 500.0,
+   "B1": 300.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник прямоугольного воздуховода 500x300-500x300-300x200 500x300"
+ },
+ {
+  "article": "4-2-3",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "A2": 300.0,
+   "B2": 200.0,
+   "A1": 600.0,
+   "B1": 300.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник прямоугольного воздуховода 600x300-600x300-300x200 600x300"
+ },
+ {
+  "article": "4-2-3",
+  "params": {
+   "A0": 600.0,
+   "B0": 400.0,
+   "A2": 300.0,
+   "B2": 200.0,
+   "A1": 600.0,
+   "B1": 400.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник прямоугольного воздуховода 600x400-600x400-300x200 600x400"
+ },
+ {
+  "article": "4-2-3",
+  "params": {
+   "A0": 800.0,
+   "B0": 450.0,
+   "A2": 600.0,
+   "B2": 300.0,
+   "A1": 800.0,
+   "B1": 450.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник прямоугольного воздуховода 800x450-800x450-600x300 800x450"
+ },
+ {
+  "article": "4-2-3",
+  "params": {
+   "A0": 800.0,
+   "B0": 450.0,
+   "A2": 800.0,
+   "B2": 450.0,
+   "A1": 800.0,
+   "B1": 450.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник прямоугольного воздуховода 800x450-800x450-800x450 800x450"
+ },
+ {
+  "article": "9-1-2",
+  "params": {
+   "D0": 125.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Зонт круглый Зонт ø125 Ф125"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 100.0,
+   "L0": 3000
+  },
+  "quantity": 5,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Круглые воздуховоды Воздуховод из тонколистовой оцинкованной стали, Ø100 мм ГОСТ 14918-2020 Ф100"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 125.0,
+   "L0": 3000
+  },
+  "quantity": 5,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали, Ø125 мм ГОСТ 14918-2020 Ф125"
+ },
+ {
+  "article": "9-1-2",
+  "params": {
+   "D0": 200.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Зонт круглый Зонт ø200 Ф200"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 100.0,
+   "L0": 3000
+  },
+  "quantity": 9,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Круглые воздуховоды Воздуховод из тонколистовой оцинкованной стали, Ø100 мм ГОСТ 14918-2020 Ф100"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 125.0,
+   "L0": 3000
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали, Ø125 мм ГОСТ 14918-2020 Ф125"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 160.0,
+   "L0": 3000
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали, Ø160 мм ГОСТ 14918-2020 Ф160"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 200.0,
+   "L0": 3000
+  },
+  "quantity": 9,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали, Ø200 мм ГОСТ 14918-2020 Ф200"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 100.0,
+   "L0": 100.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Ведомость арматуры воздуховодов Дроссель-клапан общего назначения круглый  =100 мм ДК-Ф100 Ф100"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 160.0,
+   "L0": 160.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Дроссель-клапан общего назначения круглый  =160 мм ДК-Ф160 Ф160"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 160.0,
+   "L0": 3000
+  },
+  "quantity": 14,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Система В6 Система В6 Круглые воздуховоды Воздуховод из тонколистовой оцинкованной стали, Ø160 мм ГОСТ 14918-2020 Ф160"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 250.0,
+   "L0": 3000
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали, Ø250 мм ГОСТ 14918-2020 Ф250"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 315.0,
+   "L0": 3000
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из тонколистовой оцинкованной стали, Ø315 мм ГОСТ 14918-2020 Ф315"
+ }
+]

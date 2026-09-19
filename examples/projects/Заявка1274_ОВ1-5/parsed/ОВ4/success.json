@@ -1,0 +1,121 @@
+[
+ {
+  "article": "4-1-1",
+  "params": {
+   "D0": 16.0,
+   "D2": 16.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 6,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник 16/16/16 SPL "
+ },
+ {
+  "article": "4-1-1",
+  "params": {
+   "D0": 25.0,
+   "D2": 16.0,
+   "L0": 200,
+   "L2": 100
+  },
+  "quantity": 12,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Тройник 25/25/16 SPL "
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 100.0,
+   "L0": 3000
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали толщиной 0.5 мм Ф100 Ф100"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 250.0,
+   "L0": 3000
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали толщиной 0.5 мм Ф250 Ф250"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 100.0,
+   "U0": 90,
+   "R0": 100.0
+  },
+  "quantity": 6,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод 90гр. из оцинкованной стали толщиной 0.5 мм Ф100 Ф100"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 100.0,
+   "U0": 90,
+   "R0": 100.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод 30гр. из оцинкованной стали толщиной 0.5 мм Ф100 Ф100"
+ },
+ {
+  "article": "3-1-1",
+  "params": {
+   "D0": 100.0,
+   "D1": 125.0,
+   "L0": 200
+  },
+  "quantity": 5,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход из оцинкованной стали толщиной 0.5 мм Ф100/Ф125 Ф100"
+ }
+]

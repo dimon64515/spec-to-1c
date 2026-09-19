@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order>
+  <numberDate/>
+  <numberOrder/>
+  <INN/>
+  <customer/>
+  <email/>
+  <phone/>
+  <contact/>
+  <Tabl>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00015D0_L00200L0_</characteristic>
+      <quantity>216</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Клапан запорный прямой, Ду15 RLV-15 &quot;Danfoss&quot; Ду15</comment>
+    </productRow>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00025D0_L00200L0_</characteristic>
+      <quantity>9</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Ручной балансировочный клапан Ду25 MVT &quot;Danfoss&quot; Ду25</comment>
+    </productRow>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00065D0_L00200L0_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Ручной балансировочный клапан Ду65 MNF &quot;Danfoss&quot; Ду65</comment>
+    </productRow>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00050D0_L00200L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Заслонка CHR 50-30 </comment>
+    </productRow>
+    <productRow>
+      <article>15-2-1</article>
+      <name>Шумоглушитель трубчатый прямоугольный ГТП</name>
+      <characteristic>A00500A0_B00300B0_A10500A1_B10300B1_L01100L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель LITENED 50-30 NKD </comment>
+    </productRow>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00050D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Заслонка CHR 50-30 </comment>
+    </productRow>
+    <productRow>
+      <article>15-2-1</article>
+      <name>Шумоглушитель трубчатый прямоугольный ГТП</name>
+      <characteristic>A00500A0_B00300B0_A10500A1_B10300B1_L01100L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель LITENED 50-30 NKD </comment>
+    </productRow>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00160D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Заслонка регулирующая KCH 160 </comment>
+    </productRow>
+    <productRow>
+      <article>15-1-1</article>
+      <name>Шумоглушитель трубчатый круглый ГТК</name>
+      <characteristic>D00160D0_D10160D1_L00600L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель KNK 160/6 </comment>
+    </productRow>
+    <productRow>
+      <article>15-1-1</article>
+      <name>Шумоглушитель трубчатый круглый ГТК</name>
+      <characteristic>D00160D0_D10160D1_L00600L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель KNK 160/6 </comment>
+    </productRow>
+    <productRow>
+      <article>15-1-1</article>
+      <name>Шумоглушитель трубчатый круглый ГТК</name>
+      <characteristic>D00160D0_D10160D1_L00600L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель KNK 160/6 </comment>
+    </productRow>
+    <productRow>
+      <article>15-1-1</article>
+      <name>Шумоглушитель трубчатый круглый ГТК</name>
+      <characteristic>D00100D0_D10100D1_L00600L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель KNK 100/6 </comment>
+    </productRow>
+    <productRow>
+      <article>15-1-1</article>
+      <name>Шумоглушитель трубчатый круглый ГТК</name>
+      <characteristic>D00125D0_D10125D1_L00600L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель KNK 125/6 </comment>
+    </productRow>
+    <productRow>
+      <article>15-1-1</article>
+      <name>Шумоглушитель трубчатый круглый ГТК</name>
+      <characteristic>D00125D0_D10125D1_L00600L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель KNK 125/6 </comment>
+    </productRow>
+    <productRow>
+      <article>15-1-1</article>
+      <name>Шумоглушитель трубчатый круглый ГТК</name>
+      <characteristic>D00125D0_D10125D1_L00600L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель KNK 125/6 </comment>
+    </productRow>
+    <productRow>
+      <article>15-1-1</article>
+      <name>Шумоглушитель трубчатый круглый ГТК</name>
+      <characteristic>D00125D0_D10125D1_L00600L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель KNK 125/6 </comment>
+    </productRow>
+    <productRow>
+      <article>15-1-1</article>
+      <name>Шумоглушитель трубчатый круглый ГТК</name>
+      <characteristic>D00125D0_D10125D1_L00600L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель KNK 125/6 </comment>
+    </productRow>
+    <productRow>
+      <article>15-1-1</article>
+      <name>Шумоглушитель трубчатый круглый ГТК</name>
+      <characteristic>D00125D0_D10125D1_L00600L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Шумоглушитель KNK 125/6 </comment>
+    </productRow>
+    <productRow>
+      <article>16-2-1</article>
+      <name>Дроссель прямоугольного сечения</name>
+      <characteristic>A00200A0_B00100B0_L00200L0_</characteristic>
+      <quantity>12</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Регулирующий клапан 200x100 АВК-200x100 200x100</comment>
+    </productRow>
+    <productRow>
+      <article>16-2-1</article>
+      <name>Дроссель прямоугольного сечения</name>
+      <characteristic>A00250A0_B00200B0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Регулирующий клапан 250x200 АВК-250x200 250x200</comment>
+    </productRow>
+    <productRow>
+      <article>16-2-1</article>
+      <name>Дроссель прямоугольного сечения</name>
+      <characteristic>A00250A0_B00250B0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Регулирующий клапан 250x250 АВК-250x250 250x250</comment>
+    </productRow>
+    <productRow>
+      <article>16-2-1</article>
+      <name>Дроссель прямоугольного сечения</name>
+      <characteristic>A00300A0_B00150B0_L00200L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Регулирующий клапан 300x150 АВК-300x150 300x150</comment>
+    </productRow>
+    <productRow>
+      <article>16-2-1</article>
+      <name>Дроссель прямоугольного сечения</name>
+      <characteristic>A00400A0_B00150B0_L00200L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Регулирующий клапан 400x150 АВК-400x150 400x150</comment>
+    </productRow>
+    <productRow>
+      <article>16-2-1</article>
+      <name>Дроссель прямоугольного сечения</name>
+      <characteristic>A00500A0_B00300B0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Регулирующий клапан 500x300 АВК-500x300 500x300</comment>
+    </productRow>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00160D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Регулирующий клапан ф160 КВК-ф160 ф160</comment>
+    </productRow>
+    <productRow>
+      <article>16-1-1</article>
+      <name>Дроссель круглого сечения</name>
+      <characteristic>D00200D0_L00200L0_</characteristic>
+      <quantity>15</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Регулирующий клапан ф200 КВК-ф200 ф200</comment>
+    </productRow>
+    <productRow>
+      <article>9-2-1</article>
+      <name>Зонт прямоугольного сечения с коньком</name>
+      <characteristic>A00600A0_A10600A1_B00300B0_B10300B1_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Зонт вытяжной ЗП-600х300 Лиссант 600x300</comment>
+    </productRow>
+    <productRow>
+      <article>9-2-1</article>
+      <name>Зонт прямоугольного сечения с коньком</name>
+      <characteristic>A00500A0_A10500A1_B00250B0_B10250B1_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Зонт вытяжной ЗП-500х250 Лиссант 500x250</comment>
+    </productRow>
+    <productRow>
+      <article>29-1-3</article>
+      <name>Монтажный стакан</name>
+      <characteristic>D00710D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Стакан монтажный неутепленный MSN-710 </comment>
+    </productRow>
+    <productRow>
+      <article>29-1-3</article>
+      <name>Монтажный стакан</name>
+      <characteristic>D00710D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Стакан монтажный неутепленный MSN-710 </comment>
+    </productRow>
+    <productRow>
+      <article>29-1-3</article>
+      <name>Монтажный стакан</name>
+      <characteristic>D00560D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Стакан монтажный неутепленный MSN-560 </comment>
+    </productRow>
+    <productRow>
+      <article>29-1-3</article>
+      <name>Монтажный стакан</name>
+      <characteristic>D00560D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Стакан монтажный неутепленный MSN-560 </comment>
+    </productRow>
+    <productRow>
+      <article>29-1-3</article>
+      <name>Монтажный стакан</name>
+      <characteristic>D00560D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Стакан монтажный неутепленный MSN-560 </comment>
+    </productRow>
+    <productRow>
+      <article>29-1-3</article>
+      <name>Монтажный стакан</name>
+      <characteristic>D00560D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Стакан монтажный неутепленный MSN-560 </comment>
+    </productRow>
+    <productRow>
+      <article>29-1-3</article>
+      <name>Монтажный стакан</name>
+      <characteristic>D00560D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Стакан монтажный неутепленный MSN-560 </comment>
+    </productRow>
+    <productRow>
+      <article>29-1-3</article>
+      <name>Монтажный стакан</name>
+      <characteristic>D00560D0_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Стакан монтажный неутепленный MSN-560 </comment>
+    </productRow>
+    <productRow>
+      <article>1-1-1</article>
+      <name>Воздуховод круглого сечения прямошовный</name>
+      <characteristic>D00200D0_L01250L0_</characteristic>
+      <quantity>114</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали  толщиной 1,0мм ф200 ГОСТ 14918-80* ф200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00500A0_B00300B0_L01250L0_</characteristic>
+      <quantity>136</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали  толщиной 1,0мм 500х300 ГОСТ 14918-80* 500x300</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00500A0_B00400B0_L01250L0_</characteristic>
+      <quantity>157</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали  толщиной 1,0мм 500х400 ГОСТ 14918-80* 500x400</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00600A0_B00400B0_L01250L0_</characteristic>
+      <quantity>108</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали  толщиной 1,0мм 600х400 ГОСТ 14918-80* 600x400</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00700A0_B00500B0_L01250L0_</characteristic>
+      <quantity>165</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали  толщиной 1,0мм 700х500 ГОСТ 14918-80* 700x500</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00800A0_B00500B0_L01250L0_</characteristic>
+      <quantity>15</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали  толщиной 1,0мм 800х500 ГОСТ 14918-80* 800x500</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00800A0_B00600B0_L01250L0_</characteristic>
+      <quantity>15</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали  толщиной 1,0мм 800х600 ГОСТ 14918-80* 800x600</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00900A0_B00500B0_L01250L0_</characteristic>
+      <quantity>125</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали  толщиной 1,0мм 900х500 ГОСТ 14918-80* 900x500</comment>
+    </productRow>
+  </Tabl>
+</Order>

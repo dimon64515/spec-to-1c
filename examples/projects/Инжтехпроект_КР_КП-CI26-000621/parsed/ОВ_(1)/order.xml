@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order>
+  <numberDate/>
+  <numberOrder/>
+  <INN/>
+  <customer/>
+  <email/>
+  <phone/>
+  <contact/>
+  <Tabl>
+    <productRow>
+      <article>4-2-3</article>
+      <name>Тройник прямоугольного сечения с прямоугольной прямой врезкой</name>
+      <characteristic>A00016A0_A20016A2_B00016B0_B20016B2_L00200L0_L20100L2_</characteristic>
+      <quantity>135</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 90°, производства Royal Thermo RTE 16.007 16х16х16 716x160x16 [OCR: размер исправлен '00716x16x16' -&gt; '716x160x16']</comment>
+    </productRow>
+  </Tabl>
+</Order>

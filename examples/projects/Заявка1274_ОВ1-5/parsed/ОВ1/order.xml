@@ -1,0 +1,712 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order>
+  <numberDate/>
+  <numberOrder/>
+  <INN/>
+  <customer/>
+  <email/>
+  <phone/>
+  <contact/>
+  <Tabl>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00300A0_B00150B0_L01250L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод прямоугольный из оцинкованной стали толщиной 0.7мм 300x150</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00400A0_B00200B0_L01250L0_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод прямоугольный из оцинкованной стали толщиной 0.7мм 400x200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00400A0_B00300B0_L01250L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод прямоугольный из оцинкованной стали толщиной 0.7мм 400x300</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00600A0_B00200B0_L01250L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод прямоугольный из оцинкованной стали толщиной 0.7мм 600x200</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00700A0_B00400B0_L01250L0_</characteristic>
+      <quantity>6</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод прямоугольный из оцинкованной стали толщиной 0.9мм 700x400</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00700A0_B00500B0_L01250L0_</characteristic>
+      <quantity>8</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод прямоугольный из оцинкованной стали толщиной 0.9мм 700x500</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A01200A0_B00400B0_L01250L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>1.0</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод прямоугольный из оцинкованной стали толщиной 0.9мм 1200x400</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00100D0_L03000L0_</characteristic>
+      <quantity>22</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод  круглый из оцинкованной стали толщиной 0.5 мм 100</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00125D0_L03000L0_</characteristic>
+      <quantity>19</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод  круглый из оцинкованной стали толщиной 0.5 мм 125</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00160D0_L03000L0_</characteristic>
+      <quantity>15</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод  круглый из оцинкованной стали толщиной 0.5 мм 160</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00200D0_L03000L0_</characteristic>
+      <quantity>10</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод  круглый из оцинкованной стали толщиной 0.7 мм 200</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00250D0_L03000L0_</characteristic>
+      <quantity>14</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод  круглый из оцинкованной стали толщиной 0.7 мм 250</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U045U0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 45 100</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00125D0_R0125R0_U045U0_</characteristic>
+      <quantity>7</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 45 125</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00125D0_R0125R0_U045U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 45 125</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00160D0_R0160R0_U045U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 45 160</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00160D0_R0160R0_U045U0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 45 160</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U090U0_</characteristic>
+      <quantity>26</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 100</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U090U0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 100</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00125D0_R0125R0_U090U0_</characteristic>
+      <quantity>5</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 125</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00125D0_R0125R0_U090U0_</characteristic>
+      <quantity>30</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 125</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00160D0_R0160R0_U090U0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 160</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00160D0_R0160R0_U090U0_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 160</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00200D0_R0200R0_U090U0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 200</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00250D0_R0250R0_U090U0_</characteristic>
+      <quantity>9</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 250</comment>
+    </productRow>
+    <productRow>
+      <article>2-2-2</article>
+      <name>Отвод прямоугольного сечения прямой</name>
+      <characteristic>A00400A0_B00300B0_L10000L1_L20000L2_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 400x300</comment>
+    </productRow>
+    <productRow>
+      <article>2-2-2</article>
+      <name>Отвод прямоугольного сечения прямой</name>
+      <characteristic>A00400A0_B00700B0_L10000L1_L20000L2_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 400x700</comment>
+    </productRow>
+    <productRow>
+      <article>2-2-2</article>
+      <name>Отвод прямоугольного сечения прямой</name>
+      <characteristic>A00500A0_B00700B0_L10000L1_L20000L2_U090U0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90 500x700</comment>
+    </productRow>
+    <productRow>
+      <article>4-2-3</article>
+      <name>Тройник прямоугольного сечения с прямоугольной прямой врезкой</name>
+      <characteristic>A00500A0_A20500A2_B00700B0_B20700B2_L00200L0_L20100L2_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 500x700/500x700 500x700</comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00100D0_D20100D2_L00200L0_L20100L2_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 100/100 </comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00125D0_D20100D2_L00200L0_L20100L2_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 125/125/100 </comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00160D0_D20100D2_L00200L0_L20100L2_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 160/160/100 </comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00160D0_D20125D2_L00200L0_L20100L2_</characteristic>
+      <quantity>12</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 160/160/125 </comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00200D0_D20125D2_L00200L0_L20100L2_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 200/200/125 </comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00200D0_D20160D2_L00200L0_L20100L2_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 200/200/160 </comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00200D0_D20200D2_L00200L0_L20100L2_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 200/200 </comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00250D0_D20100D2_L00200L0_L20100L2_</characteristic>
+      <quantity>7</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 250/250/100 </comment>
+    </productRow>
+    <productRow>
+      <article>3-2-5</article>
+      <name>Переход прямоугольного сечения тип 5</name>
+      <characteristic>A00600A0_A10400A1_B00200B0_B10200B1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход 600x200/400x200 600x200</comment>
+    </productRow>
+    <productRow>
+      <article>3-2-5</article>
+      <name>Переход прямоугольного сечения тип 5</name>
+      <characteristic>A00400A0_A10400A1_B00300B0_B10200B1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход 400x300/400x200 400x300</comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00125D0_D10100D1_L00200L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход 125/100 </comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00160D0_D10125D1_L00200L0_</characteristic>
+      <quantity>7</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход 160/125 </comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00200D0_D10125D1_L00200L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход 200/125 </comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00200D0_D10160D1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход 200/160 </comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00250D0_D10100D1_L00200L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход 250/100 </comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00200D0_D10160D1_L00200L0_</characteristic>
+      <quantity>8</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход 200/160 </comment>
+    </productRow>
+    <productRow>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00700A0_B00500B0_D00710D0_L00300L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход 710/700x500 700x500</comment>
+    </productRow>
+    <productRow>
+      <article>3-3-1</article>
+      <name>Переход с прямоугольного на круглое сечения тип 1</name>
+      <characteristic>A00700A0_B00400B0_D00710D0_L00300L0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход 710/700x400 700x400</comment>
+    </productRow>
+    <productRow>
+      <article>6-2-1</article>
+      <name>Заглушка прямоугольного сечения</name>
+      <characteristic>A00400A0_B00300B0_P00025P0_</characteristic>
+      <quantity>1</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Заглушка 400.0</comment>
+    </productRow>
+    <productRow>
+      <article>6-2-1</article>
+      <name>Заглушка прямоугольного сечения</name>
+      <characteristic>A00700A0_B00500B0_P00025P0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Заглушка 700.0</comment>
+    </productRow>
+    <productRow>
+      <article>9-1-2</article>
+      <name>Зонт крышный круглого сечения (дефлектор)</name>
+      <characteristic>D00250D0_</characteristic>
+      <quantity>3</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Зонт-искрогаситель Crafr HF d250 Craft d250</comment>
+    </productRow>
+  </Tabl>
+</Order>

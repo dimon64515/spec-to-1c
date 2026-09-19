@@ -1,0 +1,52 @@
+[
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 100.0,
+   "L0": 3000
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали толщиной 0.5 мм Ф100 Ф100"
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "D0": 100.0,
+   "U0": 90,
+   "R0": 100.0
+  },
+  "quantity": 5,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Отвод из оцинкованной стали толщиной 0.5 мм Ф100 Ф100"
+ },
+ {
+  "article": "3-1-1",
+  "params": {
+   "D0": 100.0,
+   "D1": 125.0,
+   "L0": 200
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Переход из оцинкованной стали толщиной 0.5 мм Ф100/Ф125 Ф100"
+ }
+]

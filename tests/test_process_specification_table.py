@@ -243,3 +243,93 @@ def test_tee_valid_diameters_pass_geometry_check():
     ])
     assert skipped == []
     assert [r["params"]["D2"] for r in success] == [160, 200]
+
+
+def test_gost_vedomost_elbow_angle_in_name():
+    """ГОСТ-ведомость Заявки №1274: «Отвод 45» + size «100» → D0=100, U0=45.
+
+    Регрессия: угол из наименования крался как диаметр (D0=45, U0=45, R0=45).
+    """
+    parsed, skipped = parse_row(
+        {"name": "Отвод 45", "size": "100", "unit": "шт", "quantity": "2"},
+        {"material": "оцинкованная", "thickness": "0.5"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "2-1-1"
+    assert parsed["params"]["D0"] == 100
+    assert parsed["params"]["U0"] == 45
+    assert parsed["params"]["R0"] == 100  # радиус по умолчанию = диаметру
+
+    parsed, skipped = parse_row(
+        {"name": "Отвод 90", "size": "400x300", "unit": "шт", "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.7"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "2-2-2"
+    assert parsed["params"]["A0"] == 400
+    assert parsed["params"]["B0"] == 300
+    assert parsed["params"]["U0"] == 90
+
+
+def test_gost_vedomost_tee_and_transition_slash_sizes():
+    """«Тройник 125/125/100», «Переход 125/100» — диаметры в наименовании."""
+    parsed, skipped = parse_row(
+        {"name": "Тройник 125/125/100", "size": "", "unit": "шт", "quantity": "4"},
+        {"material": "оцинкованная", "thickness": "0.5"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "4-1-1"
+    assert parsed["params"]["D0"] == 125
+    assert parsed["params"]["D2"] == 100
+
+    parsed, skipped = parse_row(
+        {"name": "Переход 125/100", "size": "", "unit": "шт", "quantity": "2"},
+        {"material": "оцинкованная", "thickness": "0.5"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "3-1-1"
+    assert parsed["params"]["D0"] == 125
+    assert parsed["params"]["D1"] == 100
+
+
+def test_gost_vedomost_transition_rect_and_rect_round():
+    """«Переход 600x200/400x200» → 3-2-5; «Переход 710/700x500» → 3-3-1.
+
+    Регрессия: буква «д» конца слова «переход» читалась как префикс
+    диаметра → ложный D0=600 и переход типа 3-3-1 без второго сечения.
+    """
+    parsed, skipped = parse_row(
+        {"name": "Переход 600x200/400x200", "size": "", "unit": "шт",
+         "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.7"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "3-2-5"
+    assert parsed["params"]["A0"] == 600
+    assert parsed["params"]["B0"] == 200
+    assert parsed["params"]["A1"] == 400
+    assert parsed["params"]["B1"] == 200
+
+    parsed, skipped = parse_row(
+        {"name": "Переход 710/700x500", "size": "", "unit": "шт",
+         "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.7"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "3-3-1"
+    assert parsed["params"]["A0"] == 700
+    assert parsed["params"]["B0"] == 500
+    assert parsed["params"]["D0"] == 710
+
+
+def test_gost_vedomost_rect_tee_same_branch():
+    """«Тройник 500x700/500x700» — прямоугольный тройник с ветвью равной магистрали."""
+    parsed, skipped = parse_row(
+        {"name": "Тройник 500x700/500x700", "size": "", "unit": "шт",
+         "quantity": "1"},
+        {"material": "оцинкованная", "thickness": "0.9"},
+    )
+    assert skipped is None
+    assert parsed["article"] == "4-2-3"
+    assert parsed["params"]["A0"] == 500
+    assert parsed["params"]["B0"] == 700

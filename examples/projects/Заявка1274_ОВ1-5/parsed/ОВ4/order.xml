@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order>
+  <numberDate/>
+  <numberOrder/>
+  <INN/>
+  <customer/>
+  <email/>
+  <phone/>
+  <contact/>
+  <Tabl>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00016D0_D20016D2_L00200L0_L20100L2_</characteristic>
+      <quantity>6</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 16/16/16 SPL </comment>
+    </productRow>
+    <productRow>
+      <article>4-1-1</article>
+      <name>Тройник круглого сечения с круглой прямой врезкой</name>
+      <characteristic>D00025D0_D20016D2_L00200L0_L20100L2_</characteristic>
+      <quantity>12</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Тройник 25/25/16 SPL </comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00100D0_L03000L0_</characteristic>
+      <quantity>4</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали толщиной 0.5 мм Ф100 Ф100</comment>
+    </productRow>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00250D0_L03000L0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод из оцинкованной стали толщиной 0.5 мм Ф250 Ф250</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U090U0_</characteristic>
+      <quantity>6</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 90гр. из оцинкованной стали толщиной 0.5 мм Ф100 Ф100</comment>
+    </productRow>
+    <productRow>
+      <article>2-1-1</article>
+      <name>Отвод круглого сечения</name>
+      <characteristic>D00100D0_R0100R0_U090U0_</characteristic>
+      <quantity>2</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод 30гр. из оцинкованной стали толщиной 0.5 мм Ф100 Ф100</comment>
+    </productRow>
+    <productRow>
+      <article>3-1-1</article>
+      <name>Переход круглого сечения центральный</name>
+      <characteristic>D00100D0_D10125D1_L00200L0_</characteristic>
+      <quantity>5</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Переход из оцинкованной стали толщиной 0.5 мм Ф100/Ф125 Ф100</comment>
+    </productRow>
+  </Tabl>
+</Order>

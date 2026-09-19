@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order>
+  <numberDate/>
+  <numberOrder/>
+  <INN/>
+  <customer/>
+  <email/>
+  <phone/>
+  <contact/>
+  <Tabl>
+    <productRow>
+      <article>2-2-2</article>
+      <name>Отвод прямоугольного сечения прямой</name>
+      <characteristic>A00500A0_B00500B0_L10000L1_L20000L2_U090U0_</characteristic>
+      <quantity>29</quantity>
+      <material>1</material>
+      <thickness>0.7</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Отвод ∠ 90°; 500х500 м 500x500</comment>
+    </productRow>
+  </Tabl>
+</Order>

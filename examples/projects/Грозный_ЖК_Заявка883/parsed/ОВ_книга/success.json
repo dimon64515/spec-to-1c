@@ -1,0 +1,725 @@
+[
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 15.0,
+   "L0": 200
+  },
+  "quantity": 216,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Клапан запорный прямой, Ду15 RLV-15 \"Danfoss\" Ду15"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 25.0,
+   "L0": 200
+  },
+  "quantity": 9,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Ручной балансировочный клапан Ду25 MVT \"Danfoss\" Ду25"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 65.0,
+   "L0": 200
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Ручной балансировочный клапан Ду65 MNF \"Danfoss\" Ду65"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 50.0,
+   "L0": 200
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Заслонка CHR 50-30 "
+ },
+ {
+  "article": "15-2-1",
+  "params": {
+   "A0": 500,
+   "B0": 300,
+   "L0": 1100.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель LITENED 50-30 NKD "
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 50.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Заслонка CHR 50-30 "
+ },
+ {
+  "article": "15-2-1",
+  "params": {
+   "A0": 500,
+   "B0": 300,
+   "L0": 1100.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель LITENED 50-30 NKD "
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 160.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Заслонка регулирующая KCH 160 "
+ },
+ {
+  "article": "15-1-1",
+  "params": {
+   "D0": 160.0,
+   "L0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель KNK 160/6 "
+ },
+ {
+  "article": "15-1-1",
+  "params": {
+   "D0": 160.0,
+   "L0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель KNK 160/6 "
+ },
+ {
+  "article": "15-1-1",
+  "params": {
+   "D0": 160.0,
+   "L0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель KNK 160/6 "
+ },
+ {
+  "article": "15-1-1",
+  "params": {
+   "D0": 100.0,
+   "L0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель KNK 100/6 "
+ },
+ {
+  "article": "15-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель KNK 125/6 "
+ },
+ {
+  "article": "15-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель KNK 125/6 "
+ },
+ {
+  "article": "15-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель KNK 125/6 "
+ },
+ {
+  "article": "15-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель KNK 125/6 "
+ },
+ {
+  "article": "15-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель KNK 125/6 "
+ },
+ {
+  "article": "15-1-1",
+  "params": {
+   "D0": 125.0,
+   "L0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Шумоглушитель KNK 125/6 "
+ },
+ {
+  "article": "16-2-1",
+  "params": {
+   "A0": 200.0,
+   "B0": 100.0,
+   "L0": 200
+  },
+  "quantity": 12,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Регулирующий клапан 200x100 АВК-200x100 200x100"
+ },
+ {
+  "article": "16-2-1",
+  "params": {
+   "A0": 250.0,
+   "B0": 200.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Регулирующий клапан 250x200 АВК-250x200 250x200"
+ },
+ {
+  "article": "16-2-1",
+  "params": {
+   "A0": 250.0,
+   "B0": 250.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Регулирующий клапан 250x250 АВК-250x250 250x250"
+ },
+ {
+  "article": "16-2-1",
+  "params": {
+   "A0": 300.0,
+   "B0": 150.0,
+   "L0": 200
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Регулирующий клапан 300x150 АВК-300x150 300x150"
+ },
+ {
+  "article": "16-2-1",
+  "params": {
+   "A0": 400.0,
+   "B0": 150.0,
+   "L0": 200
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Регулирующий клапан 400x150 АВК-400x150 400x150"
+ },
+ {
+  "article": "16-2-1",
+  "params": {
+   "A0": 500.0,
+   "B0": 300.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Регулирующий клапан 500x300 АВК-500x300 500x300"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 160.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Регулирующий клапан ф160 КВК-ф160 ф160"
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 200.0,
+   "L0": 200
+  },
+  "quantity": 15,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Регулирующий клапан ф200 КВК-ф200 ф200"
+ },
+ {
+  "article": "9-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "A1": 600.0,
+   "B1": 300.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Зонт вытяжной ЗП-600х300 Лиссант 600x300"
+ },
+ {
+  "article": "9-2-1",
+  "params": {
+   "A0": 500.0,
+   "B0": 250.0,
+   "A1": 500.0,
+   "B1": 250.0
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Зонт вытяжной ЗП-500х250 Лиссант 500x250"
+ },
+ {
+  "article": "29-1-3",
+  "params": {
+   "D0": 710.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Стакан монтажный неутепленный MSN-710 "
+ },
+ {
+  "article": "29-1-3",
+  "params": {
+   "D0": 710.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Стакан монтажный неутепленный MSN-710 "
+ },
+ {
+  "article": "29-1-3",
+  "params": {
+   "D0": 560.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Стакан монтажный неутепленный MSN-560 "
+ },
+ {
+  "article": "29-1-3",
+  "params": {
+   "D0": 560.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Стакан монтажный неутепленный MSN-560 "
+ },
+ {
+  "article": "29-1-3",
+  "params": {
+   "D0": 560.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Стакан монтажный неутепленный MSN-560 "
+ },
+ {
+  "article": "29-1-3",
+  "params": {
+   "D0": 560.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Стакан монтажный неутепленный MSN-560 "
+ },
+ {
+  "article": "29-1-3",
+  "params": {
+   "D0": 560.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Стакан монтажный неутепленный MSN-560 "
+ },
+ {
+  "article": "29-1-3",
+  "params": {
+   "D0": 560.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Стакан монтажный неутепленный MSN-560 "
+ },
+ {
+  "article": "1-1-1",
+  "params": {
+   "D0": 200.0,
+   "L0": 1250
+  },
+  "quantity": 114,
+  "material_code": "1",
+  "thickness": 1.0,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали  толщиной 1,0мм ф200 ГОСТ 14918-80* ф200"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 500.0,
+   "B0": 300.0,
+   "L0": 1250
+  },
+  "quantity": 136,
+  "material_code": "1",
+  "thickness": 1.0,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали  толщиной 1,0мм 500х300 ГОСТ 14918-80* 500x300"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 500.0,
+   "B0": 400.0,
+   "L0": 1250
+  },
+  "quantity": 157,
+  "material_code": "1",
+  "thickness": 1.0,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали  толщиной 1,0мм 500х400 ГОСТ 14918-80* 500x400"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 400.0,
+   "L0": 1250
+  },
+  "quantity": 108,
+  "material_code": "1",
+  "thickness": 1.0,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали  толщиной 1,0мм 600х400 ГОСТ 14918-80* 600x400"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 700.0,
+   "B0": 500.0,
+   "L0": 1250
+  },
+  "quantity": 165,
+  "material_code": "1",
+  "thickness": 1.0,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали  толщиной 1,0мм 700х500 ГОСТ 14918-80* 700x500"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 800.0,
+   "B0": 500.0,
+   "L0": 1250
+  },
+  "quantity": 15,
+  "material_code": "1",
+  "thickness": 1.0,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали  толщиной 1,0мм 800х500 ГОСТ 14918-80* 800x500"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 800.0,
+   "B0": 600.0,
+   "L0": 1250
+  },
+  "quantity": 15,
+  "material_code": "1",
+  "thickness": 1.0,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали  толщиной 1,0мм 800х600 ГОСТ 14918-80* 800x600"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 900.0,
+   "B0": 500.0,
+   "L0": 1250
+  },
+  "quantity": 125,
+  "material_code": "1",
+  "thickness": 1.0,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "",
+  "comment": "Воздуховод из оцинкованной стали  толщиной 1,0мм 900х500 ГОСТ 14918-80* 900x500"
+ }
+]
