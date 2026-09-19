@@ -206,3 +206,13 @@ def test_main_dry_run_reports_without_writing(tmp_path, monkeypatch):
     rc = mine.main(["--reports", str(rp), "--min-occurrences", "2", "--dry-run"])
     assert rc == 0
     assert Path("config/size_notations.yaml").read_text(encoding="utf-8") == before
+
+
+def test_module_entrypoint_wires_main():
+    import subprocess, sys
+    proc = subprocess.run(
+        [sys.executable, "-m", "tools.size_format_mine", "--help"],
+        capture_output=True, text=True, encoding="utf-8", timeout=60,
+    )
+    assert proc.returncode == 0
+    assert "usage" in proc.stdout.lower()

@@ -302,3 +302,7 @@ def main(argv=None) -> int:
                    check=True, cwd=str(ROOT))
     print("принято и закоммичено")
     return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
