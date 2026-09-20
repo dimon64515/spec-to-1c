@@ -28,6 +28,12 @@ class BotConfig:
     client_secret: str = ""
     verify_token: str = ""
     execute_code_url: str = DEFAULT_EXECUTE_CODE_URL
+    # HTTP-сервис загрузки заказа (основной транспорт; execute_code — фолбэк).
+    # Пустой order_service_url — работаем только через execute_code.
+    order_service_url: str = ""
+    order_service_key: str = ""
+    order_service_user: str = ""
+    order_service_password: str = ""
     tmp_dir: str = "tmp/bitrix_bot"
     report_limit: int = 3500
     request_timeout: float = 280.0
@@ -65,6 +71,10 @@ def load_bot_config(
         client_secret=bx.get("app_client_secret", ""),
         verify_token=mw.get("webhook_verify_token", ""),
         execute_code_url=mw.get("execute_code_url", execute_url),
+        order_service_url=mw.get("order_service_url", ""),
+        order_service_key=mw.get("order_service_key", ""),
+        order_service_user=mw.get("order_service_user", ""),
+        order_service_password=mw.get("order_service_password", ""),
         tmp_dir=mw.get("tmp_dir", "tmp/bitrix_bot"),
         report_limit=int(mw.get("report_limit", 3500)),
         request_timeout=float(mw.get("request_timeout", 280)),

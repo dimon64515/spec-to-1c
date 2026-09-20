@@ -267,7 +267,7 @@ def test_webhook_routes_xlsx_to_recreate(monkeypatch):
 
     captured = {}
 
-    def fake_recreate(content, execute_url, base_comment="", timeout=280.0):
+    def fake_recreate(content, execute_url, base_comment="", timeout=280.0, **kwargs):
         captured["called"] = True
         return PipelineResult(file_name="edited", order_number="840",
                               loaded=[{"article": "1-1-1", "params": {},
@@ -411,7 +411,7 @@ def test_handler_routes_xlsx_to_recreate(env, monkeypatch):
     )
     called = {}
 
-    def fake_recreate(content, execute_url, base_comment="", timeout=280.0):
+    def fake_recreate(content, execute_url, base_comment="", timeout=280.0, **kwargs):
         called["recreate"] = True
         return _pipeline_result()
 
@@ -432,7 +432,7 @@ def test_handler_broken_xlsx_sends_error_and_stops(env, monkeypatch):
     (EditedReportError — детерминированная валидация, не покидает handler)."""
     from report_xlsx import EditedReportError
 
-    def fake_recreate(content, execute_url, base_comment="", timeout=280.0):
+    def fake_recreate(content, execute_url, base_comment="", timeout=280.0, **kwargs):
         raise EditedReportError("Лист «Загружено» пуст — нечего пересоздавать")
 
     monkeypatch.setattr(srv, "recreate_order_from_report", fake_recreate)

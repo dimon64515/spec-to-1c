@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order>
+  <numberDate/>
+  <numberOrder/>
+  <INN/>
+  <customer/>
+  <email/>
+  <phone/>
+  <contact/>
+  <Tabl>
+    <productRow>
+      <article>1-1-2</article>
+      <name>Воздуховод круглого сечения спирально-навивной</name>
+      <characteristic>D00132D0_L03000L0_</characteristic>
+      <quantity>912</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>2</connection_0>
+      <connection_1>2</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод прямоугольного сечения 200x100-1250 Рулон оц.(08ПС)0.55 132</comment>
+    </productRow>
+    <productRow>
+      <article>9-1-2</article>
+      <name>Зонт крышный круглого сечения (дефлектор)</name>
+      <characteristic>D00125D0_</characteristic>
+      <quantity>249</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>0</connection_0>
+      <connection_1>0</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Зонт крышный круглого сечения Ф125/Ф225 Рулон оц (08ПС)0 55 6</comment>
+    </productRow>
+    <productRow>
+      <article>1-2-1</article>
+      <name>Воздуховод прямоугольного сечения</name>
+      <characteristic>A00150A0_B00150B0_L01250L0_</characteristic>
+      <quantity>912</quantity>
+      <material>1</material>
+      <thickness>0.55</thickness>
+      <connection_0>6</connection_0>
+      <connection_1>6</connection_1>
+      <connection_2>0</connection_2>
+      <connection_3>0</connection_3>
+      <system/>
+      <comment>Воздуховод прямоугольного сечения 150x150-1250 Рулон оц.(08ПС)0.55 2 112,00 150x150-1250</comment>
+    </productRow>
+  </Tabl>
+</Order>

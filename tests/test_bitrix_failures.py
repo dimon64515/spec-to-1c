@@ -37,9 +37,11 @@ def test_process_rows_broken_row_goes_to_skipped_not_kills_file(monkeypatch):
     assert "1-2-1" in xml and "8-2-1" not in xml
 
 
-def test_pipeline_blocks_article_20_2(monkeypatch):
-    # 20-2 заведомо роняет Записать() в 1С (дефект ПередЗаписью) — одна такая
-    # строка обвалила весь Шипиловский (job 39). Теперь уходит в skipped.
+def test_pipeline_blocks_article_20_family(monkeypatch):
+    # Вся группа 20 (20-1 круглый, 20-2 прямоугольный, 20-9 вентустановка)
+    # заведомо роняет Записать() в 1С (дефект ПередЗаписью, подтверждено
+    # дискриминационными тестами 20.09.2026) — одна такая строка обвалила
+    # весь заказ по МОЭК (227 позиций, 20.09.2026). Теперь уходят в skipped.
     import sys
 
     import bitrix_bot.pipeline as pl
@@ -53,6 +55,9 @@ def test_pipeline_blocks_article_20_2(monkeypatch):
             {"article": "20-2", "params": {"A0": 600, "B0": 600},
              "quantity": 2, "material_code": "1", "thickness": 0.8,
              "comment": "Клапан противопожарный 600x600"},
+            {"article": "20-1", "params": {"D0": 100},
+             "quantity": 3, "material_code": "1", "thickness": 0.55,
+             "comment": "Клапан противопожарный Ф100"},
         ]
         return "", [], success
 
@@ -65,11 +70,45 @@ def test_pipeline_blocks_article_20_2(monkeypatch):
 
     success, skipped = pl.process_pdf_to_positions(b"pdf")
     assert [r["article"] for r in success] == ["1-2-1"]
-    assert len(skipped) == 1
-    assert skipped[0]["article"] == "20-2"
-    assert "20-2" in skipped[0]["reason"]
+    assert sorted(s["article"] for s in skipped) == ["20-1", "20-2"]
+    assert "20-2" in skipped[0]["reason"] or "20-2" in skipped[1]["reason"]
     # не должно улетать в «Перекупное»: это производимая номенклатура
-    assert is_trading_skip(skipped[0]) is False
+    assert all(is_trading_skip(s) is False for s in skipped)
+
+
+def test_recreate_order_filters_blocked_from_loaded_sheet(monkeypatch):
+    # Лист «Загружено» отчёта, созданного до расширения фильтра, может
+    # содержать 20-1 — без фильтра пересоздание упало бы тем же дефектом
+    # ПередЗаписью (заказ по МОЭК, 20.09.2026).
+    import bitrix_bot.pipeline as pl
+    import report_xlsx
+
+    loaded = [
+        {"article": "1-2-1", "params": {"A0": 300, "B0": 200},
+         "quantity": 5, "material_code": "1", "thickness": 0.8,
+         "comment": "Воздуховод 300x200"},
+        {"article": "20-1", "params": {"D0": 100},
+         "quantity": 3, "material_code": "1", "thickness": 0.55,
+         "comment": "Клапан противопожарный Ф100"},
+    ]
+    monkeypatch.setattr(pl, "load_order_to_1c",
+                        lambda positions, url, comment, **kw: {
+                            "order_number": "№000000999", "errors": [],
+                            "warnings": [], "raw": ""})
+
+    edited = type("E", (), {
+        "loaded_rows": loaded, "include_rows": [], "skipped_rows": [],
+        "replaced_order": None,
+    })
+    # recreate_order_from_report импортирует parse_edited_report из report_xlsx
+    monkeypatch.setattr(report_xlsx, "parse_edited_report", lambda c: edited)
+
+    # build_positions для оставшейся строки — реальный, материал/размер валидны
+    result = pl.recreate_order_from_report(
+        b"xlsx", "http://execute", request_id="req-test")
+    assert [r["article"] for r in result.loaded] == ["1-2-1"]
+    assert [s["article"] for s in result.skipped] == ["20-1"]
+    assert "20-1" in result.skipped[0]["reason"]
 
 
 def test_run_worker_notifies_on_final_failure(tmp_path):

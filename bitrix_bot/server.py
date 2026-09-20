@@ -42,14 +42,27 @@ WELCOME_TEXT = (
 def make_handler(cfg: BotConfig, client) -> Callable[[Job], None]:
     """Обработчик задания очереди: пайплайн -> Excel-файл с резюме в чат;
     при сбое доставки файла — фолбэк на текстовую нарезку."""
+    order_service = None
+    if cfg.order_service_url:
+        order_service = {
+            "url": cfg.order_service_url,
+            "key": cfg.order_service_key,
+            "user": cfg.order_service_user,
+            "password": cfg.order_service_password,
+        }
+
     def handle(job: Job) -> None:
         data = Path(job.pdf_path).read_bytes()
+        # Ключ идемпотентности HTTP-сервиса: повтор job с тем же request_id
+        # вернёт уже созданный заказ вместо дубликата (ТЗ п. 6).
+        request_id = f"bx{job.task_id}-job{job.id}" if job.task_id else None
         if job.file_name.lower().endswith(".xlsx"):
             # отредактированный Excel-отчёт: round-trip — пересоздаём заказ
             try:
                 res = recreate_order_from_report(
                     data, cfg.execute_code_url, job.order_comment,
                     timeout=cfg.request_timeout,
+                    order_service=order_service, request_id=request_id,
                 )
             except EditedReportError as e:
                 # детерминированная валидация отчёта: reschedule бессмысленен —
@@ -67,6 +80,7 @@ def make_handler(cfg: BotConfig, client) -> Callable[[Job], None]:
             res = run_pipeline(
                 data, job.file_name, job.order_comment,
                 cfg.execute_code_url, timeout=cfg.request_timeout,
+                order_service=order_service, request_id=request_id,
             )
         try:
             xlsx = build_excel_report(res)

@@ -26,6 +26,10 @@ bitrix:
   app_client_secret: "sec"
 middleware:
   webhook_verify_token: "tok"
+  order_service_url: "https://srv1c/base/hs/Zakaz/NewZakaz"
+  order_service_key: "secret"
+  order_service_user: "HTTP_Service1"
+  order_service_password: "pwd"
 """,
         encoding="utf-8",
     )
@@ -40,6 +44,19 @@ middleware:
     assert cfg.task_comment_prefix == "Префикс"
     assert cfg.execute_code_url == "http://127.0.0.1:6005/api/execute_code"
     assert cfg.tmp_dir == "tmp/test"
+    assert cfg.order_service_url == "https://srv1c/base/hs/Zakaz/NewZakaz"
+    assert cfg.order_service_key == "secret"
+    assert cfg.order_service_user == "HTTP_Service1"
+    assert cfg.order_service_password == "pwd"
+
+
+def test_load_bot_config_order_service_defaults_empty(tmp_path):
+    base = tmp_path / "config.yaml"
+    base.write_text("bitrix:\n  portal: \"https://x.ru\"\nmiddleware: {}\n", encoding="utf-8")
+    cfg = bc.load_bot_config(base, tmp_path / "nope.yaml")
+    # без настройки HTTP-сервиса бот работает только через execute_code
+    assert cfg.order_service_url == ""
+    assert cfg.order_service_key == ""
 
 
 def test_load_bot_config_missing_local_ok(tmp_path):

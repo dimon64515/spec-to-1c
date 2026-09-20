@@ -50,6 +50,16 @@ def test_build_payload_escapes_order_comment_quotes():
     assert 'сказал ""ура""' in payload["code"]
 
 
+def test_build_payload_characteristic_name_normalized():
+    # имена характеристик создаются без ведущих/хвостовых пробелов,
+    # иначе «мины» ломают поиск формы «Оформить заказ» (БСП/СокрП), см.
+    # docs/АНАЛИЗ_БАГ_УНИКАЛЬНОСТЬ_ХАРАКТЕРИСТИК.md
+    payload = build_payload([{"article": "1-2-1"}])
+    assert "СпрХ.Наименование = СокрЛП(Канд[0])" in payload["code"]
+    # фолбэк-поиск СокрЛП применяет и к владельцу-условию
+    assert "СокрЛП(Х.Наименование) = &Имя" in payload["code"]
+
+
 def test_parse_1c_result_errors_joined_single_segment():
     # BSL склеивает ошибки/предупреждения через СтрСоединить(..., "; ") —
     # всё сообщение приходит ОДНИМ сегментом после "ошибок=N"
@@ -182,7 +192,7 @@ def test_recreate_order_from_report(monkeypatch):
 
     captured = {}
 
-    def fake_load(positions, execute_url, order_comment, timeout=280.0):
+    def fake_load(positions, execute_url, order_comment, timeout=280.0, **kwargs):
         captured["positions"] = positions
         captured["comment"] = order_comment
         return {"order_number": "840", "errors": [], "warnings": [],
@@ -224,7 +234,7 @@ def _report_with_include(skipped_row, loaded_rows=None):
     return buf.getvalue()
 
 
-def _fake_1c_load(positions, execute_url, order_comment, timeout=280.0):
+def _fake_1c_load(positions, execute_url, order_comment, timeout=280.0, **kwargs):
     return {"order_number": "840", "errors": [], "warnings": [],
             "raw": "ЗАКАЗ 840 | строк=1 | ошибок=0 | предупр=0"}
 

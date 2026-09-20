@@ -9,14 +9,49 @@ from typing import Any, Dict, List, Optional, Tuple
 import httpx
 
 # Артикулы, непригодные для прямой загрузки в 1С: программное создание
-# асСпецификацияЗаказа с любой строкой 20-2 падает в ПередЗаписью
-# («Значение не является значением объектного типа (Товары)») — дефект на
-# стороне 1С, см. docs/BACKLOG.md «Продукт 20-2».
+# асСпецификацияЗаказа с любой строкой группы 20 (противопожарные клапаны
+# 20-1/20-2 и вентустановка 20-9) падает в ПередЗаписью
+# («Значение не является значением объектного типа (Товары)», модуль объекта
+# строка 827) — дефект на стороне 1С, см. docs/BACKLOG.md «Продукты 20-*».
+# Подтверждено дискриминационными тестами 20.09.2026 (все три артикула
+# падают одинаково; остальные группы записываются нормально).
 BLOCKED_1C_ARTICLES = {
-    "20-2": ("Не загружено: продукт 20-2 не записывается в 1С "
-             "(дефект ПередЗаписью асСпецификацияЗаказа, см. BACKLOG); "
-             "добавьте клапан в заказ вручную"),
+    "20-1": ("Не загружено: продукт 20-1 (противопожарный клапан круглый) "
+             "не записывается в 1С (дефект ПередЗаписью асСпецификацияЗаказа, "
+             "см. BACKLOG); добавьте клапан в заказ вручную"),
+    "20-2": ("Не загружено: продукт 20-2 (противопожарный клапан прямоугольный) "
+             "не записывается в 1С (дефект ПередЗаписью асСпецификацияЗаказа, "
+             "см. BACKLOG); добавьте клапан в заказ вручную"),
+    "20-9": ("Не загружено: продукт 20-9 (вентиляционная установка) "
+             "не записывается в 1С (дефект ПередЗаписью асСпецификацияЗаказа, "
+             "см. BACKLOG); добавьте в заказ вручную"),
 }
+
+
+def _filter_blocked_articles(
+    success: List[Dict[str, Any]], skipped: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """Отсеять артикулы, которые заведомо роняют Записать() в 1С (дефект
+    модуля объекта документа, см. docs/BACKLOG.md): одна такая строка
+    обвалила бы весь заказ. Исключённые строки попадают в отчёт «Пропущено»."""
+    if not BLOCKED_1C_ARTICLES:
+        return success
+    kept: List[dict] = []
+    for row in success:
+        reason = BLOCKED_1C_ARTICLES.get(row["article"])
+        if reason:
+            skipped.append({
+                "name": row.get("comment", row["article"]),
+                "size": "",
+                "unit": "шт",
+                "quantity": row.get("quantity", ""),
+                "article": row["article"],
+                "reason": reason,
+                "not_trading": True,
+            })
+        else:
+            kept.append(row)
+    return kept
 
 
 @dataclass
@@ -51,26 +86,7 @@ def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict]]:
     else:
         rows = data.get("block_rows") or []
     _, skipped, success = process_rows(rows)
-    # Артикулы, которые заведомо роняют Записать() в 1С (дефект модуля объекта
-    # документа, см. docs/BACKLOG.md): одна такая строка обвалила бы весь
-    # заказ. Исключаем из загрузки — менеджер увидит их в отчёте «Пропущено».
-    if BLOCKED_1C_ARTICLES:
-        kept: List[dict] = []
-        for row in success:
-            reason = BLOCKED_1C_ARTICLES.get(row["article"])
-            if reason:
-                skipped.append({
-                    "name": row.get("comment", row["article"]),
-                    "size": "",
-                    "unit": "шт",
-                    "quantity": row.get("quantity", ""),
-                    "article": row["article"],
-                    "reason": reason,
-                    "not_trading": True,
-                })
-            else:
-                kept.append(row)
-        success = kept
+    success = _filter_blocked_articles(success, skipped)
     return success, skipped
 
 
@@ -106,7 +122,7 @@ def parse_1c_result(text: str) -> Dict[str, Any]:
     }
 
 
-def load_order_to_1c(
+def _load_via_execute_code(
     positions: List[dict],
     execute_url: str,
     order_comment: str,
@@ -135,12 +151,66 @@ def load_order_to_1c(
     return parse_1c_result(text)
 
 
+def load_order_to_1c(
+    positions: List[dict],
+    execute_url: str,
+    order_comment: str,
+    timeout: float = 280.0,
+    order_service: Optional[Dict[str, str]] = None,
+    request_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Отправить позиции в 1С; вернуть разобранный результат.
+
+    Порядок транспортов: HTTP-сервис (order_service) → при транспортном сбое
+    фолбэк на MCP execute_code. Бизнес-ответы 1С (Успех=false, «не найден
+    продукт» и т.п.) фолбэк НЕ запускают: документ в 1С уже создан, повторная
+    отправка создала бы дубликат. Исключение — только если доставить запрос
+    не удалось ни одним из транспортов.
+
+    order_service — dict(url=..., key=..., user=..., password=...) или None
+    (тогда только execute_code — прежнее поведение).
+    """
+    import order_client as oc
+
+    http_error: Optional[Exception] = None
+    if order_service and order_service.get("url"):
+        basic_auth = None
+        if order_service.get("user"):
+            basic_auth = (order_service["user"], order_service.get("password", ""))
+        try:
+            return oc.load_order(
+                positions,
+                order_service["url"],
+                order_comment,
+                request_id=request_id,
+                api_key=order_service.get("key", ""),
+                basic_auth=basic_auth,
+                timeout=timeout,
+            )
+        except (httpx.HTTPError, RuntimeError) as exc:
+            # транспортный сбой (сеть/таймаут/платформа 5xx/детерминированный
+            # 4xx) — пробуем запасной путь; бизнес-ответы сюда не доходят
+            http_error = exc
+
+    try:
+        return _load_via_execute_code(positions, execute_url, order_comment, timeout)
+    except (httpx.HTTPError, RuntimeError) as exc:
+        if http_error is None:
+            raise
+        raise RuntimeError(
+            f"Оба транспорта в 1С недоступны. "
+            f"HTTP-сервис: {http_error}; execute_code: {exc}"
+        ) from exc
+
+
 def run_pipeline(
     pdf_bytes: bytes,
     file_name: str,
     order_comment: str,
     execute_url: str,
     timeout: float = 280.0,
+    order_service: Optional[Dict[str, str]] = None,
+    request_id: Optional[str] = None,
 ) -> PipelineResult:
     """Полный цикл: PDF → позиции → заказ 1С → PipelineResult."""
     from json_positions import build_positions
@@ -153,7 +223,10 @@ def run_pipeline(
             raw_text="Позиции не распознаны: бот не распознал в PDF ни одной валидной строки спецификации.",
         )
     positions = build_positions(success)
-    out = load_order_to_1c(positions, execute_url, order_comment, timeout=timeout)
+    out = load_order_to_1c(
+        positions, execute_url, order_comment, timeout=timeout,
+        order_service=order_service, request_id=request_id,
+    )
     return PipelineResult(
         file_name=file_name,
         order_number=out["order_number"],
@@ -170,6 +243,8 @@ def recreate_order_from_report(
     execute_url: str,
     base_comment: str = "",
     timeout: float = 280.0,
+    order_service: Optional[Dict[str, str]] = None,
+    request_id: Optional[str] = None,
 ) -> PipelineResult:
     """Пересоздать заказ из отредактированного Excel-отчёта (round-trip).
 
@@ -190,6 +265,10 @@ def recreate_order_from_report(
         _, extra_skipped, extra_success = process_rows(edited.include_rows)
 
     success = edited.loaded_rows + extra_success
+    # Лист «Загружено» старого отчёта может содержать артикулы, которые
+    # заведомо роняют Записать() в 1С (см. BLOCKED_1C_ARTICLES) — без фильтра
+    # пересоздание упадёт тем же дефектом ПередЗаписью.
+    success = _filter_blocked_articles(success, extra_skipped)
     if not success:
         raise EditedReportError(
             "Нечего загружать: лист «Загружено» пуст, а включённые позиции "
@@ -201,7 +280,10 @@ def recreate_order_from_report(
         comment += f" | Заменяет заказ №{edited.replaced_order} (исправлено из отчёта)"
 
     positions = build_positions(success)
-    out = load_order_to_1c(positions, execute_url, comment, timeout=timeout)
+    out = load_order_to_1c(
+        positions, execute_url, comment, timeout=timeout,
+        order_service=order_service, request_id=request_id,
+    )
     # Включённые позиции из skipped_rows (маркер "_include") исключаем:
     # они либо уже в extra_success, либо дублируются в extra_skipped с причиной.
     skipped = [s for s in edited.skipped_rows if not s.get("_include")]

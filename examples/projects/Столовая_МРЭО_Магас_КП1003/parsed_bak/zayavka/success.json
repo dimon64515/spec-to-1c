@@ -1,0 +1,610 @@
+[
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 315.0,
+   "L0": 3000
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Приток (1000 м3/ч; 250 Па)",
+  "comment": "Воздуховод с/н 315 Ф315"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 250.0,
+   "L0": 3000
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Приток (1000 м3/ч; 250 Па)",
+  "comment": "Воздуховод с/н 250 Ф250"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 200.0,
+   "L0": 3000
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Приток (1000 м3/ч; 250 Па)",
+  "comment": "Воздуховод с/н 200 Ф200"
+ },
+ {
+  "article": "3-1-1",
+  "params": {
+   "D0": 315.0,
+   "D1": 250.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Приток (1000 м3/ч; 250 Па)",
+  "comment": "Переход односторонний 315/250 "
+ },
+ {
+  "article": "3-1-1",
+  "params": {
+   "D0": 250.0,
+   "D1": 200.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Приток (1000 м3/ч; 250 Па)",
+  "comment": "Переход односторонний 250/200 "
+ },
+ {
+  "article": "6-1-1",
+  "params": {
+   "D0": 200.0,
+   "P0": 25
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Приток (1000 м3/ч; 250 Па)",
+  "comment": "Заглушка 200 200.0"
+ },
+ {
+  "article": "8-1-1",
+  "params": {
+   "D0": 200.0,
+   "D2": 315.0,
+   "L0": 150
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Приток (1000 м3/ч; 250 Па)",
+  "comment": "Врезка 315/200 "
+ },
+ {
+  "article": "8-1-1",
+  "params": {
+   "D0": 200.0,
+   "D2": 250.0,
+   "L0": 150
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Приток (1000 м3/ч; 250 Па)",
+  "comment": "Врезка 250/200 "
+ },
+ {
+  "article": "8-1-1",
+  "params": {
+   "D0": 200.0,
+   "D2": 200.0,
+   "L0": 150
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Приток (1000 м3/ч; 250 Па)",
+  "comment": "Врезка 200/200 "
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 315.0,
+   "L0": 3000.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Вытяжка (1000 м3/ч; 250 Па)",
+  "comment": "Воздуховод с/н 315-3000 Ф315-3000"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 250.0,
+   "L0": 3000.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Вытяжка (1000 м3/ч; 250 Па)",
+  "comment": "Воздуховод с/н 250-3000 Ф250-3000"
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 200.0,
+   "L0": 3000.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Вытяжка (1000 м3/ч; 250 Па)",
+  "comment": "Воздуховод с/н 200-3000 Ф200-3000"
+ },
+ {
+  "article": "3-1-1",
+  "params": {
+   "D0": 315.0,
+   "D1": 250.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Вытяжка (1000 м3/ч; 250 Па)",
+  "comment": "Переход односторонний 315/250 "
+ },
+ {
+  "article": "3-1-1",
+  "params": {
+   "D0": 250.0,
+   "D1": 200.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Вытяжка (1000 м3/ч; 250 Па)",
+  "comment": "Переход односторонний 250/200 "
+ },
+ {
+  "article": "6-1-1",
+  "params": {
+   "D0": 200.0,
+   "P0": 25
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Вытяжка (1000 м3/ч; 250 Па)",
+  "comment": "Заглушка 200 200.0"
+ },
+ {
+  "article": "8-1-1",
+  "params": {
+   "D0": 200.0,
+   "D2": 315.0,
+   "L0": 150
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Вытяжка (1000 м3/ч; 250 Па)",
+  "comment": "Врезка 315/200 "
+ },
+ {
+  "article": "8-1-1",
+  "params": {
+   "D0": 200.0,
+   "D2": 250.0,
+   "L0": 150
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Вытяжка (1000 м3/ч; 250 Па)",
+  "comment": "Врезка 250/200 "
+ },
+ {
+  "article": "8-1-1",
+  "params": {
+   "D0": 200.0,
+   "D2": 200.0,
+   "L0": 150
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Молельная/Вытяжка (1000 м3/ч; 250 Па)",
+  "comment": "Врезка 200/200 "
+ },
+ {
+  "article": "2-1-1",
+  "params": {
+   "U0": 90.0,
+   "D0": 400.0,
+   "R0": 400.0
+  },
+  "quantity": 2,
+  "material_code": "2",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)",
+  "comment": "Отвод н.ж. (90) 400 "
+ },
+ {
+  "article": "1-1-1",
+  "params": {
+   "D0": 400.0,
+   "L0": 1250.0
+  },
+  "quantity": 5,
+  "material_code": "2",
+  "thickness": 0.7,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)",
+  "comment": "Воздуховод н.ж. 400-1250 Ф400-1250"
+ },
+ {
+  "article": "6-1-1",
+  "params": {
+   "D0": 400.0,
+   "P0": 25
+  },
+  "quantity": 1,
+  "material_code": "2",
+  "thickness": 0.7,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)",
+  "comment": "Заглушка н.ж. 400 400.0"
+ },
+ {
+  "article": "8-1-1",
+  "params": {
+   "D0": 315.0,
+   "D2": 400.0,
+   "L0": 150
+  },
+  "quantity": 2,
+  "material_code": "2",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)",
+  "comment": "Врезка н.ж. 400/315 "
+ },
+ {
+  "article": "16-1-1",
+  "params": {
+   "D0": 315.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "2",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)",
+  "comment": "Дроссель-клапан н.ж. 315 "
+ },
+ {
+  "article": "19-2-1",
+  "params": {
+   "A0": 1500.0,
+   "B0": 400.0,
+   "L0": 1500.0
+  },
+  "quantity": 2,
+  "material_code": "2",
+  "thickness": 1.0,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Вытяжка кухня (5250 м3/ч; 550 Па)",
+  "comment": "Зонт пристенный н.ж. с лабиринтными жироуловителями 1500х1500х400 со встроенными врезками 315 1500x1500x400"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 600.0,
+   "B0": 350.0,
+   "A1": 600.0,
+   "B1": 300.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Переход  односторонний 600х350/600х300 600x350"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "L0": 1250.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Воздуховод 600х300-1250 600x300-1250"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 600.0,
+   "B0": 300.0,
+   "A1": 600.0,
+   "B1": 250.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Переход  односторонний 600х300/600х250 600x300"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 600.0,
+   "B0": 250.0,
+   "U0": 90.0,
+   "R0": 600.0
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Отвод (90) 600х250 600x250"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 250.0,
+   "L0": 1250.0
+  },
+  "quantity": 3,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Воздуховод 600х250-1250 600x250-1250"
+ },
+ {
+  "article": "3-2-5",
+  "params": {
+   "A0": 600.0,
+   "B0": 250.0,
+   "A1": 600.0,
+   "B1": 200.0,
+   "L0": 200
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Переход односторонний 600х250/600х200 600x250"
+ },
+ {
+  "article": "2-2-2",
+  "params": {
+   "A0": 600.0,
+   "B0": 200.0,
+   "U0": 90.0,
+   "R0": 600.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Отвод (90) 600х200 600x200"
+ },
+ {
+  "article": "1-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 200.0,
+   "L0": 1250.0
+  },
+  "quantity": 4,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Воздуховод 600х200-1250 600x200-1250"
+ },
+ {
+  "article": "8-1-1",
+  "params": {
+   "D0": 160.0,
+   "D2": 160.0,
+   "L0": 150
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "0",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Прямая врезка 160 "
+ },
+ {
+  "article": "1-1-2",
+  "params": {
+   "D0": 160.0,
+   "L0": 3000.0
+  },
+  "quantity": 2,
+  "material_code": "1",
+  "thickness": 0.55,
+  "connection_0": "2",
+  "connection_1": "2",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Воздуховод с/н 160-3000 Ф160-3000"
+ },
+ {
+  "article": "6-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 200.0,
+   "P0": 25
+  },
+  "quantity": 1,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "0",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Заглушка 600х200 600.0"
+ },
+ {
+  "article": "8-2-1",
+  "params": {
+   "A0": 600.0,
+   "B0": 600.0,
+   "L0": 150
+  },
+  "quantity": 6,
+  "material_code": "1",
+  "thickness": 0.7,
+  "connection_0": "6",
+  "connection_1": "6",
+  "connection_2": "0",
+  "connection_3": "0",
+  "system": "Столовая/Приток столовая (3500 м3/ч; 450 Па)",
+  "comment": "Врезка 600х600-100 600x600-100"
+ }
+]
