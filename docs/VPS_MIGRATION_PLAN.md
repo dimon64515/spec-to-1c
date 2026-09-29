@@ -1,6 +1,6 @@
 # План переезда на VPS 185.253.103.130 (ptg)
 
-Дата: 2026-09-29. Статус: актуализировано после инвентаризации сервера.
+Дата: 2026-09-29. Статус: выполняется; осталось — HTTPS (ждём порты у провайдера) и досинхронизация PDF.
 
 ## Реальное положение дел (обнаружено 2026-09-29)
 
@@ -32,15 +32,15 @@
 ## Оставшиеся шаги
 
 ### 1. Код
-- [ ] Проверить тесты локально, запушить `c37fab6` (сейчас только локально).
-- [ ] На VPS: `git pull`, `systemctl restart bitrix-bot`, проверить `/health`.
+- [x] Проверить тесты локально (378 passed), запушить `c37fab6` (сейчас только локально).
+- [x] На VPS: `git pull`, `systemctl restart bitrix-bot`, проверить `/health`.
 
 ### 2. Данные (синк с ноутбука разработчика — единственное состояние)
-- [ ] Остановить локальный uvicorn (на ноутбуке), скопировать на VPS:
+- [x] Остановить локальный uvicorn, критичное скопировано на VPS (jobs.db + price_search.db + bitrix.local.yaml; очередь видит done 103 / failed 37):
   `tmp/bitrix_bot/` (jobs.db + 139 PDF, 96 МБ), `price_search.db`,
   `bitrix.local.yaml` (сверить секреты; `webhook_verify_token` сейчас
   пустой — заполнить случайной строкой).
-- [ ] Проверить целостность jobs.db на VPS (sqlite3 .tables / pragma integrity_check).
+- [x] Проверить целостность БД на VPS (integrity_check ok) (sqlite3 .tables / pragma integrity_check).
 
 ### 3. HTTPS и DNS-переключение
 - [ ] Перенацелить A-запись `bitrix-wok-ptg.point-clean.ru`: 77.222.40.65 → 185.253.103.130.
@@ -56,25 +56,23 @@
   (на VPS порт 6005 слушает только 127.0.0.1 — публиковать наружу нельзя).
 
 ### 5. Streamlit web_app
-- [ ] Решение: публикация «без туннеля» — через nginx (отдельный location/server
-  на 8501) **с basic auth**, bind 127.0.0.1. systemd-юнит `streamlit-webapp`.
-  ⚠ Подтвердить: публиковать наружу с паролем, или только для офисных IP?
+- [x] Решение: nginx `/ui/` → 8501 с basic auth, юнит `streamlit-webapp` (пароль выдан владельцу).
 
 ### 6. Hardening VPS
-- [ ] ufw: allow 45022, 80, 443; enable.
+- [x] ufw: allow 22/45022/80/443; enable. PasswordAuthentication уже был `no`.
 - [ ] sshd: `PasswordAuthentication no` (после проверки ключей), убрать порт 22
   если держится параллельно с 45022 без нужды.
 - [ ] fail2ban (опционально).
 
 ### 7. Бэкапы и мониторинг
-- [ ] cron 1×/день: rsync `tmp/bitrix_bot/`, `price_search.db`,
+- [x] cron 1×/день: rsync `tmp/bitrix_bot/`, `price_search.db`,
   `bitrix.local.yaml`, `config*.yaml` → `/root/backups/spec-to-1c/` (+ ротация).
-- [ ] cron-проверка `/health` с алертом в Битрикс-чат через incoming webhook.
+- [x] cron-проверка `/health` с алертом в Битрикс-чат через incoming webhook.
 
 ### 8. Финализация
 - [ ] Smoke-тест: PDF → reply + @бот → заказ в 1С → отчёт в задаче.
-- [ ] Отключить локальный uvicorn на ноутбуке (не запускать параллельно с VPS).
-- [ ] Обновить `bitrix_bot/README.md` (реальные пути/домен на VPS).
+- [x] Локальный uvicorn на ноутбуке остановлен.
+- [x] Обновить `bitrix_bot/README.md` (реальные пути/домен на VPS).
 
 ## Риски
 - price_search с датацентровского IP может получать баны от сайтов поставщиков —

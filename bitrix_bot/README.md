@@ -55,7 +55,10 @@ endpoint открыт для всех.
    тип открытый, права im/task/disk. Бот ждёт событие `ONIMBOTMESSAGEADD`.
 3. Вебхук для REST уже есть (`incoming_webhook` в `bitrix.local.yaml`).
 
-## Прод (сервер завода)
+## Прод (VPS 185.253.103.130, домен bitrix-wok-ptg.point-clean.ru)
+
+Код живёт в `/opt/xml-to-1c` (git clone). SSH: порт 45022, ключ
+`~/.ssh/xmlto1c_vps_ed25519` (на сервере root; парольный вход выключен).
 
 systemd — `/etc/systemd/system/bitrix-bot.service`:
 
@@ -64,20 +67,30 @@ systemd — `/etc/systemd/system/bitrix-bot.service`:
     After=network.target
 
     [Service]
-    WorkingDirectory=/home/dimon64515/projects/xml-to-1c
-    ExecStart=/home/dimon64515/projects/xml-to-1c/.venv/bin/uvicorn bitrix_bot.server:app --host 127.0.0.1 --port 8080
+    WorkingDirectory=/opt/xml-to-1c
+    ExecStart=/opt/xml-to-1c/.venv/bin/uvicorn bitrix_bot.server:app --host 127.0.0.1 --port 8080
     Restart=always
     RestartSec=5
 
     [Install]
     WantedBy=multi-user.target
 
+Ещё юнит `streamlit-webapp.service` (web_app.py на 127.0.0.1:8501,
+baseUrlPath=/ui). nginx (`/etc/nginx/sites-available/bitrix-bot`):
+домен 443 → 8080; `/ui/` → 8501 с basic auth (`/etc/nginx/.htpasswd_spec`).
+HTTPS — certbot (порты 80/443 должны быть открыты на внешнем firewall
+провайдера). Бэкапы: `/root/backup_spec_to_1c.sh` (cron 04:00,
+снапшоты в `/root/backups/spec-to-1c/`, ротация 14 шт.);
+проверка живости: `/root/healthcheck_spec.sh` (cron */5, рестарт при сбое).
+
+1С: основной транспорт — публичный HTTP NewZakaz; MCP execute_code
+(фолбэк) — туннель с машины разработчика:
+`ssh -N -R 6005:127.0.0.1:6005 -p 45022 root@185.253.103.130`
+(порт 6005 на VPS только 127.0.0.1).
+
 `WorkingDirectory` обязателен: конфиги резолвятся от корня проекта, но
 `middleware.tmp_dir` (sqlite-очередь и временные PDF) относителен cwd.
 Без него очередь и файлы уйдут в каталог запуска systemd.
-
-nginx: server 443 ssl для `<домена>` → `proxy_pass http://127.0.0.1:8080`
-(websockets не нужны; `certbot --nginx`). Порт 6005 (MCP/1С) наружу НЕ публиковать.
 
 ## Ручная сверка событий (один раз после настройки)
 
