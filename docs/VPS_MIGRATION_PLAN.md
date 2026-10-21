@@ -79,3 +79,38 @@
 - price_search с датацентровского IP может получать баны от сайтов поставщиков —
   проверить после переноса.
 - c37fab6 — wip-коммит (newzakaz flow): прогнать pytest перед пушем.
+
+---
+
+## ТЕКУЩИЙ СТАТУС (handoff, 2026-10-21) — продолжение сессии на VPS
+
+**Инфраструктура: готова и работает.**
+- Бот в проде: `systemctl status bitrix-bot` (uvicorn 127.0.0.1:8080), работает с
+  20.10.2026, вебхуки Битрикс24 ходят (BOT_ID=377, домен bitrix-wok-ptg.point-clean.ru,
+  IIS на Win Server 2016 терминирует TLS, ARR → VM:80 → nginx → uvicorn).
+- Streamlit: `systemctl status streamlit-webapp` (8501), наружу через `/ui/` с basic auth.
+- `bitrix_bot/README.md` — актуальная инфраструктурная документация.
+
+**Следующая задача (вне этого сервера — нужен 1С-админ):**
+1. Заменить модуль HTTP-сервиса `ПолучениеЗаказов` в ОБЕИХ базах
+   (тест `KA_vok-region_test` и бой `KA_vok-region`) на актуальный код:
+   `tools/as_order_loader/http_service_newzakaz.bsl` (v2 от 20.09: заголовок
+   `X-API-Key` + фикс идемпотентности через СтрНайти). Сейчас в обеих базах v1
+   (принимает только legacy-заголовок `key`), поэтому бот (шлёт X-API-Key) получает
+   403 и падает в фолбэк execute_code.
+2. После обновления модулей — проверка (делает Python-сторона):
+   `POST .../hs/Zakaz/NewZakaz` с basic-auth и заголовком `X-API-Key` (ключ в
+   `bitrix.local.yaml`, поле `order_service_key`), тело `{}` → ожидается HTTP 500
+   `"Не найден массив positions"` (это успех: ключ принят, дошли до логики).
+   Без ключа → HTTP 403 JSON `"Нет установленного ключа обработки"`.
+3. Затем боевой smoke-тест: реальная задача с PDF → reply + @бот → заказ в
+   **боевой** базе KA_vok-region + xlsx-отчёт в чат.
+   `order_service_url` уже переключён на боевую базу
+   (`https://www.1c-woc.ru/KA_vok-region/hs/Zakaz/NewZakaz`).
+
+**Ключевые пути на VPS:** проект `/opt/xml-to-1c` (git clone, обновлять через
+`git pull`), секреты — `bitrix.local.yaml` (в gitignore), бэкапы —
+`/root/backups/spec-to-1c/` (cron 04:00, скрипт `/root/backup_spec_to_1c.sh`),
+healthcheck каждые 5 мин (`/root/healthcheck_spec.sh`).
+SSH к ноутбуку-разработчика не требуется; вся работа — на этом сервере.
+**Осторожно:** `git pull` только внутри `/opt/xml-to-1c`; секреты не коммитить.
