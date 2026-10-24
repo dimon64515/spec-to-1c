@@ -97,7 +97,7 @@ class HttpServiceTransport:
 
     Аутентификация двухслойная (публикация IIS + модуль):
     - Basic Auth пользователя ИБ 1С (basic_auth=(user, password));
-    - заголовок X-API-Key (api_key) — проверяется уже внутри модуля 1С.
+    - заголовки X-API-Key и key (api_key) — проверяется уже внутри модуля 1С.
     """
 
     def __init__(
@@ -125,6 +125,8 @@ class HttpServiceTransport:
         headers = {"Content-Type": "application/json; charset=utf-8"}
         if self.api_key:
             headers["X-API-Key"] = self.api_key
+            # Старые версии модуля 1С читают только legacy-заголовок «key».
+            headers["key"] = self.api_key
         # content=, а не json=: httpx json= не ставит charset=utf-8 (ТЗ п. 3)
         resp = httpx.post(
             self.base_url,
