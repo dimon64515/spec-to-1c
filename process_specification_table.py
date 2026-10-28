@@ -694,6 +694,45 @@ def try_parse_ksd(size: str, name: str, material_code: str = "1", thickness: flo
     }
 
 
+# LLM-классы, усыновляемые фасонным путём (только через подтверждение
+# try_parse_fitting реконструированной строкой).
+_LLM_FITTING_CLASSES = ("tee_axbxc", "reducer_pair")
+
+
+def _fmt_mm(value: float) -> str:
+    return str(int(value)) if float(value).is_integer() else str(value)
+
+
+def _llm_fitting_size_candidates(cls) -> List[str]:
+    """Собирает кандидатные строки размера фасонки из dims LLM-класса.
+
+    Порядок кандидатов — от более специфичной грамматики к менее: первая
+    подтверждённая try_parse_fitting строка усыновляется.
+    """
+    dims = cls.dims or {}
+    a0, b0 = dims.get("A0"), dims.get("B0")
+    if cls.format_class == "tee_axbxc":
+        branch = dims.get("C0", dims.get("D2"))
+        if a0 and b0 and branch:
+            # Прямоугольный тройник: ветвь квадратная C0xC0 либо круглая ФC0.
+            main = f"{_fmt_mm(a0)}x{_fmt_mm(b0)}"
+            return [f"{main}-{main}-{_fmt_mm(branch)}x{_fmt_mm(branch)}",
+                    f"{main}-Ф{_fmt_mm(branch)}"]
+        if dims.get("D0") and dims.get("D1") and dims.get("D2"):
+            # Круглый тройник «Dглавн/Dветвь/Dглавн» (грамматика slash-форм).
+            return [f"{_fmt_mm(dims['D0'])}/{_fmt_mm(dims['D1'])}/{_fmt_mm(dims['D2'])}"]
+        return []
+    if cls.format_class == "reducer_pair":
+        if dims.get("D0") and dims.get("D1"):
+            return [f"{_fmt_mm(dims['D0'])}/{_fmt_mm(dims['D1'])}"]
+        if a0 and b0 and dims.get("A1") and dims.get("B1"):
+            return [f"{_fmt_mm(a0)}x{_fmt_mm(b0)}-{_fmt_mm(dims['A1'])}x{_fmt_mm(dims['B1'])}"]
+        if a0 and b0:
+            # Два числа прямоугольного перехода — оба сечения квадратные.
+            return [f"{_fmt_mm(a0)}x{_fmt_mm(a0)}-{_fmt_mm(b0)}x{_fmt_mm(b0)}"]
+    return []
+
+
 def try_parse_fitting(
     name: str,
     size: str,
@@ -1441,6 +1480,21 @@ def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.Size
 
     # Попытка распознать фасонное изделие / арматуру (в том числе для м²)
     fitting = try_parse_fitting(name, size, unit, quantity, material_code=material_code, thickness=thickness)
+    if not fitting and llm_cache:
+        # LLM-фолбэк фасонки: tee_axbxc/reducer_pair дают только числа.
+        # Кандидатную строку собираем из dims и усыновляем лишь ту, что
+        # подтверждает фасонный парсер — LLM не формирует фасонные размеры
+        # в обход try_parse_fitting.
+        llm_result = llm_cache.get(size) or llm_cache.get(str(row.get("size", "")).strip()) or None
+        if (llm_result is not None and llm_result.adoptable
+                and llm_result.format_class in _LLM_FITTING_CLASSES):
+            for candidate in _llm_fitting_size_candidates(llm_result):
+                fitting = try_parse_fitting(name, candidate, unit, quantity,
+                                            material_code=material_code, thickness=thickness)
+                if fitting:
+                    logger.info("LLM-фолбэк: фасонка %r усыновлена через %r (%s)",
+                                size, candidate, llm_result.format_class)
+                    break
     if fitting:
         fitting["thickness_explicit"] = thickness_explicit
         fitting["system"] = row.get("system", "")

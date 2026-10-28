@@ -137,6 +137,62 @@ def test_cache_lookup_falls_back_to_raw_row_size(monkeypatch):
     assert parsed["params"]["D0"] == 200.0
 
 
+def test_tee_size_adopted_for_fitting(monkeypatch):
+    import llm_size_classifier as lsc
+    import process_specification_table as pst
+    from llm_size_classifier import SizeClassification
+
+    def fake_batch(strings, cfg=None, runner=None):
+        return {s: SizeClassification(status="ok", format_class="tee_axbxc",
+                                      dims={"A0": 300, "B0": 200, "C0": 150},
+                                      section="rectangular", adoptable=True,
+                                      raw_response="", detail="") for s in strings}
+    monkeypatch.setattr(lsc, "llm_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(lsc, "classify_sizes_batch", fake_batch)
+    rows = [{"name": "Тройник", "size": "300x200-150", "unit": "шт", "quantity": 1}]
+    xml, skipped, success = pst.process_rows(rows)
+    assert success, "тройник с LLM-классом tee_axbxc не должен уходить в skipped"
+    assert not any(lsc.REASON_LLM_REJECTED in (r.get("reason") or "") for r in skipped)
+
+
+def test_tee_size_adopted_via_reconstructed_candidate(monkeypatch):
+    # Исходная строка фасонным парсером не подтверждается (spy возвращает
+    # None только для неё): tee_axbxc усыновляется через реконструированную
+    # кандидатную строку, которую try_parse_fitting подтверждает — LLM не
+    # формирует размеры фасонки в обход фасонного парсера.
+    row = {"name": "Тройник", "size": "300x200~150", "unit": "шт", "quantity": "1"}
+    cache = {"300x200~150": _cls(format_class="tee_axbxc",
+                                 dims={"A0": 300, "B0": 200, "C0": 150},
+                                 section="rectangular")}
+    real = pst.try_parse_fitting
+    calls = []
+
+    def spy(name, size, unit, quantity, **kw):
+        calls.append(size)
+        if size == "300x200~150":
+            return None
+        return real(name, size, unit, quantity, **kw)
+
+    monkeypatch.setattr(pst, "try_parse_fitting", spy)
+    parsed, skip = pst.parse_row(row, DEFAULTS, llm_cache=cache)
+    assert skip is None
+    assert parsed["article"].startswith("4-"), parsed
+    assert len(calls) >= 2 and "150" in calls[-1]  # усыновлено через кандидата с ветвью
+
+
+def test_tee_fitting_not_adopted_when_parser_rejects(monkeypatch):
+    # Ни один LLM-кандидат не подтверждён фасонным парсером — строка
+    # остаётся в skipped с REASON_LLM_REJECTED, в XML не попадает.
+    row = {"name": "Тройник", "size": "300x200~150", "unit": "шт", "quantity": "1"}
+    cache = {"300x200~150": _cls(format_class="tee_axbxc",
+                                 dims={"A0": 300, "B0": 200, "C0": 150},
+                                 section="rectangular")}
+    monkeypatch.setattr(pst, "try_parse_fitting", lambda *a, **kw: None)
+    parsed, skip = pst.parse_row(row, DEFAULTS, llm_cache=cache)
+    assert parsed is None
+    assert skip["reason"] == lsc.REASON_LLM_REJECTED
+
+
 def test_cache_lookup_falls_back_to_raw_row_size_in_skip(monkeypatch):
     # То же в ветке финального пропуска: rejected-запись по сырому ключу.
     row = {"name": "Воздуховод спирально-навивной", "size": "2 00/160",

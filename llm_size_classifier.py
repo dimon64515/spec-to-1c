@@ -29,9 +29,10 @@ FORMAT_CLASSES = [
     "unknown",
 ]
 
-# Классы, применимые к воздуховодам (duct-путь parse_row). Остальные
-# парсятся для лога/отчёта, но не усыновливаются как воздуховод.
-ADOPTABLE_CLASSES = ("round_diameter", "rect_axb")
+# Классы, результат которых усыновляется пайплайном: round_diameter/rect_axb —
+# в воздуховоды (duct-путь parse_row), tee_axbxc/reducer_pair — в фасонку
+# (fitting-путь, только через подтверждение try_parse_fitting).
+ADOPTABLE_CLASSES = ("round_diameter", "rect_axb", "tee_axbxc", "reducer_pair")
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +137,8 @@ def _spans_to_dims(format_class: str, spans: List[Dict], source: str) -> Optiona
 
 def _classify_one(source: str, result: Dict, raw_response: str) -> "SizeClassification":
     """status='ok' — spans дали валидные числа И валидация диапазонов пройдена.
-    adoptable — дополнительно: класс применим к воздуховодам (duct-путь)."""
+    adoptable — дополнительно: класс усыновляется пайплайном (duct-путь
+    для round_diameter/rect_axb, fitting-путь для tee_axbxc/reducer_pair)."""
     fmt = str(result.get("format_class") or "unknown")
     if fmt not in FORMAT_CLASSES:
         fmt = "unknown"
