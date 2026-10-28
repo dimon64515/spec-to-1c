@@ -18,8 +18,9 @@ import json
 import logging
 import re
 import time
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
+import llm_document_fallback
 import llm_size_classifier
 from config import get_config
 from llm_client import (
@@ -43,6 +44,7 @@ __all__ = [
     "qualifying_skipped",
     "validate_normalized",
     "normalize_rows",
+    "run_row_fallback",
 ]
 
 
@@ -205,3 +207,93 @@ def normalize_rows(
 
     logger.warning("llm_row_fallback.failed: исчерпаны попытки (%d)", max_retries + 1)
     return []
+
+
+def _consume_original(row: Dict, remaining: List[Dict]) -> Optional[Dict]:
+    """Снимает с учёта исходную skipped-строку, породившую LLM-строку.
+
+    normalize_rows копирует unit/quantity из исходника, поэтому мэтчим по ним
+    (мультимножество: одинаковые строки взаимозаменимы). None — исходник
+    не найден (строка пришла не из qualifying-батча)."""
+    for s in remaining:
+        if s.get("unit") == row.get("unit") and s.get("quantity") == row.get("quantity"):
+            remaining.remove(s)
+            return s
+    return None
+
+
+def run_row_fallback(
+    success: List[dict],
+    skipped: List[dict],
+    cfg: Optional[Dict] = None,
+) -> Tuple[List[dict], List[dict], Dict[str, Any]]:
+    """Оркестратор строкового LLM-фолбэка: qualifying skipped → мердж в success.
+
+    Квалифицируемые skipped-строки (qualifying_skipped) одним батчем идут в
+    normalize_rows; нормализованные строки повторно проходят детерминированный
+    process_rows (без LLM-классификации размеров) и мерджатся в success с
+    дедупом по _merge_key (при совпадении приоритет у детерминированных,
+    LLM-строкам ``"llm_source": True``). Повторно отброшенные строки остаются
+    в skipped с ИСХОДНОЙ причиной (extra_skipped из process_rows не добавляем:
+    их исходники уже там). skip_ratio_post/escalation здесь НЕ считаются —
+    только row_fallback_triggered / row_fallback_recovered; финальные
+    значения считает Task 4.
+
+    Без квалифицируемых строк или при выключенном row_fallback_enabled —
+    исходные списки без изменений (triggered=False). Любой сбой нормализации —
+    исходные success/skipped + triggered=True, recovered=0, пайплайн не падает.
+    """
+    noop_meta: Dict[str, Any] = {
+        "row_fallback_triggered": False,
+        "row_fallback_recovered": 0,
+    }
+    qualifying = qualifying_skipped(skipped)
+    if not qualifying or not row_fallback_enabled(cfg):
+        return success, skipped, noop_meta
+
+    logger.info("llm_row_fallback.triggered: %d строк", len(qualifying))
+    # MERGED cfg (парковочное решение Task 2): command/model из общей секции
+    # llm + timeout/max_retries из row_fallback.
+    merged_cfg = {**llm_size_classifier.get_llm_config(), **get_row_fallback_config(cfg)}
+    deadline = time.monotonic() + float(merged_cfg.get("timeout") or 180)
+
+    try:
+        norm_rows = normalize_rows(qualifying, cfg=merged_cfg, deadline=deadline)
+        import process_specification_table as pst
+
+        _, _extra_skipped, extra_success = pst.process_rows(
+            norm_rows, run_llm_size_classify=False
+        )
+    except Exception as exc:  # noqa: BLE001 — fallback обязан не ронять пайплайн
+        logger.info("llm_row_fallback.failed: %s", exc)
+        return success, skipped, {
+            "row_fallback_triggered": True,
+            "row_fallback_recovered": 0,
+        }
+
+    # Мердж success: дедуп по (comment, quantity) — при совпадении приоритет
+    # у детерминированных строк, LLM-дубли отбрасываем (по образцу
+    # run_doc_fallback). Строки не мутируем: регистр комментария уезжает в 1С.
+    merged_success = list(success)
+    seen = {llm_document_fallback._merge_key(r) for r in merged_success}
+    recovered = 0
+    remaining = list(qualifying)
+    for row in extra_success:
+        key = llm_document_fallback._merge_key(row)
+        if key in seen:
+            continue  # дубль детерминированной строки — исходник в skipped остаётся
+        seen.add(key)
+        _consume_original(row, remaining)  # исходник восстановлен — из skipped уйдёт
+        row["llm_source"] = True
+        merged_success.append(row)
+        recovered += 1
+    # В skipped остаются неквалифицируемые строки как есть плюс исходники
+    # qualifying-строк, которые LLM/валидация/process_rows не подняли —
+    # с исходной причиной.
+    merged_skipped = [s for s in skipped if s not in qualifying] + remaining
+    if recovered:
+        logger.info("llm_row_fallback.recovered: %d", recovered)
+    return merged_success, merged_skipped, {
+        "row_fallback_triggered": True,
+        "row_fallback_recovered": recovered,
+    }
