@@ -67,6 +67,9 @@ class PipelineResult:
     errors_1c: List[str] = field(default_factory=list)
     warnings_1c: List[str] = field(default_factory=list)
     raw_text: str = ""
+    escalation: Optional[str] = None
+    partial_warning: Optional[str] = None
+    llm_recovered: int = 0
 
 
 def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict], Dict[str, Any]]:
@@ -242,26 +245,63 @@ def run_pipeline(
     """Полный цикл: PDF → позиции → заказ 1С → PipelineResult."""
     from json_positions import build_positions
 
-    success, skipped, _llm_meta = process_pdf_to_positions(pdf_bytes)
+    success, skipped, meta = process_pdf_to_positions(pdf_bytes)
+    escalation = meta.get("escalation")
+    llm_recovered = int(meta.get("recovered") or 0)
+    partial_warning = None
     if not success:
         return PipelineResult(
             file_name=file_name,
             skipped=skipped,
             raw_text="Позиции не распознаны: бот не распознал в PDF ни одной валидной строки спецификации.",
+            escalation=escalation,
+            llm_recovered=llm_recovered,
         )
+    # пост-мердж skip_ratio: доля пропущенных среди всех строк документа.
+    # Предупреждение только при непустом success — пустой success уже
+    # покрывается эскалацией (заказ не создан вовсе).
+    skip_ratio_post = float(meta.get("skip_ratio_post") or 0.0)
+    threshold = float(
+        llm_document_fallback.get_doc_fallback_config().get("skip_threshold", 0.3)
+    )
+    if skip_ratio_post > threshold:
+        total = len(success) + len(skipped)
+        partial_warning = (
+            f"Заказ загружен частично: распознано {len(success)} из {total} "
+            f"строк, проверьте отчёт"
+        )
+    for row in success:
+        # стабы/восстановленные LLM строки без полного набора ключей —
+        # дефолты совпадают с процессором process_rows
+        row.setdefault("params", {})
+        row.setdefault("thickness", 0.8)
+        row.setdefault("comment", "")
     positions = build_positions(success)
     out = load_order_to_1c(
         positions, execute_url, order_comment, timeout=timeout,
         order_service=order_service, request_id=request_id,
     )
+    # контракт load_order_to_1c — dict; тапл (order_number, errors, warnings)
+    # принимаем тоже (обратная совместимость со стабами)
+    if isinstance(out, tuple):
+        order_number, errors_1c, warnings_1c = out
+        raw_text = ""
+    else:
+        order_number = out["order_number"]
+        errors_1c = out["errors"]
+        warnings_1c = out["warnings"]
+        raw_text = out["raw"]
     return PipelineResult(
         file_name=file_name,
-        order_number=out["order_number"],
+        order_number=order_number,
         loaded=success,
         skipped=skipped,
-        errors_1c=out["errors"],
-        warnings_1c=out["warnings"],
-        raw_text=out["raw"],
+        errors_1c=errors_1c,
+        warnings_1c=warnings_1c,
+        raw_text=raw_text,
+        escalation=escalation,
+        partial_warning=partial_warning,
+        llm_recovered=llm_recovered,
     )
 
 

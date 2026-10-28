@@ -58,7 +58,14 @@ def build_report(res: PipelineResult, limit: int = DEFAULT_LIMIT) -> List[str]:
     lines: List[str] = [header, "", summary]
 
     if res.loaded:
-        lines += ["", "✅ Загружены:"] + [_position_line(p) for p in res.loaded]
+        llm_rows = [p for p in res.loaded if p.get("llm_source")]
+        plain_rows = [p for p in res.loaded if not p.get("llm_source")]
+        if plain_rows:
+            lines += ["", "✅ Загружены:"] + [_position_line(p) for p in plain_rows]
+        if llm_rows:
+            lines += ["", "⚠ Восстановлено LLM (проверить):"] + [
+                _position_line(p) for p in llm_rows
+            ]
     if res.skipped:
         lines += ["", "⏭ Пропущены:"] + [_skipped_line(s) for s in res.skipped]
     if res.errors_1c:
@@ -78,12 +85,15 @@ def build_summary(res: PipelineResult) -> str:
     n_trading = sum(1 for s in res.skipped if is_trading_skip(s))
     n_skipped = len(res.skipped) - n_trading
     header = f"Заказ 1С: №{res.order_number}" if res.order_number else "Заказ НЕ создан"
+    n_llm = sum(1 for p in res.loaded if p.get("llm_source"))
     lines = [
         header,
         f"Файл: {res.file_name}",
         f"Загружено: {len(res.loaded)} · Пропущено: {n_skipped}"
         f" · Перекупное: {n_trading} · Ошибок 1С: {len(res.errors_1c)}",
     ]
+    if n_llm:
+        lines.append(f"Восстановлено LLM (проверить): {n_llm}")
     if res.errors_1c:
         lines.append("Ошибки: " + "; ".join(res.errors_1c[:5]))
     return "\n".join(lines)

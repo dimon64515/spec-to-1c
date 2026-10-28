@@ -279,3 +279,36 @@ def test_recreate_include_unparsable_single_skip_with_reason(monkeypatch):
                if "Абракадабра" in str(s.get("name", ""))]
     assert len(matches) == 1
     assert matches[0].get("reason")
+
+
+def test_run_pipeline_sets_escalation_when_empty_after_fallback(monkeypatch):
+    import bitrix_bot.pipeline as pl
+    meta = {"triggered": True, "recovered": 0, "skip_ratio": 1.0, "skip_ratio_post": 1.0,
+            "escalation": "документ — смета в м² без поканальных размеров"}
+    monkeypatch.setattr(pl, "process_pdf_to_positions", lambda b: ([], [{"name": "x", "reason": "r"}], meta))
+    res = pl.run_pipeline(b"pdf", "f.pdf", "c", "http://x")
+    assert "м²" in res.escalation
+    assert res.loaded == []
+
+
+def test_run_pipeline_partial_warning(monkeypatch):
+    import bitrix_bot.pipeline as pl
+    meta = {"triggered": True, "recovered": 1, "skip_ratio": 0.9, "skip_ratio_post": 0.9,
+            "escalation": None}
+    monkeypatch.setattr(pl, "process_pdf_to_positions",
+                        lambda b: ([{"article": "1-1-1", "quantity": 1}],
+                                   [{"name": "x", "reason": "r"}] * 9, meta))
+    monkeypatch.setattr(pl, "load_order_to_1c", lambda *a, **k: ("1", [], []))
+    res = pl.run_pipeline(b"pdf", "f.pdf", "c", "http://x")
+    assert res.partial_warning and "частично" in res.partial_warning
+    assert res.llm_recovered == 1
+
+
+def test_llm_source_flag_does_not_break_positions():
+    # Review Focus #5: лишний ключ llm_source не мешает сборке JSON для 1С
+    import json_positions as jp
+    row = {"article": "1-1-1", "params": {"D0": 125}, "quantity": 2,
+           "material_code": "1", "thickness": 0.6, "system": "", "comment": "c",
+           "llm_source": True}
+    positions = jp.build_positions([row])
+    assert positions and all("llm_source" not in p for p in positions)
