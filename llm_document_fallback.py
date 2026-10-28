@@ -231,10 +231,22 @@ def parse_document_with_llm(
 
 def build_escalation_reason(skipped: List[Dict]) -> str:
     """Человекочитаемая причина эскалации из reason skipped-строк."""
-    reasons = [str(s.get("reason", "")) for s in skipped if isinstance(s, dict)]
+    rows = [s for s in skipped if isinstance(s, dict)]
+    reasons = [str(s.get("reason", "")) for s in rows]
     if not reasons:
         return "нет текстового слоя"
     if all("м²" in r for r in reasons):
+        return "документ — смета в м² без поканальных размеров"
+    # Строки сметы в м² без поканальных размеров отклоняются процессором по
+    # «Отсутствует размер» (unit сохраняется в skipped) — по единице измерения
+    # это та же смета в м². Порог 1/3: единичная м²-строка в документе,
+    # где основной массив — штучные позиции, эскалацию не определяет.
+    m2_units = ("м2", "м²")
+    m2_rows = sum(
+        1 for s in rows
+        if "м²" in str(s.get("reason", "")) or str(s.get("unit", "")).strip() in m2_units
+    )
+    if m2_rows and m2_rows * 3 >= len(rows):
         return "документ — смета в м² без поканальных размеров"
     if all(r.startswith("Покупная позиция") for r in reasons):
         return "все позиции — перекупное оборудование"
