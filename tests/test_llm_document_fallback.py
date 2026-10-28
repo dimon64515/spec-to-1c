@@ -66,3 +66,15 @@ def test_parse_document_with_llm_returns_empty_on_runner_error():
     def boom(prompt, cfg):
         raise RuntimeError("kimi-cli crashed")
     assert f.parse_document_with_llm(TEXT, runner=boom) == []
+
+
+def test_process_rows_skips_llm_when_flag_false(monkeypatch):
+    import process_specification_table as pst
+    import llm_size_classifier as lsc
+    called = []
+    monkeypatch.setattr(lsc, "llm_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(lsc, "classify_sizes_batch",
+                        lambda strings, cfg=None, runner=None: called.append(strings) or {})
+    rows = [{"name": "Воздуховод", "size": "ф125", "unit": "шт", "quantity": 1}]
+    pst.process_rows(rows, run_llm_size_classify=False)
+    assert called == []

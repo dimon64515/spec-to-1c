@@ -1252,8 +1252,10 @@ def normalize_unit_value(unit: str) -> str:
     return unit.strip()
 
 
-def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.SizeClassification"]] = None) -> Tuple[Optional[dict], Optional[dict]]:
+def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.SizeClassification"]] = None, *, run_llm_size_classify: bool = True) -> Tuple[Optional[dict], Optional[dict]]:
     """Преобразует одну строку таблицы в строку для XML или причину пропуска."""
+    if not run_llm_size_classify:
+        llm_cache = None
     name = str(row.get("name", "")).strip()
     size = str(row.get("size", "")).strip()
     unit = normalize_unit_value(str(row.get("unit", "")).strip().lower())
@@ -1583,6 +1585,8 @@ def process_rows(
     rows: List[dict],
     header: Optional[dict] = None,
     defaults: Optional[dict] = None,
+    *,
+    run_llm_size_classify: bool = True,
 ) -> Tuple[str, List[dict], List[dict]]:
     """Принимает список строк спецификации и возвращает XML-строку, пропущенные и успешные строки.
 
@@ -1590,6 +1594,7 @@ def process_rows(
         rows: список словарей с ключами name, size, unit, quantity, material, thickness.
         header: заголовок заказа для XML (numberDate, numberOrder, INN, ...).
         defaults: значения по умолчанию для material и thickness.
+        run_llm_size_classify: если False — LLM-классификация размеров не запускается.
 
     Returns:
         Кортеж (xml_string, skipped_list, success_rows).
@@ -1611,7 +1616,7 @@ def process_rows(
     skipped: List[dict] = []
 
     llm_cache: Optional[Dict[str, lsc.SizeClassification]] = None
-    if lsc.llm_enabled():
+    if run_llm_size_classify and lsc.llm_enabled():
         candidates = []
         seen = set()
         for row in rows:
@@ -1628,7 +1633,11 @@ def process_rows(
         size = str(row.get("size", "")).strip()
         if not name and not size:
             continue
-        parsed, skip = parse_row(row, defaults, llm_cache=llm_cache)
+        if run_llm_size_classify:
+            parsed, skip = parse_row(row, defaults, llm_cache=llm_cache)
+        else:
+            parsed, skip = parse_row(row, defaults, llm_cache=None,
+                                     run_llm_size_classify=False)
         if parsed:
             if ALLOWED_ARTICLES and parsed["article"] not in ALLOWED_ARTICLES:
                 skipped.append(
