@@ -266,10 +266,8 @@ def run_doc_fallback(
     """Документный LLM-фолбэк: сырой текст PDF → LLM → мердж с детерминированным
     результатом process_rows.
 
-    Триггер — полный промах (success пуст) или выраженная деградация:
-    skipped строго больше success и их доля выше ``skip_threshold``
-    (иначе обычный документ с парой пропусков, где skipped == success,
-    запускал бы LLM впустую). Без триггера или при выключенном
+    Триггер — полный промах (success пуст) или доля skipped выше
+    ``skip_threshold``. Без триггера или при выключенном
     ``doc_fallback_enabled`` — детерминированный результат без изменений.
 
     Любой сбой fallback → детерминированный результат без изменений
@@ -281,9 +279,7 @@ def run_doc_fallback(
     """
     skip_ratio = _skip_ratio(len(skipped), len(success))
     threshold = float(get_doc_fallback_config(cfg).get("skip_threshold", 0.3))
-    degraded = (not success) or (
-        skip_ratio is not None and skip_ratio > threshold and len(skipped) > len(success)
-    )
+    degraded = (not success) or (skip_ratio is not None and skip_ratio > threshold)
     if not degraded or not doc_fallback_enabled(cfg):
         return success, skipped, {
             "triggered": False,
@@ -323,15 +319,11 @@ def run_doc_fallback(
 
     # Мердж: дедуп по (comment, quantity) — при совпадении приоритет у
     # детерминированных строк, LLM-дубли отбрасываем. «Воздуховод ф125» и
-    # ««Воздуховод» «ф125»» — одна позиция, поэтому из комментариев перед
-    # сравнением убираем кавычки-ёлочки и приводим к нижнему регистру;
-    # комментарии строк success при этом нормализуем in place — итоговый
-    # success получает канонический вид ключа дедупа.
+    # ««Воздуховод» «ф125»» — одна позиция, поэтому ключ сравнения
+    # нормализуем (снимаем кавычки-ёлочки, lower, strip). Строки не
+    # мутируем: регистр комментария уезжает в 1С и отчёт.
     merged_success = list(success)
-    seen = set()
-    for row in merged_success:
-        row["comment"] = str(row.get("comment", "")).lower().strip()
-        seen.add(_merge_key(row))
+    seen = {_merge_key(r) for r in merged_success}
     recovered = 0
     for row in extra_success:
         key = _merge_key(row)
@@ -339,7 +331,6 @@ def run_doc_fallback(
             continue
         seen.add(key)
         row["llm_source"] = True
-        row["comment"] = str(row.get("comment", "")).lower().strip()
         merged_success.append(row)
         recovered += 1
     merged_skipped = list(skipped) + list(extra_skipped)

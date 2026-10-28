@@ -102,7 +102,8 @@ def test_run_doc_fallback_no_trigger_when_healthy(monkeypatch, tmp_path):
     import llm_document_fallback as f
     monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
     pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
-    ok = [{"article": "1-1-1", "quantity": 1}]
+    # 3 success + 1 skipped: skip_ratio 0.25 ≤ 0.3 — порог не превышен
+    ok = [{"article": "1-1-1", "quantity": 1}] * 3
     success, skipped, meta = f.run_doc_fallback(str(pdf), ok, [{"name": "x", "reason": "bad"}])
     assert success is ok and meta["triggered"] is False
 
@@ -121,9 +122,32 @@ def test_run_doc_fallback_dedups_against_deterministic(monkeypatch, tmp_path):
     pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
     det = [{"article": "1-1-1", "quantity": 1, "comment": "«Воздуховод» «ф125»"}]
     success, skipped, meta = f.run_doc_fallback(str(pdf), det, [{"name": "x", "reason": "bad"}] * 5)
-    # LLM-строка совпала с детерминированной по (comment, quantity) — дублей нет
+    # LLM-строка совпала с детерминированной по (comment, quantity) — дублей нет,
+    # исходный комментарий не мутирован (регистр сохранён)
     assert meta["recovered"] == 0
-    assert len([s for s in success if s.get("comment", "").lower().strip() == det[0]["comment"]]) == 1
+    assert len(success) == 1
+    assert success[0]["comment"] == det[0]["comment"]
+    assert len([s for s in success
+                if s.get("comment", "").lower().strip() == det[0]["comment"].lower().strip()]) == 1
+
+
+def test_run_doc_fallback_failure_returns_deterministic(monkeypatch, tmp_path):
+    # Сбой извлечения/парсинга → исходные success/skipped без изменений,
+    # meta triggered=True recovered=0, пайплайн не падает.
+    import llm_document_fallback as f
+    monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
+
+    def boom(p, max_chars=60000):
+        raise RuntimeError("pdfplumber crashed")
+    monkeypatch.setattr(f, "extract_document_text", boom)
+    pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
+    ok = [{"article": "1-1-1", "quantity": 1, "comment": "Воздуховод ф125"}]
+    bad = [{"name": "x", "reason": "bad"}]
+    success, skipped, meta = f.run_doc_fallback(str(pdf), ok, bad)
+    assert success is ok and skipped is bad
+    assert meta["triggered"] is True and meta["recovered"] == 0
+    assert meta["skip_ratio"] == 0.5 and meta["skip_ratio_post"] == 0.5
+    assert meta["escalation"] is None
 
 
 def test_pipeline_order_fallback_before_blocked_filter(monkeypatch):
