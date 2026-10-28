@@ -37,6 +37,41 @@ def test_config_has_doc_fallback_section():
     assert 0 < df.get("skip_threshold", 0) <= 1
 
 
+def test_web_app_xml_regenerated_includes_llm_recovered_rows(monkeypatch, tmp_path):
+    # Review fix: восстановленные LLM-строки должны попадать в скачиваемый
+    # order.xml — web_app перегенерирует xml_text из merged success_rows.
+    import web_app
+    import llm_document_fallback as f
+    import process_specification_table as pst
+    monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(f, "extract_document_text", lambda p, max_chars=60000: "txt")
+    monkeypatch.setattr(f, "parse_document_with_llm",
+                        lambda text, **kw: [{"name": "Воздуховод", "size": "ф125",
+                                             "unit": "шт", "quantity": 2}])
+    orig = pst.process_rows
+    monkeypatch.setattr(pst, "process_rows",
+                        lambda rows, **kw: orig(rows, run_llm_size_classify=False))
+    pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
+    header = {"numberDate": "", "numberOrder": "TEST-1", "INN": "", "customer": "",
+              "email": "", "phone": "", "contact": ""}
+    # Детерминированный каскад всё пропустил — LLM восстанавливает 1 строку
+    xml_text, skipped, success_rows = pst.process_rows([], header=header)
+    success_rows, skipped, meta = f.run_doc_fallback(
+        str(pdf), success_rows, skipped or [{"name": "x", "reason": "bad"}])
+    assert meta["recovered"] == 1
+    xml_text = web_app._regenerate_xml_if_llm_recovered(header, xml_text, success_rows, meta)
+    assert "ф125" in xml_text
+    assert "<quantity>2</quantity>" in xml_text
+
+
+def test_web_app_xml_unchanged_without_llm_recovery():
+    # recovered == 0 — исходный xml_text не трогаем.
+    import web_app
+    xml_text = "<Order/>"
+    meta = {"triggered": True, "recovered": 0, "escalation": None}
+    assert web_app._regenerate_xml_if_llm_recovered({}, xml_text, [], meta) is xml_text
+
+
 def test_parse_document_with_llm_extracts_rows_from_spans():
     import llm_document_fallback as f
     got = f.parse_document_with_llm(TEXT, runner=lambda p, c: _stdout(_rows_with_spans()))

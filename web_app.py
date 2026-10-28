@@ -154,6 +154,19 @@ def _normalize_skipped_for_prices(skipped_rows: List[dict]) -> List[dict]:
     return normalized
 
 
+def _regenerate_xml_if_llm_recovered(header, xml_text, success_rows, fb_meta):
+    """Перегенерирует XML из merged success_rows, если LLM-фолбэк что-то восстановил.
+
+    Восстановленные строки уже в форме parsed (article/params/comment) —
+    прошли process_rows внутри run_doc_fallback. Без восстановлений
+    возвращает исходный xml_text без изменений.
+    """
+    if fb_meta.get("recovered", 0) > 0:
+        from generate_order_xml import generate_order_xml
+        return generate_order_xml(header, success_rows)
+    return xml_text
+
+
 def _render_main_tab(tab_main):
     """Render the specification → XML tab. Early returns here do not stop the app."""
     with tab_main:
@@ -358,6 +371,8 @@ def _render_main_tab(tab_main):
                     os.unlink(tmp_path)
                 if fb_meta.get("recovered", 0) > 0:
                     st.info(f"Восстановлено LLM: {fb_meta['recovered']} строк")
+                    xml_text = _regenerate_xml_if_llm_recovered(
+                        header, xml_text, success_rows, fb_meta)
                 if fb_meta.get("escalation"):
                     st.warning(fb_meta["escalation"])
 
