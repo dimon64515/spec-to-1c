@@ -6,7 +6,7 @@ import llm_size_classifier as lsc
 
 def test_get_llm_config_defaults(monkeypatch):
     cfg = lsc.get_llm_config()
-    assert cfg["enabled"] is False
+    assert cfg["enabled"] is True  # включено на проде (октябрь 2026)
     assert cfg["backend"] == "kimi-cli"
     assert cfg["batch_size"] >= 1
     assert cfg["timeout"] > 0

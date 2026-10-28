@@ -16,14 +16,12 @@ def _stdout(rows_json: str) -> str:
     return j.dumps({"role": "assistant", "content": rows_json})
 
 
-def _rows_with_spans():
+def _rows_json():
     rows = [
-        {"name": TEXT[2:26], "name_span": [2, 26], "size": TEXT[27:34],
-         "size_span": [27, 34], "unit": "м", "quantity": 12,
-         "quantity_span": [35, 37]},
-        {"name": TEXT[42:50], "name_span": [42, 50], "size": TEXT[51:55],
-         "size_span": [51, 55], "unit": "шт", "quantity": 6,
-         "quantity_span": [56, 57]},
+        {"name": "Воздуховод прямоугольный", "size": "600x400",
+         "unit": "м", "quantity": 12},
+        {"name": "Отвод 90 ф125", "size": "ф125",
+         "unit": "шт", "quantity": 6},
     ]
     import json as j
     return j.dumps(rows, ensure_ascii=False)
@@ -33,7 +31,7 @@ def test_config_has_doc_fallback_section():
     import config
     cfg = config.get_config()
     df = cfg.get("llm", {}).get("doc_fallback", {})
-    assert df.get("enabled") is False
+    assert df.get("enabled") is True  # включено на проде (октябрь 2026)
     assert 0 < df.get("skip_threshold", 0) <= 1
 
 
@@ -74,20 +72,40 @@ def test_web_app_xml_unchanged_without_llm_recovery():
 
 def test_parse_document_with_llm_extracts_rows_from_spans():
     import llm_document_fallback as f
-    got = f.parse_document_with_llm(TEXT, runner=lambda p, c: _stdout(_rows_with_spans()))
+    got = f.parse_document_with_llm(TEXT, runner=lambda p, c: _stdout(_rows_json()))
     assert len(got) == 2
     assert got[0]["name"] == "Воздуховод прямоугольный"
     assert got[0]["quantity"] == 12 and got[0]["unit"] == "м"
     assert got[1]["size"] == "ф125"
 
 
-def test_parse_document_with_llm_drops_invalid_spans():
+def test_parse_document_with_llm_drops_hallucinated_name():
+    # Наименование отсутствует в документе — строка отброшена (anti-hallucination)
     import llm_document_fallback as f
-    bad = [{"name": "x", "name_span": [0, 9999], "size": "", "size_span": [0, 0],
-            "unit": "шт", "quantity": 1, "quantity_span": [0, 1]}]
+    bad = [{"name": "Вентилятор крышной", "size": "", "unit": "шт", "quantity": 1}]
     import json as j
     got = f.parse_document_with_llm(TEXT, runner=lambda p, c: _stdout(j.dumps(bad)))
     assert got == []
+
+
+def test_parse_document_with_llm_drops_unconfirmed_quantity():
+    # Количество не совпадает с первым числом после наименования — отброшено
+    import llm_document_fallback as f
+    bad = [{"name": "Отвод 90 ф125", "size": "", "unit": "шт", "quantity": 99}]
+    import json as j
+    got = f.parse_document_with_llm(TEXT, runner=lambda p, c: _stdout(j.dumps(bad)))
+    assert got == []
+
+
+def test_parse_document_with_llm_accepts_repeated_names_with_distinct_qty():
+    # Повторяющиеся наименования: количество сверяется с вхождением, где совпало
+    import llm_document_fallback as f
+    import json as j
+    rows = [{"name": "Врезка ф100", "size": "", "unit": "шт", "quantity": 8},
+            {"name": "Врезка ф100", "size": "", "unit": "шт", "quantity": 9}]
+    text = "1\nВрезка ф100\n8\n2\nВрезка ф100\n9\n"
+    got = f.parse_document_with_llm(text, runner=lambda p, c: _stdout(j.dumps(rows)))
+    assert len(got) == 2
 
 
 def test_doc_fallback_enabled_requires_both_flags(monkeypatch):

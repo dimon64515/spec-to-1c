@@ -95,61 +95,90 @@ def _build_prompt(text: str) -> str:
         "Ниже — сырой текст документа (может содержать мусор, колонтитулы, разрывы).\n\n"
         f"<document>\n{text}\n</document>\n\n"
         "Верни СТРОГО один JSON-массив без пояснений, markdown и кода. Каждый элемент:\n"
-        '{"name": "...", "name_span": [a, b], "size": "...", "size_span": [c, d], '
-        '"unit": "...", "quantity": N, "quantity_span": [e, f]}\n'
+        '{"name": "...", "size": "...", "unit": "...", "quantity": N}\n'
         "Правила:\n"
-        "- spans — смещения подстрок В ПРЕДОСТАВЛЕННОМ ТЕКСТЕ (start включительно, "
-        "end исключительно); name = текст[a:b] должен давать полное наименование, "
-        "quantity_span должен покрывать ТОЛЬКО целое число.\n"
-        "- НИКОГДА не выдумывай значения и числа: spans обязаны указывать на реальные "
-        "подстроки документа. Если размера нет — size_span = [x, x] (пустой), "
-        "size = \"\".\n"
+        "- name — ДОСЛОВНАЯ подстрока из текста документа (полное наименование "
+        "позиции, как оно написано, без номера позиции).\n"
+        "- size — дословная подстрока наименования с размером (например \"ф125\", "
+        '"150х150"); если размера нет — "".\n'
+        "- quantity — целое число из колонки количества для этой позиции. "
+        "НИКОГДА не выдумывай числа.\n"
         '- unit — одно из: "шт", "м", "м2", "м²".\n'
-        "- Номера позиций, единицы измерения и прочие служебные колонки в name "
-        "не включай."
+        "- Единицы измерения и служебные колонки в name не включай."
     )
 
 
-def _parse_span(value: Any, source_len: int, allow_empty: bool = False) -> Optional[Tuple[int, int]]:
-    """Валидирует пару [start, end]. None — span невалиден."""
-    if not isinstance(value, (list, tuple)) or len(value) != 2:
-        return None
-    try:
-        start, end = int(value[0]), int(value[1])
-    except (TypeError, ValueError):
-        return None
-    if start == end and allow_empty:
-        return start, end
-    if not (0 <= start < end <= source_len):
-        return None
-    return start, end
+_QTY_WINDOW = 30  # сколько символов после наименования просматриваем на количество
 
 
-def _row_from_spans(row: Dict, text: str) -> Optional[LlmDocRow]:
-    """Детерминированная сборка LlmDocRow из spans исходного текста.
-    None — строка отброшена."""
-    name_span = _parse_span(row.get("name_span"), len(text))
-    if name_span is None:
-        return None
-    name = text[name_span[0]:name_span[1]].strip()
+def _name_positions(name: str, text: str) -> List[int]:
+    """Позиции всех вхождений name в text (точных; при нуле — с нормализацией
+    пробелов). Пустой список — наименования нет в документе."""
+    positions = []
+    start = 0
+    while True:
+        i = text.find(name, start)
+        if i < 0:
+            break
+        positions.append(i)
+        start = i + max(1, len(name))
+    if positions:
+        return positions
+    collapsed_text = re.sub(r"\s+", " ", text)
+    collapsed_name = re.sub(r"\s+", " ", name).strip()
+    if not collapsed_name:
+        return []
+    # Карта позиций collapsed → original: идём по text, схлопывая пробелы.
+    result = []
+    c = collapsed_text.find(collapsed_name)
+    while c >= 0:
+        orig = 0
+        cp = 0
+        while cp < c and orig < len(text):
+            if text[orig].isspace():
+                while orig < len(text) and text[orig].isspace():
+                    orig += 1
+                cp += 1
+            else:
+                orig += 1
+                cp += 1
+        result.append(orig)
+        c = collapsed_text.find(collapsed_name, c + max(1, len(collapsed_name)))
+    return result
+
+
+def _quantity_matches(text: str, name_end: int, quantity: int) -> bool:
+    """Количество обязано буквально встречаться среди чисел в окне
+    сразу после наименования (анти-галлюцинация без привязки к смещениям)."""
+    window = text[name_end:name_end + _QTY_WINDOW]
+    return str(quantity) in re.findall(r"\d+", window)
+
+
+def _validate_row(row: Dict, text: str) -> Optional[LlmDocRow]:
+    """Детерминированная проверка строки LLM якорями исходного текста.
+    None — строка отброшена (наименование не найдено в документе или
+    количество не подтверждено текстом)."""
+    name = str(row.get("name") or "").strip()
     if not name:
         return None
+    positions = _name_positions(name, text)
+    if not positions:
+        return None  # LLM выдумала наименование — отбрасываем
 
-    size_span = _parse_span(row.get("size_span"), len(text), allow_empty=True)
-    if size_span is None:
-        return None
-    size = text[size_span[0]:size_span[1]].strip()
-
-    qty_span = _parse_span(row.get("quantity_span"), len(text))
-    if qty_span is None:
-        return None
-    token = text[qty_span[0]:qty_span[1]].strip()
     try:
-        quantity = int(token)
-    except ValueError:
+        quantity = int(row.get("quantity"))
+    except (TypeError, ValueError):
         return None
     if quantity <= 0:
         return None
+    if not any(_quantity_matches(text, pos + len(name), quantity) for pos in positions):
+        return None  # количество не подтверждено текстом после наименования
+
+    size = str(row.get("size") or "").strip()
+    if size:
+        window = " ".join(text[pos:pos + len(name) + _QTY_WINDOW] for pos in positions)
+        if size.lower() not in name.lower() and size not in window:
+            size = ""  # размер не подтверждён текстом — парсер доберёт из name
 
     unit = str(row.get("unit") or "").strip()
     if unit not in VALID_UNITS:
@@ -214,7 +243,7 @@ def parse_document_with_llm(
             if not isinstance(row, dict):
                 logger.warning("llm_doc_fallback.failed: элемент не объект: %r", row)
                 continue
-            parsed = _row_from_spans(row, text)
+            parsed = _validate_row(row, text)
             if parsed is None:
                 logger.warning(
                     "llm_doc_fallback.failed: строка отброшена (невалидные spans/значения): %r", row,
