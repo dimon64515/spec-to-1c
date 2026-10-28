@@ -105,8 +105,8 @@ def make_handler(cfg: BotConfig, client) -> Callable[[Job], None]:
             try:
                 client.send_message(
                     job.dialog_id,
-                    f"⚠ Документ не обработан автоматически: {res.escalation}. "
-                    "Нужна ручная обработка менеджером.",
+                    f"⚠ Файл «{res.file_name}» не обработан автоматически: "
+                    f"{res.escalation}. Нужна ручная обработка менеджером.",
                     bot_id=None,
                 )
             except Exception:

@@ -267,8 +267,8 @@ def run_pipeline(
     if skip_ratio_post > threshold:
         total = len(success) + len(skipped)
         partial_warning = (
-            f"Заказ загружен частично: распознано {len(success)} из {total} "
-            f"строк, проверьте отчёт"
+            f"Заказ по файлу «{file_name}» загружен частично: "
+            f"распознано {len(success)} из {total} строк, проверьте отчёт"
         )
     for row in success:
         # стабы/восстановленные LLM строки без полного набора ключей —

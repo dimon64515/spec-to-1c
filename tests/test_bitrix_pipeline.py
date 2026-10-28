@@ -301,6 +301,7 @@ def test_run_pipeline_partial_warning(monkeypatch):
     monkeypatch.setattr(pl, "load_order_to_1c", lambda *a, **k: ("1", [], []))
     res = pl.run_pipeline(b"pdf", "f.pdf", "c", "http://x")
     assert res.partial_warning and "частично" in res.partial_warning
+    assert "f.pdf" in res.partial_warning
     assert res.llm_recovered == 1
 
 
