@@ -53,6 +53,18 @@ def test_report_splits_long_details():
     assert total.count("1-2-1") == 80
 
 
+def test_report_summary_shows_split_llm_counts():
+    import bitrix_bot.pipeline as pl
+    import bitrix_bot.report as rep
+    res = pl.PipelineResult(
+        file_name="f.pdf",
+        loaded=[{"article": "1-1-1", "llm_source": True, "quantity": 1}],
+        skipped=[], llm_recovered=18, row_fallback_recovered=12)
+    text = "\n".join(rep.build_report(res))
+    assert "Восстановлено LLM (документ): 18" in text
+    assert "Нормализовано LLM (строки): 12" in text
+
+
 def test_build_summary_counts_trading():
     res = PipelineResult(
         file_name="spec.pdf", order_number="839",

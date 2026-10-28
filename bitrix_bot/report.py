@@ -56,6 +56,10 @@ def build_report(res: PipelineResult, limit: int = DEFAULT_LIMIT) -> List[str]:
         f" · Ошибок: {len(res.errors_1c)}"
     )
     lines: List[str] = [header, "", summary]
+    if res.llm_recovered:
+        lines.append(f"Восстановлено LLM (документ): {res.llm_recovered}")
+    if res.row_fallback_recovered:
+        lines.append(f"Нормализовано LLM (строки): {res.row_fallback_recovered}")
 
     if res.loaded:
         llm_rows = [p for p in res.loaded if p.get("llm_source")]
