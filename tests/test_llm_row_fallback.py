@@ -86,6 +86,34 @@ def test_config_has_row_fallback_section():
     assert df.get("timeout", 0) > 0
 
 
+def test_order_independence_row_fallback_without_doc_trigger(monkeypatch, tmp_path):
+    # Review Focus #4: doc-fallback не триггерится (success есть, ratio низкий),
+    # но qualifying skipped нормализуется
+    import llm_row_fallback as rf
+    import process_specification_table as pst
+    monkeypatch.setattr(rf, "row_fallback_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(rf, "normalize_rows",
+                        lambda rows, **kw: [{"name": "Воздуховод оцинкованный 150х150",
+                                             "size": "150х150", "unit": r["unit"],
+                                             "quantity": r["quantity"]} for r in rows])
+    ok = [{"article": "1-1-1", "quantity": 5, "comment": "«Воздуховод» «ф100»"}]
+    success, skipped, meta = rf.run_row_fallback(ok, [_skipped()])
+    assert meta["row_fallback_recovered"] == 1
+
+
+def test_business_skips_untouched_even_when_enabled(monkeypatch):
+    # Review Focus #5
+    import llm_row_fallback as rf
+    monkeypatch.setattr(rf, "row_fallback_enabled", lambda cfg=None: True)
+    called = []
+    monkeypatch.setattr(rf, "normalize_rows", lambda rows, **kw: called.append(rows) or [])
+    ok = [{"article": "1-1-1"}]
+    business = [_skipped(reason="Покупная позиция (клапан)"),
+                _skipped(reason="Артикул 20-1 не входит в разрешённый список")]
+    rf.run_row_fallback(ok, business)
+    assert called == []  # нормализатор не вызывался — квалифицируемых строк нет
+
+
 def test_run_pipeline_partial_warning_via_row_fallback_only(monkeypatch):
     # doc-fallback не триггерился, но row-fallback сработал и skip_ratio высокий
     import bitrix_bot.pipeline as pl
