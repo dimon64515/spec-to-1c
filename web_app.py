@@ -339,6 +339,28 @@ def _render_main_tab(tab_main):
             with st.spinner("Генерирую XML..."):
                 xml_text, skipped, success_rows = process_rows(rows, header=header)
 
+            # LLM document fallback: восстанавливает строки, пропущенные
+            # детерминированным каскадом (см. llm_document_fallback).
+            # Только PDF-путь; XML уже сгенерирован, фолбэк влияет на
+            # отчётность (success/skipped ниже и skipped.json).
+            if file_name.lower().endswith(".pdf") and file_bytes:
+                import os
+                import tempfile
+
+                from llm_document_fallback import run_doc_fallback
+
+                with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+                    tmp.write(file_bytes)
+                    tmp_path = tmp.name
+                try:
+                    success_rows, skipped, fb_meta = run_doc_fallback(tmp_path, success_rows, skipped)
+                finally:
+                    os.unlink(tmp_path)
+                if fb_meta.get("recovered", 0) > 0:
+                    st.info(f"Восстановлено LLM: {fb_meta['recovered']} строк")
+                if fb_meta.get("escalation"):
+                    st.warning(fb_meta["escalation"])
+
             # Учитываем уже пропущенное оборудование
             all_skipped = list(skipped)
             if equipment_skipped:

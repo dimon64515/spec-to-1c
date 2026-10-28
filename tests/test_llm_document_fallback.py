@@ -29,6 +29,14 @@ def _rows_with_spans():
     return j.dumps(rows, ensure_ascii=False)
 
 
+def test_config_has_doc_fallback_section():
+    import config
+    cfg = config.get_config()
+    df = cfg.get("llm", {}).get("doc_fallback", {})
+    assert df.get("enabled") is False
+    assert 0 < df.get("skip_threshold", 0) <= 1
+
+
 def test_parse_document_with_llm_extracts_rows_from_spans():
     import llm_document_fallback as f
     got = f.parse_document_with_llm(TEXT, runner=lambda p, c: _stdout(_rows_with_spans()))

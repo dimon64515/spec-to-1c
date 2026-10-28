@@ -47,6 +47,12 @@ llm:
   batch_size: 20
   timeout: 120
   max_retries: 2
+  doc_fallback:
+    enabled: false
+    skip_threshold: 0.3
+    max_chars: 60000
+    timeout: 180
+    max_retries: 1
 
 # Автообучение вариантов записи размеров (tools/size_format_mine.py):
 # кластеры нераспознанных размеров из skipped-отчётов → kimi предлагает
