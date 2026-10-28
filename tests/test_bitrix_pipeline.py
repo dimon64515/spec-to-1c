@@ -305,6 +305,21 @@ def test_run_pipeline_partial_warning(monkeypatch):
     assert res.llm_recovered == 1
 
 
+def test_run_pipeline_no_partial_warning_without_fallback(monkeypatch):
+    # Высокий skip_ratio без триггера fallback (выключенный doc_fallback) —
+    # предупреждения нет: поведение детерминированного каскада не изменилось,
+    # менеджеру слать новые сообщения незачем (безопасная выкатка).
+    import bitrix_bot.pipeline as pl
+    meta = {"triggered": False, "recovered": 0, "skip_ratio": 0.9, "skip_ratio_post": 0.9,
+            "escalation": None}
+    monkeypatch.setattr(pl, "process_pdf_to_positions",
+                        lambda b: ([{"article": "1-1-1", "quantity": 1}],
+                                   [{"name": "x", "reason": "r"}] * 9, meta))
+    monkeypatch.setattr(pl, "load_order_to_1c", lambda *a, **k: ("1", [], []))
+    res = pl.run_pipeline(b"pdf", "f.pdf", "c", "http://x")
+    assert res.partial_warning is None
+
+
 def test_llm_source_flag_does_not_break_positions():
     # Review Focus #5: лишний ключ llm_source не мешает сборке JSON для 1С
     import json_positions as jp

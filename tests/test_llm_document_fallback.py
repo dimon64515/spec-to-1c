@@ -174,15 +174,47 @@ def test_run_doc_fallback_dedups_against_deterministic(monkeypatch, tmp_path):
                 if s.get("comment", "").lower().strip() == det[0]["comment"].lower().strip()]) == 1
 
 
-def test_run_doc_fallback_failure_returns_deterministic(monkeypatch, tmp_path):
-    # Сбой извлечения/парсинга → исходные success/skipped без изменений,
-    # meta triggered=True recovered=0, пайплайн не падает.
+def test_run_doc_fallback_extract_failure_escalates(monkeypatch, tmp_path):
+    # Ошибка/пустота извлечения текста при полном промахе (success пуст) —
+    # детерминированная эскалация «нет текстового слоя», иначе документ
+    # молча не доезжает до менеджера.
     import llm_document_fallback as f
     monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
 
     def boom(p, max_chars=60000):
         raise RuntimeError("pdfplumber crashed")
     monkeypatch.setattr(f, "extract_document_text", boom)
+    pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
+    bad = [{"name": "x", "reason": "bad"}]
+    success, skipped, meta = f.run_doc_fallback(str(pdf), [], bad)
+    assert success == [] and skipped is bad
+    assert meta["triggered"] is True and meta["recovered"] == 0
+    assert meta["skip_ratio"] == 1.0 and meta["skip_ratio_post"] == 1.0
+    assert meta["escalation"] == "нет текстового слоя / OCR не дал результата"
+
+
+def test_run_doc_fallback_empty_text_escalates(monkeypatch, tmp_path):
+    # Пустой текст (PDF без текстового слоя) — то же, что и падение извлечения.
+    import llm_document_fallback as f
+    monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(f, "extract_document_text", lambda p, max_chars=60000: "  ")
+    pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
+    success, skipped, meta = f.run_doc_fallback(str(pdf), [], [{"name": "x", "reason": "bad"}])
+    assert meta["triggered"] is True and meta["recovered"] == 0
+    assert meta["escalation"] == "нет текстового слоя / OCR не дал результата"
+
+
+def test_run_doc_fallback_parse_failure_returns_deterministic(monkeypatch, tmp_path):
+    # Сбой парсинга (kimi недоступен/вернул мусол) → исходные success/skipped
+    # без изменений, meta triggered=True recovered=0, эскалация НЕ ставится
+    # (анти-спам при массовом отказе бэкенда).
+    import llm_document_fallback as f
+    monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(f, "extract_document_text", lambda p, max_chars=60000: "txt")
+
+    def boom(text, **kw):
+        raise RuntimeError("kimi unavailable")
+    monkeypatch.setattr(f, "parse_document_with_llm", boom)
     pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
     ok = [{"article": "1-1-1", "quantity": 1, "comment": "Воздуховод ф125"}]
     bad = [{"name": "x", "reason": "bad"}]

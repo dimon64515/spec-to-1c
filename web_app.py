@@ -354,8 +354,9 @@ def _render_main_tab(tab_main):
 
             # LLM document fallback: восстанавливает строки, пропущенные
             # детерминированным каскадом (см. llm_document_fallback).
-            # Только PDF-путь; XML уже сгенерирован, фолбэк влияет на
-            # отчётность (success/skipped ниже и skipped.json).
+            # Только PDF-путь; при восстановлении XML перегенерируется
+            # через _regenerate_xml_if_llm_recovered (старые позиции +
+            # LLM-восстановленные).
             if file_name.lower().endswith(".pdf") and file_bytes:
                 import os
                 import tempfile
@@ -382,7 +383,7 @@ def _render_main_tab(tab_main):
                 all_skipped.extend(equipment_skipped)
 
             st.success(
-                f"Готово! Загружено строк: {len(rows) - len(skipped)}, "
+                f"Готово! Загружено строк: {len(success_rows)}, "
                 f"пропущено в XML: {len(skipped)}"
             )
             if equipment_skipped:

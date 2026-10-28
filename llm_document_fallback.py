@@ -283,7 +283,9 @@ def run_doc_fallback(
     ``doc_fallback_enabled`` — детерминированный результат без изменений.
 
     Любой сбой fallback → детерминированный результат без изменений
-    (triggered=True, recovered=0), пайплайн не падает.
+    (triggered=True, recovered=0), пайплайн не падает. Исключение — отсутствие
+    текстового слоя при пустом success: эскалация ставится всегда, т.к. иначе
+    документ молча не доедет до менеджера.
 
     Возвращает (merged_success, merged_skipped, meta); meta всегда содержит
     triggered, recovered, skip_ratio, skip_ratio_post, escalation. Строкам,
@@ -311,8 +313,28 @@ def run_doc_fallback(
         text = extract_document_text(
             pdf_path, max_chars=int(merged_cfg.get("max_chars", DEFAULT_MAX_CHARS))
         )
-        if not text.strip():
-            raise ValueError("нет текстового слоя")
+    except Exception as exc:  # noqa: BLE001 — fallback обязан не ронять пайплайн
+        logger.info("llm_doc_fallback.extract_failed: %s", exc)
+        return success, skipped, {
+            "triggered": True,
+            "recovered": 0,
+            "skip_ratio": skip_ratio,
+            "skip_ratio_post": skip_ratio,
+            # документ без текстового слоя не лечится повторами бэкенда —
+            # эскалация детерминирована; при частично загруженном заказе
+            # менеджер и так получит отчёт со skipped-строками
+            "escalation": "нет текстового слоя / OCR не дал результата" if not success else None,
+        }
+    if not text.strip():
+        logger.info("llm_doc_fallback.extract_failed: пустой текст")
+        return success, skipped, {
+            "triggered": True,
+            "recovered": 0,
+            "skip_ratio": skip_ratio,
+            "skip_ratio_post": skip_ratio,
+            "escalation": "нет текстового слоя / OCR не дал результата" if not success else None,
+        }
+    try:
         llm_rows = parse_document_with_llm(text, cfg=merged_cfg, deadline=deadline)
         import process_specification_table as pst
 
@@ -320,6 +342,8 @@ def run_doc_fallback(
             llm_rows, run_llm_size_classify=False
         )
     except Exception as exc:  # noqa: BLE001 — fallback обязан не ронять пайплайн
+        # Сбой парсинга (kimi недоступен/вернул мусор) — эскалацию НЕ шлём:
+        # иначе массовый отказ бэкенда превратится в спам менеджеру
         logger.info("llm_doc_fallback.failed: %s", exc)
         return success, skipped, {
             "triggered": True,

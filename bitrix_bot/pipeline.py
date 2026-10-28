@@ -259,12 +259,15 @@ def run_pipeline(
         )
     # пост-мердж skip_ratio: доля пропущенных среди всех строк документа.
     # Предупреждение только при непустом success — пустой success уже
-    # покрывается эскалацией (заказ не создан вовсе).
+    # покрывается эскалацией (заказ не создан вовсе). И только когда
+    # doc-fallback реально триггерился: без него высокий skip_ratio означает
+    # неизменное поведение детерминированного каскада, предупреждать менеджера
+    # не о чем (безопасная выкатка при выключенном fallback).
     skip_ratio_post = float(meta.get("skip_ratio_post") or 0.0)
     threshold = float(
         llm_document_fallback.get_doc_fallback_config().get("skip_threshold", 0.3)
     )
-    if skip_ratio_post > threshold:
+    if meta.get("triggered") and skip_ratio_post > threshold:
         total = len(success) + len(skipped)
         partial_warning = (
             f"Заказ по файлу «{file_name}» загружен частично: "
