@@ -1,10 +1,21 @@
 # tests/test_doc_fallback_integration.py
+import llm_row_fallback
+
 FIX = "tests/fixtures"
 
 def test_159_recovers_rows_with_llm(monkeypatch):
     import llm_document_fallback as f
     import process_specification_table as pst
     monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
+    # Герметичность: row-fallback отключаем — иначе qualifying skipped-строки
+    # пойдут в живой normalize_rows (kimi), тест станет медленным и флаки.
+    monkeypatch.setattr(llm_row_fallback, "row_fallback_enabled", lambda cfg=None: False)
+    # Герметичность (pre-existing): реальный process_rows дёргает живой LLM
+    # size-classifier (13 вызовов kimi, ~2 мин) — тест про doc-fallback, не про
+    # классификацию. Тот же приём, что в test_web_app_xml_regenerated_*.
+    orig_process_rows = pst.process_rows
+    monkeypatch.setattr(pst, "process_rows",
+                        lambda rows, **kw: orig_process_rows(rows, run_llm_size_classify=False))
     text = f.extract_document_text(f"{FIX}/fallback_nii_kukuruzy.pdf")
     assert len(text) > 500  # Review Focus #1: текст извлёкся
     def fake_parse(text, **kw):
@@ -30,6 +41,10 @@ def test_159_recovers_rows_with_llm(monkeypatch):
 def test_160_escalates_m2_smeta(monkeypatch):
     import llm_document_fallback as f
     monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
+    # Герметичность: без патча qualifying skipped-строки уходят в живой
+    # normalize_rows (kimi) — до ~360с на тест и риск, что LLM восстановит
+    # строки и assert success == [] упадёт.
+    monkeypatch.setattr(llm_row_fallback, "row_fallback_enabled", lambda cfg=None: False)
     monkeypatch.setattr(f, "parse_document_with_llm", lambda text, **kw: [])
     import bitrix_bot.pipeline as pl
     success, skipped, meta = pl.process_pdf_to_positions(open(f"{FIX}/fallback_525_smety.pdf", "rb").read())
