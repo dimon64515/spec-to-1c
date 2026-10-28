@@ -77,3 +77,24 @@ def test_run_row_fallback_runner_failure_returns_deterministic(monkeypatch):
     ok = [{"article": "1-1-1"}]
     success, skipped, meta = rf.run_row_fallback(ok, [_skipped()])
     assert success is ok and meta["row_fallback_recovered"] == 0
+
+
+def test_config_has_row_fallback_section():
+    import config
+    df = config.get_config().get("llm", {}).get("row_fallback", {})
+    assert df.get("enabled") is True
+    assert df.get("timeout", 0) > 0
+
+
+def test_run_pipeline_partial_warning_via_row_fallback_only(monkeypatch):
+    # doc-fallback не триггерился, но row-fallback сработал и skip_ratio высокий
+    import bitrix_bot.pipeline as pl
+    meta = {"triggered": False, "recovered": 0, "skip_ratio": 0.9, "skip_ratio_post": 0.9,
+            "escalation": None, "row_fallback_triggered": True, "row_fallback_recovered": 1}
+    monkeypatch.setattr(
+        pl, "process_pdf_to_positions",
+        lambda b: ([{"article": "1-1-1", "quantity": 1}], [{"name": "x", "reason": "r"}] * 9, meta))
+    monkeypatch.setattr(pl, "load_order_to_1c", lambda *a, **k: ("1", [], []))
+    res = pl.run_pipeline(b"pdf", "f.pdf", "c", "http://x")
+    assert res.row_fallback_recovered == 1
+    assert res.partial_warning and "частично" in res.partial_warning

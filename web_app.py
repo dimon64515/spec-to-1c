@@ -370,10 +370,18 @@ def _render_main_tab(tab_main):
                     success_rows, skipped, fb_meta = run_doc_fallback(tmp_path, success_rows, skipped)
                 finally:
                     os.unlink(tmp_path)
-                if fb_meta.get("recovered", 0) > 0:
-                    st.info(f"Восстановлено LLM: {fb_meta['recovered']} строк")
+                # Строковый фолбэк (llm_row_fallback): нормализует
+                # квалифицируемые skipped-строки, которые doc-fallback не поднял.
+                from llm_row_fallback import run_row_fallback
+
+                success_rows, skipped, row_meta = run_row_fallback(success_rows, skipped)
+                recovered_total = fb_meta.get("recovered", 0) + row_meta.get(
+                    "row_fallback_recovered", 0)
+                if recovered_total > 0:
+                    st.info(f"Восстановлено LLM: {recovered_total} строк")
                     xml_text = _regenerate_xml_if_llm_recovered(
-                        header, xml_text, success_rows, fb_meta)
+                        header, xml_text, success_rows,
+                        {**fb_meta, "recovered": recovered_total})
                 if fb_meta.get("escalation"):
                     st.warning(fb_meta["escalation"])
 

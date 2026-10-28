@@ -53,6 +53,10 @@ llm:
     max_chars: 60000
     timeout: 420
     max_retries: 1
+  row_fallback:
+    enabled: true
+    timeout: 180
+    max_retries: 1
 
 # Автообучение вариантов записи размеров (tools/size_format_mine.py):
 # кластеры нераспознанных размеров из skipped-отчётов → kimi предлагает
