@@ -78,3 +78,68 @@ def test_process_rows_skips_llm_when_flag_false(monkeypatch):
     rows = [{"name": "Воздуховод", "size": "ф125", "unit": "шт", "quantity": 1}]
     pst.process_rows(rows, run_llm_size_classify=False)
     assert called == []
+
+
+def test_run_doc_fallback_merges_and_flags(monkeypatch, tmp_path):
+    import llm_document_fallback as f
+    monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(f, "extract_document_text", lambda p, max_chars=60000: "txt")
+    monkeypatch.setattr(f, "parse_document_with_llm",
+                        lambda text, **kw: [{"name": "Воздуховод", "size": "ф125",
+                                             "unit": "шт", "quantity": 2}])
+    import process_specification_table as pst
+    orig = pst.process_rows
+    monkeypatch.setattr(pst, "process_rows",
+                        lambda rows, **kw: orig(rows, run_llm_size_classify=False))
+    pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
+    success, skipped, meta = f.run_doc_fallback(str(pdf), [], [{"name": "x", "reason": "bad"}])
+    assert meta["triggered"] is True and meta["recovered"] == 1
+    assert success[0]["llm_source"] is True
+    assert all(r.get("llm_source") for r in success if meta["recovered"])
+
+
+def test_run_doc_fallback_no_trigger_when_healthy(monkeypatch, tmp_path):
+    import llm_document_fallback as f
+    monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
+    pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
+    ok = [{"article": "1-1-1", "quantity": 1}]
+    success, skipped, meta = f.run_doc_fallback(str(pdf), ok, [{"name": "x", "reason": "bad"}])
+    assert success is ok and meta["triggered"] is False
+
+
+def test_run_doc_fallback_dedups_against_deterministic(monkeypatch, tmp_path):
+    import llm_document_fallback as f
+    monkeypatch.setattr(f, "doc_fallback_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(f, "extract_document_text", lambda p, max_chars=60000: "txt")
+    monkeypatch.setattr(f, "parse_document_with_llm",
+                        lambda text, **kw: [{"name": "Воздуховод", "size": "ф125",
+                                             "unit": "шт", "quantity": 1}])
+    import process_specification_table as pst
+    orig = pst.process_rows
+    monkeypatch.setattr(pst, "process_rows",
+                        lambda rows, **kw: orig(rows, run_llm_size_classify=False))
+    pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
+    det = [{"article": "1-1-1", "quantity": 1, "comment": "«Воздуховод» «ф125»"}]
+    success, skipped, meta = f.run_doc_fallback(str(pdf), det, [{"name": "x", "reason": "bad"}] * 5)
+    # LLM-строка совпала с детерминированной по (comment, quantity) — дублей нет
+    assert meta["recovered"] == 0
+    assert len([s for s in success if s.get("comment", "").lower().strip() == det[0]["comment"]]) == 1
+
+
+def test_pipeline_order_fallback_before_blocked_filter(monkeypatch):
+    # Review Focus #6: skip_ratio и fallback считаются ДО _filter_blocked_articles,
+    # поэтому blocked-строки (20-1/20-2/20-9) не раздувают skip_ratio.
+    import bitrix_bot.pipeline as pl
+    import pandas as pd
+    order = []
+    df = pd.DataFrame([{"name": "Клапан 20-1", "size": "ф125", "unit": "шт", "quantity": 1}])
+    monkeypatch.setattr(pl, "load_tables_from_pdf", lambda b, **kw: {"tables": {1: [df]}})
+    meta = {"triggered": False, "recovered": 0, "skip_ratio": 0.0,
+            "skip_ratio_post": 0.0, "escalation": None}
+    monkeypatch.setattr("llm_document_fallback.run_doc_fallback",
+                        lambda path, s, sk: (order.append("fallback"), (s, sk, meta))[1])
+    orig_filter = pl._filter_blocked_articles
+    monkeypatch.setattr(pl, "_filter_blocked_articles",
+                        lambda s, sk: (order.append("filter"), orig_filter(s, sk))[1])
+    pl.process_pdf_to_positions(b"%PDF-fake")
+    assert order == ["fallback", "filter"]

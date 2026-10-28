@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 from collections import Counter
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -42,6 +43,7 @@ __all__ = [
     "extract_document_text",
     "parse_document_with_llm",
     "build_escalation_reason",
+    "run_doc_fallback",
 ]
 
 
@@ -238,3 +240,119 @@ def build_escalation_reason(skipped: List[Dict]) -> str:
         return "все позиции — перекупное оборудование"
     most_common = Counter(reasons).most_common(1)[0][0]
     return f"не распознано {len(reasons)} строк, основная причина: {most_common}"
+
+
+# Дедуп при мерже: «Воздуховод ф125» и ««Воздуховод» «ф125»» — одна позиция,
+# поэтому кавычки-ёлочки из комментариев убираем до сравнения.
+_DEDUP_QUOTES_RE = re.compile(r"[«»]")
+
+
+def _merge_key(row: Dict[str, Any]) -> Tuple[str, Any]:
+    comment = _DEDUP_QUOTES_RE.sub("", str(row.get("comment", ""))).lower().strip()
+    return (comment, row.get("quantity"))
+
+
+def _skip_ratio(skipped_n: int, success_n: int) -> Optional[float]:
+    total = skipped_n + success_n
+    return (skipped_n / total) if total else None
+
+
+def run_doc_fallback(
+    pdf_path: str,
+    success: List[dict],
+    skipped: List[dict],
+    cfg: Optional[Dict] = None,
+) -> Tuple[List[dict], List[dict], Dict[str, Any]]:
+    """Документный LLM-фолбэк: сырой текст PDF → LLM → мердж с детерминированным
+    результатом process_rows.
+
+    Триггер — полный промах (success пуст) или выраженная деградация:
+    skipped строго больше success и их доля выше ``skip_threshold``
+    (иначе обычный документ с парой пропусков, где skipped == success,
+    запускал бы LLM впустую). Без триггера или при выключенном
+    ``doc_fallback_enabled`` — детерминированный результат без изменений.
+
+    Любой сбой fallback → детерминированный результат без изменений
+    (triggered=True, recovered=0), пайплайн не падает.
+
+    Возвращает (merged_success, merged_skipped, meta); meta всегда содержит
+    triggered, recovered, skip_ratio, skip_ratio_post, escalation. Строкам,
+    восстановленным LLM, в success ставится ``"llm_source": True``.
+    """
+    skip_ratio = _skip_ratio(len(skipped), len(success))
+    threshold = float(get_doc_fallback_config(cfg).get("skip_threshold", 0.3))
+    degraded = (not success) or (
+        skip_ratio is not None and skip_ratio > threshold and len(skipped) > len(success)
+    )
+    if not degraded or not doc_fallback_enabled(cfg):
+        return success, skipped, {
+            "triggered": False,
+            "recovered": 0,
+            "skip_ratio": skip_ratio,
+            "skip_ratio_post": skip_ratio,
+            "escalation": None,
+        }
+
+    logger.info("llm_doc_fallback.triggered: %s (skip_ratio=%s)", pdf_path, skip_ratio)
+    # MERGED cfg (парковочное решение Task 2): command/model из общей секции
+    # llm + timeout/max_retries/max_chars из doc_fallback.
+    merged_cfg = {**llm_size_classifier.get_llm_config(), **get_doc_fallback_config(cfg)}
+    deadline = time.monotonic() + float(merged_cfg.get("timeout") or 180)
+
+    try:
+        text = extract_document_text(
+            pdf_path, max_chars=int(merged_cfg.get("max_chars", DEFAULT_MAX_CHARS))
+        )
+        if not text.strip():
+            raise ValueError("нет текстового слоя")
+        llm_rows = parse_document_with_llm(text, cfg=merged_cfg, deadline=deadline)
+        import process_specification_table as pst
+
+        _, extra_skipped, extra_success = pst.process_rows(
+            llm_rows, run_llm_size_classify=False
+        )
+    except Exception as exc:  # noqa: BLE001 — fallback обязан не ронять пайплайн
+        logger.info("llm_doc_fallback.failed: %s", exc)
+        return success, skipped, {
+            "triggered": True,
+            "recovered": 0,
+            "skip_ratio": skip_ratio,
+            "skip_ratio_post": skip_ratio,
+            "escalation": None,
+        }
+
+    # Мердж: дедуп по (comment, quantity) — при совпадении приоритет у
+    # детерминированных строк, LLM-дубли отбрасываем. «Воздуховод ф125» и
+    # ««Воздуховод» «ф125»» — одна позиция, поэтому из комментариев перед
+    # сравнением убираем кавычки-ёлочки и приводим к нижнему регистру;
+    # комментарии строк success при этом нормализуем in place — итоговый
+    # success получает канонический вид ключа дедупа.
+    merged_success = list(success)
+    seen = set()
+    for row in merged_success:
+        row["comment"] = str(row.get("comment", "")).lower().strip()
+        seen.add(_merge_key(row))
+    recovered = 0
+    for row in extra_success:
+        key = _merge_key(row)
+        if key in seen:
+            continue
+        seen.add(key)
+        row["llm_source"] = True
+        row["comment"] = str(row.get("comment", "")).lower().strip()
+        merged_success.append(row)
+        recovered += 1
+    merged_skipped = list(skipped) + list(extra_skipped)
+    skip_ratio_post = _skip_ratio(len(merged_skipped), len(merged_success))
+    escalation = build_escalation_reason(merged_skipped) if not merged_success else None
+    if recovered:
+        logger.info("llm_doc_fallback.recovered: %d", recovered)
+    if escalation:
+        logger.info("llm_doc_fallback.escalated: %s", escalation)
+    return merged_success, merged_skipped, {
+        "triggered": True,
+        "recovered": recovered,
+        "skip_ratio": skip_ratio,
+        "skip_ratio_post": skip_ratio_post,
+        "escalation": escalation,
+    }

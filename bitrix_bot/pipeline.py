@@ -8,6 +8,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 
+import llm_document_fallback
+
 # Артикулы, непригодные для прямой загрузки в 1С: программное создание
 # асСпецификацияЗаказа с любой строкой группы 20 (противопожарные клапаны
 # 20-1/20-2 и вентустановка 20-9) падает в ПередЗаписью
@@ -67,17 +69,28 @@ class PipelineResult:
     raw_text: str = ""
 
 
-def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict]]:
-    """PDF → (успешные строки пайплайна, пропущенные с причинами).
+def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict], Dict[str, Any]]:
+    """PDF → (успешные строки пайплайна, пропущенные с причинами, meta фолбэка).
 
     Берёт таблицы из PDF; если их нет — текстовый слой, разобранный блоками
-    (ГОСТ-бланки, см. api.load_tables_from_pdf).
+    (ГОСТ-бланки, см. api.load_tables_from_pdf). После process_rows запускает
+    документный LLM-фолбэк (llm_document_fallback.run_doc_fallback) и лишь
+    потом отфильтровывает blocked-артикулы 20-*: skip_ratio и мердж считаются
+    по выходу process_rows, blocked-строки ещё в success и не раздувают
+    skip_ratio. meta — триггер/восстановление/эскалация фолбэка.
     """
-    from api import load_tables_from_pdf
+    import os
+    import tempfile
+
     from pdf_spec_extractor import df_to_spec_rows
     from process_specification_table import process_rows
 
-    data = load_tables_from_pdf(pdf_bytes)
+    ltf = load_tables_from_pdf
+    if ltf is None:
+        # api тянет тяжёлые зависимости — импортируется лениво; тесты
+        # подменяют либо этот атрибут, либо сам модуль в sys.modules.
+        from api import load_tables_from_pdf as ltf
+    data = ltf(pdf_bytes)
     if "tables" in data:
         rows: List[dict] = []
         for tables in data["tables"].values():
@@ -86,8 +99,22 @@ def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict]]:
     else:
         rows = data.get("block_rows") or []
     _, skipped, success = process_rows(rows)
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+        tmp.write(pdf_bytes)
+        tmp_path = tmp.name
+    try:
+        success, skipped, meta = llm_document_fallback.run_doc_fallback(
+            tmp_path, success, skipped
+        )
+    finally:
+        os.unlink(tmp_path)
     success = _filter_blocked_articles(success, skipped)
-    return success, skipped
+    return success, skipped, meta
+
+
+# Ленивый импорт api.load_tables_from_pdf (см. process_pdf_to_positions):
+# значение None — признак «ещё не импортирован», тесты подменяют атрибут.
+load_tables_from_pdf = None
 
 
 def parse_1c_result(text: str) -> Dict[str, Any]:
@@ -215,7 +242,7 @@ def run_pipeline(
     """Полный цикл: PDF → позиции → заказ 1С → PipelineResult."""
     from json_positions import build_positions
 
-    success, skipped = process_pdf_to_positions(pdf_bytes)
+    success, skipped, _llm_meta = process_pdf_to_positions(pdf_bytes)
     if not success:
         return PipelineResult(
             file_name=file_name,

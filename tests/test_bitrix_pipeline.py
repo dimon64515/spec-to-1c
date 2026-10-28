@@ -140,7 +140,9 @@ def test_load_order_native_envelope_failure(monkeypatch):
 def test_run_pipeline_no_positions(monkeypatch):
     monkeypatch.setattr(
         pl, "process_pdf_to_positions",
-        lambda b: ([], [{"name": "x", "reason": "bad"}]),
+        lambda b: ([], [{"name": "x", "reason": "bad"}],
+                   {"triggered": False, "recovered": 0, "skip_ratio": 1.0,
+                    "skip_ratio_post": 1.0, "escalation": None}),
     )
     res = pl.run_pipeline(b"pdf", "f.pdf", "c", "http://x")
     assert res.order_number is None
@@ -155,6 +157,8 @@ def test_run_pipeline_end_to_end_mocked(monkeypatch):
         lambda b: (
             [{"article": "1-2-1", "quantity": 6, "comment": "", "thickness": 0.8, "params": {}}],
             [{"name": "Клапан", "size": "200", "quantity": "1", "reason": "нет маппинга"}],
+            {"triggered": False, "recovered": 0, "skip_ratio": 0.5,
+             "skip_ratio_post": 0.5, "escalation": None},
         ),
     )
     monkeypatch.setattr(
