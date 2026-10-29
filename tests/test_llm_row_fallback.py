@@ -10,37 +10,123 @@ def _skipped(name="Возд.оц 0.5мм 150х150 1.25", reason="Не удало
     return {"name": name, "size": "", "unit": unit, "quantity": quantity, "reason": reason}
 
 
-def test_qualifying_skipped_whitelist():
+TEXT_DOC = "1\nОтвод ф125 45\n2\n2\nВозд.оц 0.5мм 150х150 1.25\n21\n"
+
+
+def test_qualifying_skipped_blacklist_excludes_only_m2():
     import llm_row_fallback as rf
     rows = [
-        _skipped(),                                    # да
-        _skipped(reason="Отсутствует размер"),          # да
-        _skipped(reason="Отсутствует размер", unit="м²"),  # нет — м²
-        _skipped(reason="Единица м² — агрегатная"),      # нет
-        _skipped(reason="Покупная позиция (клапан)"),    # нет
-        _skipped(reason="Не удалось распознать количество: -"),  # нет
+        _skipped(),                                              # да (размер/тип)
+        _skipped(reason="Отсутствует размер"),                    # да
+        _skipped(reason="Не удалось распознать количество (0)", quantity=0, unit=""),  # да — v2
+        _skipped(reason="Покупная позиция (клапан)"),             # да — пытаем (решение пользователя)
+        _skipped(reason="Единица м² — агрегатная"),               # нет
+        _skipped(reason="Отсутствует размер", unit="м²"),         # нет
     ]
     got = rf.qualifying_skipped(rows)
-    assert len(got) == 2
+    assert len(got) == 4
 
 
-def test_validate_normalized_keeps_qty_unit_and_core():
+def test_excluded_skipped_collects_m2_rows():
+    import llm_row_fallback as rf
+    m2_reason = _skipped(reason="Единица м² — агрегатная")
+    m2_unit = _skipped(reason="Отсутствует размер", unit="м2")
+    plain = _skipped()
+    got = rf.excluded_skipped([m2_reason, plain, m2_unit])
+    assert got == [m2_reason, m2_unit]
+
+
+def test_validate_normalized_takes_qty_unit_from_llm_row():
     import llm_row_fallback as rf
     orig = _skipped()
-    got = rf.validate_normalized(orig, {"name": "Воздуховод оцинкованный 150х150", "size": "150х150"})
-    assert got["quantity"] == 21 and got["unit"] == "шт"
+    got = rf.validate_normalized(orig, {"name": "Воздуховод оцинкованный 150х150",
+                                        "size": "150х150", "unit": "шт", "quantity": 3})
+    assert got["quantity"] == 3 and got["unit"] == "шт"
     assert "150х150" in got["name"]
 
 
 def test_validate_normalized_drops_full_rename():
     import llm_row_fallback as rf
-    assert rf.validate_normalized(_skipped(), {"name": "Клапан приточный", "size": ""}) is None
+    assert rf.validate_normalized(
+        _skipped(), {"name": "Клапан приточный", "size": "", "unit": "шт", "quantity": 3}
+    ) is None
 
 
 def test_validate_normalized_drops_unconfirmed_size():
     import llm_row_fallback as rf
-    got = rf.validate_normalized(_skipped(), {"name": "Воздуховод оцинкованный 150х150", "size": "ф315"})
+    got = rf.validate_normalized(_skipped(), {"name": "Воздуховод оцинкованный 150х150",
+                                              "size": "ф315", "unit": "шт", "quantity": 3})
     assert got is not None and got["size"] == ""  # размер не из исходника — обнулили, строка жива
+    assert got["quantity"] == 3  # количество — из LLM-строки
+
+
+def test_validate_normalized_rejects_non_positive_qty():
+    import llm_row_fallback as rf
+    assert rf.validate_normalized(_skipped(), {"name": "Воздуховод оцинкованный 150х150",
+                                               "size": "150х150", "unit": "шт", "quantity": 0}) is None
+
+
+def test_validate_normalized_allows_m2_unit_from_llm():
+    # Чёрный список м² — этап qualifying; сам валидатор принимает любую whitelist-единицу.
+    import llm_row_fallback as rf
+    got = rf.validate_normalized(_skipped(), {"name": "Воздуховод оцинкованный 150х150",
+                                              "size": "150х150", "unit": "м²", "quantity": 3})
+    assert got is not None and got["unit"] == "м²"
+
+
+def test_validate_normalized_accepts_llm_qty_with_text_anchor():
+    import llm_row_fallback as rf
+    orig = _skipped(name="Отвод ф125 45", reason="Не удалось распознать количество (0)", quantity=0, unit="")
+    got = rf.validate_normalized(orig, {"name": "Отвод ф125 45", "size": "ф125", "unit": "шт", "quantity": 2}, TEXT_DOC)
+    assert got["quantity"] == 2 and got["unit"] == "шт"
+
+
+def test_validate_normalized_rejects_unconfirmed_qty():
+    import llm_row_fallback as rf
+    orig = _skipped(name="Отвод ф125 45", quantity=0, unit="")
+    assert rf.validate_normalized(orig, {"name": "Отвод ф125 45", "size": "ф125", "unit": "шт", "quantity": 99}, TEXT_DOC) is None
+
+
+def test_validate_normalized_rejects_qty_when_name_not_in_text():
+    import llm_row_fallback as rf
+    orig = _skipped(name="Отвод ф125 45", quantity=0, unit="")
+    assert rf.validate_normalized(orig, {"name": "Отвод ф125 45", "size": "ф125", "unit": "шт", "quantity": 2}, "вообще другой документ") is None
+
+
+def test_validate_normalized_rejects_bad_unit():
+    import llm_row_fallback as rf
+    orig = _skipped(name="Отвод ф125 45", quantity=0, unit="")
+    assert rf.validate_normalized(orig, {"name": "Отвод ф125 45", "size": "ф125", "unit": "компл", "quantity": 2}, TEXT_DOC) is None
+
+
+def _stream(content: str) -> str:
+    import json
+    return json.dumps({"role": "assistant", "content": content}) + "\n"
+
+
+def test_normalize_rows_anchors_qty_to_text_and_updates_prompt():
+    import json
+    import llm_row_fallback as rf
+    rows = [_skipped(name="Отвод ф125 45", reason="Не удалось распознать количество (0)", quantity=0, unit="")]
+    good = json.dumps([{"name": "Отвод ф125 45", "size": "ф125", "unit": "шт", "quantity": 2}], ensure_ascii=False)
+    prompts = []
+
+    def runner(prompt, cfg):
+        prompts.append(prompt)
+        return _stream(good)
+
+    got = rf.normalize_rows(rows, cfg={"max_retries": 0}, runner=runner, text=TEXT_DOC)
+    assert len(got) == 1 and got[0]["quantity"] == 2 and got[0]["unit"] == "шт"
+    assert "quantity" in prompts[0] and "unit" in prompts[0]
+
+
+def test_normalize_rows_rejects_qty_not_in_text():
+    import json
+    import llm_row_fallback as rf
+    rows = [_skipped(name="Отвод ф125 45", reason="Не удалось распознать количество (0)", quantity=0, unit="")]
+    bad = json.dumps([{"name": "Отвод ф125 45", "size": "ф125", "unit": "шт", "quantity": 99}], ensure_ascii=False)
+    got = rf.normalize_rows(rows, cfg={"max_retries": 0}, runner=lambda p, c: _stream(bad), text=TEXT_DOC)
+    assert got == []
 
 
 def test_run_row_fallback_recovers_vozd_row(monkeypatch, tmp_path):
@@ -101,8 +187,8 @@ def test_order_independence_row_fallback_without_doc_trigger(monkeypatch, tmp_pa
     assert meta["row_fallback_recovered"] == 1
 
 
-def test_business_skips_untouched_even_when_enabled(monkeypatch):
-    # Review Focus #5
+def test_non_m2_skips_sent_to_llm_in_v2(monkeypatch):
+    # v2: чёрный список вместо whitelist — покупные и прочие НЕ-м² строки идут в LLM
     import llm_row_fallback as rf
     monkeypatch.setattr(rf, "row_fallback_enabled", lambda cfg=None: True)
     called = []
@@ -111,7 +197,21 @@ def test_business_skips_untouched_even_when_enabled(monkeypatch):
     business = [_skipped(reason="Покупная позиция (клапан)"),
                 _skipped(reason="Артикул 20-1 не входит в разрешённый список")]
     rf.run_row_fallback(ok, business)
-    assert called == []  # нормализатор не вызывался — квалифицируемых строк нет
+    assert called == [business]  # обе строки квалифицируются — не м²
+
+
+def test_m2_skips_not_sent_to_llm_in_v2(monkeypatch):
+    # v2: м²-строки (причина «Единица м²» или единица м2/м²) остаются вне LLM
+    import llm_row_fallback as rf
+    monkeypatch.setattr(rf, "row_fallback_enabled", lambda cfg=None: True)
+    called = []
+    monkeypatch.setattr(rf, "normalize_rows", lambda rows, **kw: called.append(rows) or [])
+    ok = [{"article": "1-1-1"}]
+    m2_rows = [_skipped(reason="Единица м² — агрегатная"),
+               _skipped(reason="Отсутствует размер", unit="м²")]
+    success, skipped, meta = rf.run_row_fallback(ok, m2_rows)
+    assert called == [] and meta["row_fallback_triggered"] is False
+    assert skipped == m2_rows
 
 
 def test_run_pipeline_partial_warning_via_row_fallback_only(monkeypatch):

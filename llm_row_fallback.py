@@ -1,12 +1,15 @@
-"""LLM-фолбэк на уровне строки: skipped-строки без размера → kimi → нормализация.
+"""LLM-фолбэк на уровне строки: skipped-строки → kimi → нормализация (v2).
 
-Skipped-строки, у которых не удалось распознать размер/тип (reason из
-QUALIFYING_REASON_PREFIXES), отправляются в kimi одним батчем. Модель
-возвращает JSON-массив `{name, size}` в том же порядке. Каждая строка
-проходит детерминированную валидацию: якорь имени (общий алфавитно-цифровой
-токен ≥3 символов с исходным наименованием) и размер, подтверждённый
-подстрокой исходного name/size. Количество и единица измерения ВСЕГДА берутся
-из исходной skipped-строки — LLM их не возвращает.
+Протокол v2 (blacklist): в LLM идут ВСЕ skipped-строки, кроме м²-строк
+(reason «Единица м²» или единица м2/м² — excluded_skipped). Модель одним
+батчем возвращает JSON-массив `{name, size, unit, quantity}` в том же
+порядке: каноническое имя, размер дословно, единица из whitelist, количество
+из колонки «Кол-во» документа. Каждая строка проходит детерминированную
+валидацию: якорь имени (общий алфавитно-цифровой токен ≥3 символов с
+исходным наименованием), размер, подтверждённый подстрокой исходного
+name/size, единица из whitelist — и количество int > 0, при наличии текста
+документа подтверждённое числом в 30 символах после любого вхождения имени
+(якоря llm_document_fallback._name_positions/_quantity_matches).
 
 Любой сбой (runner бросил, невалидный JSON, истёк дедлайн) → [] + warning,
 исключений наружу нет (по образцу llm_document_fallback).
@@ -30,17 +33,22 @@ from llm_client import (
 
 logger = logging.getLogger(__name__)
 
-# Причины skipped-строк, которые квалифицируются для LLM-нормализации.
-QUALIFYING_REASON_PREFIXES = ("Отсутствует размер", "Не удалось распознать размер / тип")
-
 # Агрегатные единицы: смета в м² без поканальных размеров LLM не лечит.
 M2_UNITS = ("м2", "м²")
 
+# Причина skipped-строки, с которой строка исключается из LLM как м²-агрегат.
+M2_REASON_PREFIX = "Единица м²"
+
+# Единицы, которые LLM имеет право вернуть (whitelist для validate_normalized).
+ALLOWED_UNITS = ("шт", "м", "м2", "м²")
+
 __all__ = [
-    "QUALIFYING_REASON_PREFIXES",
     "M2_UNITS",
+    "M2_REASON_PREFIX",
+    "ALLOWED_UNITS",
     "get_row_fallback_config",
     "row_fallback_enabled",
+    "excluded_skipped",
     "qualifying_skipped",
     "validate_normalized",
     "normalize_rows",
@@ -65,24 +73,29 @@ def row_fallback_enabled(cfg: Optional[Dict] = None) -> bool:
     )
 
 
-def qualifying_skipped(skipped: List[Dict]) -> List[Dict]:
-    """Skipped-строки, пригодные для LLM-нормализации: reason начинается с
-    одного из QUALIFYING_REASON_PREFIXES; для «Отсутствует размер» единица не
-    должна быть агрегатной (м2/м²)."""
+def excluded_skipped(skipped: List[Dict]) -> List[Dict]:
+    """М²-строки, исключаемые из LLM-нормализации: reason начинается с
+    «Единица м²» ИЛИ единица измерения агрегатная (м2/м²)."""
     out: List[Dict] = []
     for row in skipped or []:
         if not isinstance(row, dict):
             continue
         reason = str(row.get("reason") or "")
-        matched = next(
-            (p for p in QUALIFYING_REASON_PREFIXES if reason.startswith(p)), None
-        )
-        if matched is None:
-            continue
-        if matched == "Отсутствует размер" and str(row.get("unit") or "").strip() in M2_UNITS:
-            continue
-        out.append(row)
+        unit = str(row.get("unit") or "").strip()
+        if reason.startswith(M2_REASON_PREFIX) or unit in M2_UNITS:
+            out.append(row)
     return out
+
+
+def qualifying_skipped(skipped: List[Dict]) -> List[Dict]:
+    """Skipped-строки, пригодные для LLM-нормализации: ВСЕ skipped минус
+    м²-строки из excluded_skipped (v2 — blacklist вместо whitelist)."""
+    excluded = excluded_skipped(skipped)
+    return [
+        row
+        for row in skipped or []
+        if isinstance(row, dict) and all(row is not e for e in excluded)
+    ]
 
 
 def _core_tokens(s: str) -> set:
@@ -90,19 +103,42 @@ def _core_tokens(s: str) -> set:
     return {t for t in re.findall(r"[a-zа-яё0-9]+", (s or "").lower()) if len(t) >= 3}
 
 
-def validate_normalized(original: Dict, row: Dict) -> Optional[Dict]:
+def validate_normalized(
+    original: Dict, row: Dict, text: Optional[str] = None
+) -> Optional[Dict]:
     """Детерминированная проверка строки LLM якорями исходной skipped-строки.
 
     None — отброс: пустое имя или нет общего токена ядра с исходным
-    наименованием (LLM переименовала позицию). size принимается только если
-    подстрока исходного name/size (lower), иначе обнуляется. unit/quantity
-    всегда из original — LLM не является источником чисел."""
+    наименованием (LLM переименовала позицию); единица вне whitelist
+    {шт, м, м2, м²}; количество не целое > 0; при text is not None —
+    наименование не найдено в тексте или количество не встречается среди
+    чисел в 30 символах после любого вхождения наименования. size принимается
+    только если подстрока исходного name/size (lower), иначе обнуляется.
+    quantity/unit берутся из LLM-строки (v2), а не из исходника."""
     orig_name = str(original.get("name") or "")
     name = str(row.get("name") or "").strip()
     if not name:
         return None
     if not (_core_tokens(name) & _core_tokens(orig_name)):
         return None  # полное переименование — отбрасываем
+    unit = str(row.get("unit") or "").strip()
+    if unit not in ALLOWED_UNITS:
+        return None  # единица вне whitelist
+    try:
+        quantity = int(row.get("quantity"))
+    except (TypeError, ValueError):
+        return None
+    if quantity <= 0:
+        return None
+    if text is not None:
+        positions = llm_document_fallback._name_positions(name, text)
+        if not positions:
+            return None  # наименования нет в документе — отбрасываем
+        if not any(
+            llm_document_fallback._quantity_matches(text, pos + len(name), quantity)
+            for pos in positions
+        ):
+            return None  # количество не подтверждено текстом после наименования
     size = str(row.get("size") or "").strip()
     if size:
         haystack = (orig_name + " " + str(original.get("size") or "")).lower()
@@ -111,8 +147,8 @@ def validate_normalized(original: Dict, row: Dict) -> Optional[Dict]:
     return {
         "name": name,
         "size": size,
-        "unit": original.get("unit"),
-        "quantity": original.get("quantity"),
+        "unit": unit,
+        "quantity": quantity,
     }
 
 
@@ -122,17 +158,21 @@ def _build_prompt(rows: List[Dict]) -> str:
         for i, r in enumerate(rows)
     )
     return (
-        "Ты нормализуешь наименования воздуховодов из проектной спецификации вентиляции.\n"
+        "Ты нормализуешь позиции воздуховодов из проектной спецификации вентиляции.\n"
         f"Даны исходные наименования (номер: строка):\n{items}\n\n"
         "Верни СТРОГО один JSON-массив без пояснений, markdown и кода — по одному "
         "объекту для КАЖДОЙ строки, в ТОМ ЖЕ порядке:\n"
-        '{"name": "...", "size": "..."}\n'
+        '{"name": "...", "size": "...", "unit": "...", "quantity": 0}\n'
         "Правила:\n"
         '- «Возд.» / «Возд.оц» расшифровывай как «Воздуховод оцинкованный».\n'
+        '- name — каноническое наименование позиции.\n'
         '- size — размер ДОСЛОВНО из исходного наименования (например "150х150", '
         '"ф125"); если размера нет — "".\n'
-        "- Не выдумывай размеры и толщины; бери только то, что есть в исходной строке.\n"
-        "- Количество и единицы измерения не возвращай — они берутся из исходных данных."
+        '- unit — единица измерения, строго одна из: шт, м, м2, м².\n'
+        '- quantity — целое количество из колонки «Кол-во» документа для этой '
+        "позиции (целое число > 0).\n"
+        "- Не выдумывай размеры, толщины и количества; бери только то, что есть "
+        "в исходной строке и документе."
     )
 
 
@@ -149,14 +189,16 @@ def normalize_rows(
     cfg: Optional[Dict] = None,
     runner: Optional[Callable] = None,
     deadline: Optional[float] = None,
+    text: Optional[str] = None,
 ) -> List[Dict]:
     """Skipped-строки → один батч-вызов LLM → валидные нормализованные строки.
 
     runner(prompt, cfg) -> stdout (stream-json) инжектируется в тестах.
-    LLM возвращает JSON-массив `{name, size}` в том же порядке; каждая пара
-    (original, llm_row) проходит validate_normalized. Любой сбой / невалидный
-    JSON (после max_retries попыток) / истёкший deadline → [] + logger.warning,
-    исключений наружу нет."""
+    LLM возвращает JSON-массив `{name, size, unit, quantity}` в том же
+    порядке; каждая пара (original, llm_row) проходит validate_normalized с
+    text-якорем количества (text=None — якорь отключен, только int > 0).
+    Любой сбой / невалидный JSON (после max_retries попыток) / истёкший
+    deadline → [] + logger.warning, исключений наружу нет."""
     cfg = get_row_fallback_config() if cfg is None else dict(cfg)
     run = _run_kimi if runner is None else runner
     prompt = _build_prompt(rows)
@@ -195,7 +237,7 @@ def normalize_rows(
             if not isinstance(llm_row, dict):
                 logger.warning("llm_row_fallback.failed: элемент не объект: %r", llm_row)
                 continue
-            parsed = validate_normalized(original, llm_row)
+            parsed = validate_normalized(original, llm_row, text)
             if parsed is None:
                 logger.warning(
                     "llm_row_fallback.failed: строка отброшена (якорь не подтверждён): %r", llm_row,
@@ -212,13 +254,23 @@ def normalize_rows(
 def _consume_original(row: Dict, remaining: List[Dict]) -> Optional[Dict]:
     """Снимает с учёта исходную skipped-строку, породившую LLM-строку.
 
-    normalize_rows копирует unit/quantity из исходника, поэтому мэтчим по ним
-    (мультимножество: одинаковые строки взаимозаменимы). None — исходник
-    не найден (строка пришла не из qualifying-батча)."""
+    Сначала точный мэтч по (unit, quantity) — работает, пока LLM не меняла
+    числа; в v2 quantity/unit из LLM-строки могут отличаться от исходника
+    (например исходник «Не удалось распознать количество (0)», unit=""), тогда
+    мэтчим по общим токенам ядра наименования. None — исходник не найден
+    (строка пришла не из qualifying-батча)."""
     for s in remaining:
         if s.get("unit") == row.get("unit") and s.get("quantity") == row.get("quantity"):
             remaining.remove(s)
             return s
+    row_tokens = _core_tokens(
+        str(row.get("name") or "") + " " + str(row.get("comment") or "")
+    )
+    if row_tokens:
+        for s in remaining:
+            if row_tokens & _core_tokens(str(s.get("name") or "")):
+                remaining.remove(s)
+                return s
     return None
 
 
