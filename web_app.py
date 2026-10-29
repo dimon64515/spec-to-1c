@@ -368,13 +368,16 @@ def _render_main_tab(tab_main):
                     tmp_path = tmp.name
                 try:
                     success_rows, skipped, fb_meta = run_doc_fallback(tmp_path, success_rows, skipped)
+                    # Строковый фолбэк (llm_row_fallback): нормализует
+                    # квалифицируемые skipped-строки, которые doc-fallback не поднял.
+                    # Тот же temp-пdf — quantity-якорю валидации нужен текст документа.
+                    from llm_row_fallback import run_row_fallback
+
+                    success_rows, skipped, row_meta = run_row_fallback(
+                        success_rows, skipped, pdf_path=tmp_path
+                    )
                 finally:
                     os.unlink(tmp_path)
-                # Строковый фолбэк (llm_row_fallback): нормализует
-                # квалифицируемые skipped-строки, которые doc-fallback не поднял.
-                from llm_row_fallback import run_row_fallback
-
-                success_rows, skipped, row_meta = run_row_fallback(success_rows, skipped)
                 recovered_total = fb_meta.get("recovered", 0) + row_meta.get(
                     "row_fallback_recovered", 0)
                 if recovered_total > 0:

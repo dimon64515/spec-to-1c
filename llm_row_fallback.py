@@ -39,6 +39,10 @@ M2_UNITS = ("м2", "м²")
 # Причина skipped-строки, с которой строка исключается из LLM как м²-агрегат.
 M2_REASON_PREFIX = "Единица м²"
 
+# Причина сломанного детерминированного разбора количества: такие строки —
+# близнецы восстановленных LLM-позиций, после мерджа выводим их из skipped.
+QTY_BROKEN_REASON_PREFIX = "Не удалось распознать количество"
+
 # Единицы, которые LLM имеет право вернуть (whitelist для validate_normalized).
 ALLOWED_UNITS = ("шт", "м", "м2", "м²")
 
@@ -278,6 +282,7 @@ def run_row_fallback(
     success: List[dict],
     skipped: List[dict],
     cfg: Optional[Dict] = None,
+    pdf_path: Optional[str] = None,
 ) -> Tuple[List[dict], List[dict], Dict[str, Any]]:
     """Оркестратор строкового LLM-фолбэка: qualifying skipped → мердж в success.
 
@@ -290,6 +295,13 @@ def run_row_fallback(
     их исходники уже там). skip_ratio_post/escalation здесь НЕ считаются —
     только row_fallback_triggered / row_fallback_recovered; финальные
     значения считает Task 4.
+
+    pdf_path даёт текст документа для quantity-якоря валидации: извлекается
+    лениво (только при непустом qualifying и пройденном гейте) через
+    llm_document_fallback.extract_document_text; pdf_path=None или сбой
+    извлечения — text=None, якорь отключён (мягкая деградация). После мерджа
+    из skipped удаляются сломанные близнецы (причина «Не удалось распознать
+    количество») восстановленных позиций — совпадение по name.lower().
 
     Без квалифицируемых строк или при выключенном row_fallback_enabled —
     исходные списки без изменений (triggered=False). Любой сбой нормализации —
@@ -309,8 +321,18 @@ def run_row_fallback(
     merged_cfg = {**llm_size_classifier.get_llm_config(), **get_row_fallback_config(cfg)}
     deadline = time.monotonic() + float(merged_cfg.get("timeout") or 180)
 
+    # Текст документа — лениво и мягко: только для quantity-якоря; сбой
+    # извлечения (битый pdf и т.п.) → text=None, якорь отключается.
+    text: Optional[str] = None
+    if pdf_path is not None:
+        try:
+            text = llm_document_fallback.extract_document_text(pdf_path)
+        except Exception as exc:  # noqa: BLE001 — деградация, не сбой фолбэка
+            logger.warning("llm_row_fallback.failed: текст документа не извлечён: %s", exc)
+            text = None
+
     try:
-        norm_rows = normalize_rows(qualifying, cfg=merged_cfg, deadline=deadline)
+        norm_rows = normalize_rows(qualifying, cfg=merged_cfg, deadline=deadline, text=text)
         import process_specification_table as pst
 
         _, _extra_skipped, extra_success = pst.process_rows(
@@ -343,6 +365,22 @@ def run_row_fallback(
     # qualifying-строк, которые LLM/валидация/process_rows не подняли —
     # с исходной причиной.
     merged_skipped = [s for s in skipped if s not in qualifying] + remaining
+    # Чистка двойников: сломанный детерминированный близнец («Не удалось
+    # распознать количество», qty=0) восстановленной LLM-позиции уже есть
+    # в заказе (поднят сейчас или doc-fallback ранее) — из skipped убираем.
+    # Матчим по имени ВСЕ нормализованные строки, в т.ч. отброшенные дедупом:
+    # их двойники в skipped остались именно из-за этого дубля.
+    if extra_success:
+        recovered_names = {
+            str(r.get("name") or "").strip().lower() for r in extra_success
+        }
+        merged_skipped = [
+            s for s in merged_skipped
+            if not (
+                str(s.get("reason") or "").startswith(QTY_BROKEN_REASON_PREFIX)
+                and str(s.get("name") or "").strip().lower() in recovered_names
+            )
+        ]
     if recovered:
         logger.info("llm_row_fallback.recovered: %d", recovered)
     return merged_success, merged_skipped, {

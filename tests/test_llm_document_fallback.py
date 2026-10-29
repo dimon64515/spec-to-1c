@@ -257,7 +257,7 @@ def test_pipeline_order_fallback_before_blocked_filter(monkeypatch):
     monkeypatch.setattr("llm_document_fallback.run_doc_fallback",
                         lambda path, s, sk: (order.append("fallback"), (s, sk, meta))[1])
     monkeypatch.setattr("llm_row_fallback.run_row_fallback",
-                        lambda s, sk: (order.append("row_fallback"), (s, sk, row_meta))[1])
+                        lambda s, sk, **kw: (order.append("row_fallback"), (s, sk, row_meta))[1])
     orig_filter = pl._filter_blocked_articles
     monkeypatch.setattr(pl, "_filter_blocked_articles",
                         lambda s, sk: (order.append("filter"), orig_filter(s, sk))[1])

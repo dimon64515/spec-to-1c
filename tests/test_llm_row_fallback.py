@@ -165,6 +165,27 @@ def test_run_row_fallback_runner_failure_returns_deterministic(monkeypatch):
     assert success is ok and meta["row_fallback_recovered"] == 0
 
 
+def test_run_row_fallback_cleans_qty_broken_twins(monkeypatch, tmp_path):
+    import llm_row_fallback as rf
+    monkeypatch.setattr(rf, "row_fallback_enabled", lambda cfg=None: True)
+    twin = _skipped(name="Отвод ф125 45", reason="Не удалось распознать количество (0)", quantity=0, unit="")
+    def fake_norm(rows, **kw):
+        return [{"name": r["name"], "size": "ф125", "unit": "шт", "quantity": 2} for r in rows]
+    monkeypatch.setattr(rf, "normalize_rows", fake_norm)
+    pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
+    success, skipped, meta = rf.run_row_fallback([], [twin], pdf_path=str(pdf))
+    assert meta["row_fallback_recovered"] == 1
+    assert skipped == []  # двойник выведен из пропущенных
+
+def test_run_row_fallback_keeps_non_twin_skips(monkeypatch, tmp_path):
+    import llm_row_fallback as rf
+    monkeypatch.setattr(rf, "row_fallback_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(rf, "normalize_rows", lambda rows, **kw: [])
+    other = _skipped(name="Что-то иное", reason="Покупная позиция (клапан)")
+    pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
+    _, skipped, meta = rf.run_row_fallback([], [other], pdf_path=str(pdf))
+    assert skipped == [other] and meta["row_fallback_recovered"] == 0
+
 def test_config_has_row_fallback_section():
     import config
     df = config.get_config().get("llm", {}).get("row_fallback", {})

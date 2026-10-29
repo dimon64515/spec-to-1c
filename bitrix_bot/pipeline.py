@@ -114,7 +114,7 @@ def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict], 
             tmp_path, success, skipped
         )
         success, skipped, row_meta = llm_row_fallback.run_row_fallback(
-            success, skipped
+            success, skipped, pdf_path=tmp_path
         )
         meta.update(row_meta)
     finally:
