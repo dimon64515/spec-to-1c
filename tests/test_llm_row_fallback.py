@@ -235,6 +235,36 @@ def test_m2_skips_not_sent_to_llm_in_v2(monkeypatch):
     assert skipped == m2_rows
 
 
+def test_blocked_20x_never_in_success_after_row_fallback(monkeypatch):
+    # Review Focus #5: blocked-артикулы фильтруются ПОСЛЕ row-fallback.
+    # Реальный row-fallback поднимает skipped-строку «Клапан противопожарный»
+    # (детерминированный мэппинг даёт 20-1, llm_source=True), но финальный
+    # фильтр _filter_blocked_articles в process_pdf_to_positions обязан убрать
+    # её из success и положить в skipped с not_trading.
+    import bitrix_bot.pipeline as pl
+    import llm_row_fallback as rf
+    import pandas as pd
+    df = pd.DataFrame([{"name": "Клапан противопожарный", "size": "",
+                        "unit": "шт", "quantity": 1}])
+    monkeypatch.setattr(pl, "load_tables_from_pdf", lambda b, **kw: {"tables": {1: [df]}})
+    doc_meta = {"triggered": False, "recovered": 0, "skip_ratio": 1.0,
+                "skip_ratio_post": 1.0, "escalation": None}
+    monkeypatch.setattr("llm_document_fallback.run_doc_fallback",
+                        lambda path, s, sk: (s, sk, doc_meta))
+    monkeypatch.setattr("llm_document_fallback.extract_document_text",
+                        lambda p, max_chars=60000: "")
+    monkeypatch.setattr(rf, "row_fallback_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(rf, "normalize_rows",
+                        lambda rows, **kw: [{"name": r["name"], "size": "ф125",
+                                             "unit": "шт", "quantity": 1}
+                                            for r in rows])
+    success, skipped, meta = pl.process_pdf_to_positions(b"%PDF-fake")
+    assert meta["row_fallback_recovered"] == 1  # строка реально поднята фолбэком
+    assert not any(s.get("article") == "20-1" for s in success)
+    blocked = [s for s in skipped if s.get("article") == "20-1"]
+    assert len(blocked) == 1 and blocked[0].get("not_trading") is True
+
+
 def test_run_pipeline_partial_warning_via_row_fallback_only(monkeypatch):
     # doc-fallback не триггерился, но row-fallback сработал и skip_ratio высокий
     import bitrix_bot.pipeline as pl
