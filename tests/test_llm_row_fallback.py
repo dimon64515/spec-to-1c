@@ -67,10 +67,11 @@ def test_validate_normalized_rejects_non_positive_qty():
 
 
 def test_validate_normalized_allows_m2_unit_from_llm():
-    # Чёрный список м² — этап qualifying; сам валидатор принимает любую whitelist-единицу.
+    # Чёрный список м² — этап qualifying; валидатор принимает м², если исходная
+    # единица пустая или сама агрегатная (гард смены шт/м → м² — отдельный тест).
     import llm_row_fallback as rf
-    got = rf.validate_normalized(_skipped(), {"name": "Воздуховод оцинкованный 150х150",
-                                              "size": "150х150", "unit": "м²", "quantity": 3})
+    got = rf.validate_normalized(_skipped(unit=""), {"name": "Воздуховод оцинкованный 150х150",
+                                                     "size": "150х150", "unit": "м²", "quantity": 3})
     assert got is not None and got["unit"] == "м²"
 
 
@@ -91,6 +92,68 @@ def test_validate_normalized_rejects_qty_when_name_not_in_text():
     import llm_row_fallback as rf
     orig = _skipped(name="Отвод ф125 45", quantity=0, unit="")
     assert rf.validate_normalized(orig, {"name": "Отвод ф125 45", "size": "ф125", "unit": "шт", "quantity": 2}, "вообще другой документ") is None
+
+
+def test_validate_normalized_anchors_qty_to_original_name():
+    # Якорь количества — по ИСХОДНОМУ имени: нормализатор переименовывает
+    # («Возд.оц…» → «Воздуховод оцинкованный…»), канонического имени нет в тексте.
+    import llm_row_fallback as rf
+    orig = _skipped()
+    got = rf.validate_normalized(orig, {"name": "Воздуховод оцинкованный 150х150",
+                                        "size": "150х150", "unit": "шт", "quantity": 21}, TEXT_DOC)
+    assert got is not None and got["quantity"] == 21
+
+
+def test_validate_normalized_rejects_m2_unit_change_from_piece_or_meter():
+    # Гард смены единицы: шт/м → м2/м² — отброс (агрегат LLM не навязывает).
+    import llm_row_fallback as rf
+    for orig_unit in ("шт", "м"):
+        orig = _skipped(unit=orig_unit)
+        assert rf.validate_normalized(orig, {"name": "Воздуховод оцинкованный 150х150",
+                                             "size": "150х150", "unit": "м²", "quantity": 3}) is None
+        assert rf.validate_normalized(orig, {"name": "Воздуховод оцинкованный 150х150",
+                                             "size": "150х150", "unit": "м2", "quantity": 3}) is None
+
+
+def test_validate_normalized_allows_m2_unit_when_original_empty_or_m2():
+    import llm_row_fallback as rf
+    for orig_unit in ("", "м2", "м²"):
+        orig = _skipped(unit=orig_unit)
+        got = rf.validate_normalized(orig, {"name": "Воздуховод оцинкованный 150х150",
+                                            "size": "150х150", "unit": "м²", "quantity": 3})
+        assert got is not None and got["unit"] == "м²"
+
+
+def test_validate_normalized_allows_piece_meter_swap():
+    # Смена шт↔м — норма, LLM имеет право уточнить единицу.
+    import llm_row_fallback as rf
+    assert rf.validate_normalized(_skipped(unit="шт"),
+                                  {"name": "Воздуховод оцинкованный 150х150", "size": "150х150",
+                                   "unit": "м", "quantity": 3}) is not None
+    assert rf.validate_normalized(_skipped(unit="м"),
+                                  {"name": "Воздуховод оцинкованный 150х150", "size": "150х150",
+                                   "unit": "шт", "quantity": 3}) is not None
+
+
+def test_excluded_skipped_strips_reason_whitespace():
+    import llm_row_fallback as rf
+    ws = _skipped(reason="  Единица м² — агрегатная")
+    assert rf.excluded_skipped([ws]) == [ws]
+
+
+def test_consume_original_requires_strong_token_overlap():
+    import llm_row_fallback as rf
+    remaining = [_skipped(name="Заглушка 150")]
+    # только числовое совпадение «150» — недостаточно
+    row = {"name": "Воздуховод оцинкованный 150", "size": "", "comment": "", "quantity": 1}
+    assert rf._consume_original(row, remaining) is None and len(remaining) == 1
+    # ≥2 общих токена — достаточно
+    row2 = {"name": "Заглушка торцевая 150 2", "size": "", "comment": "", "quantity": 1}
+    assert rf._consume_original(row2, remaining) is not None and remaining == []
+    # точный мэтч имени — первым приоритетом
+    remaining2 = [_skipped(name="Отвод ф125 45")]
+    row3 = {"name": "Отвод ф125 45", "size": "ф125", "comment": "", "quantity": 2}
+    assert rf._consume_original(row3, remaining2) is not None and remaining2 == []
 
 
 def test_validate_normalized_rejects_bad_unit():
@@ -168,6 +231,9 @@ def test_run_row_fallback_runner_failure_returns_deterministic(monkeypatch):
 def test_run_row_fallback_cleans_qty_broken_twins(monkeypatch, tmp_path):
     import llm_row_fallback as rf
     monkeypatch.setattr(rf, "row_fallback_enabled", lambda cfg=None: True)
+    # герметизация: без реального pdfminer на мусорном pdf
+    monkeypatch.setattr(rf.llm_document_fallback, "extract_document_text",
+                        lambda p, max_chars=60000: "")
     twin = _skipped(name="Отвод ф125 45", reason="Не удалось распознать количество (0)", quantity=0, unit="")
     def fake_norm(rows, **kw):
         return [{"name": r["name"], "size": "ф125", "unit": "шт", "quantity": 2} for r in rows]
@@ -181,6 +247,8 @@ def test_run_row_fallback_keeps_non_twin_skips(monkeypatch, tmp_path):
     import llm_row_fallback as rf
     monkeypatch.setattr(rf, "row_fallback_enabled", lambda cfg=None: True)
     monkeypatch.setattr(rf, "normalize_rows", lambda rows, **kw: [])
+    monkeypatch.setattr(rf.llm_document_fallback, "extract_document_text",
+                        lambda p, max_chars=60000: "")
     other = _skipped(name="Что-то иное", reason="Покупная позиция (клапан)")
     pdf = tmp_path / "f.pdf"; pdf.write_bytes(b"%PDF-1.4")
     _, skipped, meta = rf.run_row_fallback([], [other], pdf_path=str(pdf))

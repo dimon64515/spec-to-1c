@@ -8,8 +8,11 @@
 валидацию: якорь имени (общий алфавитно-цифровой токен ≥3 символов с
 исходным наименованием), размер, подтверждённый подстрокой исходного
 name/size, единица из whitelist — и количество int > 0, при наличии текста
-документа подтверждённое числом в 30 символах после любого вхождения имени
-(якоря llm_document_fallback._name_positions/_quantity_matches).
+документа подтверждённое числом в 30 символах после любого вхождения
+ИСХОДНОГО имени (нормализатор переименовывает, канонического имени в тексте
+нет; fallback — LLM-имя) — через якоря llm_document_fallback._name_positions/
+_quantity_matches. М2-единица из LLM принимается только при пустой/агрегатной
+исходной единице (гард смены шт/м → м²).
 
 Любой сбой (runner бросил, невалидный JSON, истёк дедлайн) → [] + warning,
 исключений наружу нет (по образцу llm_document_fallback).
@@ -78,13 +81,13 @@ def row_fallback_enabled(cfg: Optional[Dict] = None) -> bool:
 
 
 def excluded_skipped(skipped: List[Dict]) -> List[Dict]:
-    """М²-строки, исключаемые из LLM-нормализации: reason начинается с
-    «Единица м²» ИЛИ единица измерения агрегатная (м2/м²)."""
+    """М²-строки, исключаемые из LLM-нормализации: reason (со strip) начинается
+    с «Единица м²» ИЛИ единица измерения агрегатная (м2/м²)."""
     out: List[Dict] = []
     for row in skipped or []:
         if not isinstance(row, dict):
             continue
-        reason = str(row.get("reason") or "")
+        reason = str(row.get("reason") or "").strip()
         unit = str(row.get("unit") or "").strip()
         if reason.startswith(M2_REASON_PREFIX) or unit in M2_UNITS:
             out.append(row)
@@ -107,6 +110,64 @@ def _core_tokens(s: str) -> set:
     return {t for t in re.findall(r"[a-zа-яё0-9]+", (s or "").lower()) if len(t) >= 3}
 
 
+def _validated_with_reason(
+    original: Dict, row: Dict, text: Optional[str] = None
+) -> Tuple[Optional[Dict], Optional[str]]:
+    """validate_normalized + причина: None — чистый приём; "size" — принято,
+    но размер обнулён; иначе имя провалившейся проверки ("name"/"unit"/
+    "quantity") и None вместо строки."""
+    orig_name = str(original.get("name") or "")
+    name = str(row.get("name") or "").strip()
+    if not name:
+        return None, "name"
+    if not (_core_tokens(name) & _core_tokens(orig_name)):
+        return None, "name"  # полное переименование — отбрасываем
+    unit = str(row.get("unit") or "").strip()
+    if unit not in ALLOWED_UNITS:
+        return None, "unit"  # единица вне whitelist
+    if unit in M2_UNITS:
+        # Гард смены единицы: м2/м² принимаем только если исходная единица
+        # пустая или сама агрегатная; шт/м → м² — отброс (агрегат навязан).
+        orig_unit = str(original.get("unit") or "").strip()
+        if orig_unit and orig_unit not in M2_UNITS:
+            return None, "unit"
+    try:
+        quantity = int(row.get("quantity"))
+    except (TypeError, ValueError):
+        return None, "quantity"
+    if quantity <= 0:
+        return None, "quantity"
+    if text is not None:
+        # Якорь количества — по ИСХОДНОМУ имени: нормализатор переименовывает
+        # («Возд.оц…» → «Воздуховод оцинкованный…»), канонического имени нет
+        # в тексте, а исходник — дословная подстрока (из него и извлечён).
+        anchor = orig_name.strip()
+        positions = llm_document_fallback._name_positions(anchor, text) if anchor else []
+        if not positions:
+            anchor = name  # исходника нет в тексте (теоретически) — fallback
+            positions = llm_document_fallback._name_positions(name, text)
+        if not positions:
+            return None, "name"  # наименования нет в документе — отбрасываем
+        if not any(
+            llm_document_fallback._quantity_matches(text, pos + len(anchor), quantity)
+            for pos in positions
+        ):
+            return None, "quantity"  # количество не подтверждено текстом
+    size = str(row.get("size") or "").strip()
+    size_note: Optional[str] = None
+    if size:
+        haystack = (orig_name + " " + str(original.get("size") or "")).lower()
+        if size.lower() not in haystack:
+            size = ""  # размер не из исходника — обнуляем, строка жива
+            size_note = "size"
+    return {
+        "name": name,
+        "size": size,
+        "unit": unit,
+        "quantity": quantity,
+    }, size_note
+
+
 def validate_normalized(
     original: Dict, row: Dict, text: Optional[str] = None
 ) -> Optional[Dict]:
@@ -114,46 +175,15 @@ def validate_normalized(
 
     None — отброс: пустое имя или нет общего токена ядра с исходным
     наименованием (LLM переименовала позицию); единица вне whitelist
-    {шт, м, м2, м²}; количество не целое > 0; при text is not None —
-    наименование не найдено в тексте или количество не встречается среди
-    чисел в 30 символах после любого вхождения наименования. size принимается
-    только если подстрока исходного name/size (lower), иначе обнуляется.
-    quantity/unit берутся из LLM-строки (v2), а не из исходника."""
-    orig_name = str(original.get("name") or "")
-    name = str(row.get("name") or "").strip()
-    if not name:
-        return None
-    if not (_core_tokens(name) & _core_tokens(orig_name)):
-        return None  # полное переименование — отбрасываем
-    unit = str(row.get("unit") or "").strip()
-    if unit not in ALLOWED_UNITS:
-        return None  # единица вне whitelist
-    try:
-        quantity = int(row.get("quantity"))
-    except (TypeError, ValueError):
-        return None
-    if quantity <= 0:
-        return None
-    if text is not None:
-        positions = llm_document_fallback._name_positions(name, text)
-        if not positions:
-            return None  # наименования нет в документе — отбрасываем
-        if not any(
-            llm_document_fallback._quantity_matches(text, pos + len(name), quantity)
-            for pos in positions
-        ):
-            return None  # количество не подтверждено текстом после наименования
-    size = str(row.get("size") or "").strip()
-    if size:
-        haystack = (orig_name + " " + str(original.get("size") or "")).lower()
-        if size.lower() not in haystack:
-            size = ""  # размер не из исходника — обнуляем, строка жива
-    return {
-        "name": name,
-        "size": size,
-        "unit": unit,
-        "quantity": quantity,
-    }
+    {шт, м, м2, м²} или смена шт/м → м2/м² (исходная пустая/агрегатная —
+    можно); количество не целое > 0; при text is not None — исходное
+    наименование не найдено в тексте (fallback — LLM-имя) или количество
+    не встречается среди чисел в 30 символах после любого вхождения якоря.
+    size принимается только если подстрока исходного name/size (lower),
+    иначе обнуляется. quantity/unit берутся из LLM-строки (v2), а не из
+    исходника. Причина отброса — во внутреннем _validated_with_reason."""
+    parsed, _reason = _validated_with_reason(original, row, text)
+    return parsed
 
 
 def _build_prompt(rows: List[Dict]) -> str:
@@ -241,12 +271,14 @@ def normalize_rows(
             if not isinstance(llm_row, dict):
                 logger.warning("llm_row_fallback.failed: элемент не объект: %r", llm_row)
                 continue
-            parsed = validate_normalized(original, llm_row, text)
+            parsed, reason = _validated_with_reason(original, llm_row, text)
             if parsed is None:
                 logger.warning(
-                    "llm_row_fallback.failed: строка отброшена (якорь не подтверждён): %r", llm_row,
+                    "llm_row_fallback.failed: строка отброшена (%s): %r", reason, llm_row,
                 )
                 continue
+            if reason:
+                logger.info("llm_row_fallback: размер обнулён (%s): %r", reason, llm_row)
             out.append(parsed)
         logger.info("llm_row_fallback.normalized: %d/%d строк", len(out), len(rows))
         return out
@@ -255,24 +287,35 @@ def normalize_rows(
     return []
 
 
+def _name_tokens(s: str) -> set:
+    """Алфавитно-цифровые токены (lower, без фильтра длины) для fuzzy-мэтча."""
+    return set(re.findall(r"[a-zа-яё0-9]+", (s or "").lower()))
+
+
 def _consume_original(row: Dict, remaining: List[Dict]) -> Optional[Dict]:
     """Снимает с учёта исходную skipped-строку, породившую LLM-строку.
 
-    Сначала точный мэтч по (unit, quantity) — работает, пока LLM не меняла
-    числа; в v2 quantity/unit из LLM-строки могут отличаться от исходника
-    (например исходник «Не удалось распознать количество (0)», unit=""), тогда
-    мэтчим по общим токенам ядра наименования. None — исходник не найден
-    (строка пришла не из qualifying-батча)."""
-    for s in remaining:
-        if s.get("unit") == row.get("unit") and s.get("quantity") == row.get("quantity"):
-            remaining.remove(s)
-            return s
-    row_tokens = _core_tokens(
-        str(row.get("name") or "") + " " + str(row.get("comment") or "")
+    1) точный мэтч по name.strip().lower() — надёжно, пока LLM не меняла имя;
+    2) токенный fallback — только при сильном пересечении: ≥2 общих токена
+    ИЛИ ≥1 общий не-числовой токен (числовое совпадение одного размера
+    недостаточно — иначе «Заглушка 150» съедалась чужой строкой).
+    None — исходник не найден (строка пришла не из qualifying-батча)."""
+    name_l = str(row.get("name") or "").strip().lower()
+    if name_l:
+        for s in remaining:
+            if str(s.get("name") or "").strip().lower() == name_l:
+                remaining.remove(s)
+                return s
+    row_tokens = _name_tokens(
+        " ".join(
+            str(row.get(k) or "")
+            for k in ("name", "size", "comment")
+        )
     )
     if row_tokens:
         for s in remaining:
-            if row_tokens & _core_tokens(str(s.get("name") or "")):
+            common = row_tokens & _name_tokens(str(s.get("name") or ""))
+            if len(common) >= 2 or any(not t.isdigit() for t in common):
                 remaining.remove(s)
                 return s
     return None
