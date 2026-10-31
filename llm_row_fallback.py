@@ -2,17 +2,19 @@
 
 Протокол v2 (blacklist): в LLM идут ВСЕ skipped-строки, кроме м²-строк
 (reason «Единица м²» или единица м2/м² — excluded_skipped). Модель одним
-батчем возвращает JSON-массив `{name, size, unit, quantity}` в том же
-порядке: каноническое имя, размер дословно, единица из whitelist, количество
-из колонки «Кол-во» документа. Каждая строка проходит детерминированную
-валидацию: якорь имени (общий алфавитно-цифровой токен ≥3 символов с
-исходным наименованием), размер, подтверждённый подстрокой исходного
-name/size, единица из whitelist — и количество int > 0, при наличии текста
-документа подтверждённое числом в 30 символах после любого вхождения
-ИСХОДНОГО имени (нормализатор переименовывает, канонического имени в тексте
-нет; fallback — LLM-имя) — через якоря llm_document_fallback._name_positions/
-_quantity_matches. М2-единица из LLM принимается только при пустой/агрегатной
-исходной единице (гард смены шт/м → м²).
+батчем возвращает JSON-массив `{name, size, unit, quantity}`; в промпте —
+исходные наименования и текст документа (колонку «Кол-во» модель читает из
+текста сама). Порядок ответа НЕ является ключом: каждая LLM-строка мэтчится
+к исходнику по токенам имени (≥2 общих токена ИЛИ ≥1 не-числовой) и только
+потом проходит детерминированную валидацию: якорь имени (общий алфавитно-
+цифровой токен ≥3 символов с исходным наименованием), размер, подтверждённый
+подстрокой исходного name/size, единица из whitelist — и количество int > 0,
+при наличии текста документа подтверждённое числом в 30 символах после
+любого вхождения ИСХОДНОГО имени (нормализатор переименовывает,
+канонического имени в тексте нет; fallback — LLM-имя) — через якоря
+llm_document_fallback._name_positions/_quantity_matches. М2-единица из LLM
+принимается только при пустой/агрегатной исходной единице (гард смены шт/м →
+м²).
 
 Любой сбой (runner бросил, невалидный JSON, истёк дедлайн) → [] + warning,
 исключений наружу нет (по образцу llm_document_fallback).
@@ -110,6 +112,28 @@ def _core_tokens(s: str) -> set:
     return {t for t in re.findall(r"[a-zа-яё0-9]+", (s or "").lower()) if len(t) >= 3}
 
 
+# Минимальная длина префикса для fuzzy-связи токенов: «Возд.оц» →
+# «Воздуховод оцинкованный» не даёт общего токена (токенизатор режет
+# «возд»/«оц» vs «воздуховод»/«оцинкованный») — легальное расширение
+# аббревиатуры проваливало гард переименования (см. смоук 168.pdf v4).
+PREFIX_MIN_LEN = 4
+
+
+def _names_related(llm_name: str, orig_name: str) -> bool:
+    """Связь имён: общий core-токен ИЛИ общий префикс длины ≥4 символов
+    у пары core-токенов (аббревиатуры «Возд.» → «Воздуховод»)."""
+    a, b = _core_tokens(llm_name), _core_tokens(orig_name)
+    if a & b:
+        return True
+    for ta in a:
+        for tb in b:
+            if len(ta) >= PREFIX_MIN_LEN and len(tb) >= PREFIX_MIN_LEN and (
+                ta.startswith(tb) or tb.startswith(ta)
+            ):
+                return True
+    return False
+
+
 def _validated_with_reason(
     original: Dict, row: Dict, text: Optional[str] = None
 ) -> Tuple[Optional[Dict], Optional[str]]:
@@ -120,7 +144,7 @@ def _validated_with_reason(
     name = str(row.get("name") or "").strip()
     if not name:
         return None, "name"
-    if not (_core_tokens(name) & _core_tokens(orig_name)):
+    if not _names_related(name, orig_name):
         return None, "name"  # полное переименование — отбрасываем
     unit = str(row.get("unit") or "").strip()
     if unit not in ALLOWED_UNITS:
@@ -186,14 +210,27 @@ def validate_normalized(
     return parsed
 
 
-def _build_prompt(rows: List[Dict]) -> str:
+# Бюджет текста документа в промпте: якорь валидации смотрит ±30 символов
+# вокруг имени, поэтому усечение хвоста не ломает quantity-проверку для
+# позиций из начала спецификации, а промпту хватает контекста на Кол-во.
+PROMPT_TEXT_BUDGET = 8000
+
+
+def _build_prompt(rows: List[Dict], text: Optional[str] = None) -> str:
     items = "\n".join(
         f"{i}: {json.dumps(str(r.get('name') or ''), ensure_ascii=False)}"
         for i, r in enumerate(rows)
     )
+    doc_section = ""
+    if text:
+        doc_section = (
+            "\n\nТекст документа (та же спецификация; колонка «Кол-во» — числа "
+            "после наименования позиции):\n"
+            + text[:PROMPT_TEXT_BUDGET]
+        )
     return (
         "Ты нормализуешь позиции воздуховодов из проектной спецификации вентиляции.\n"
-        f"Даны исходные наименования (номер: строка):\n{items}\n\n"
+        f"Даны исходные наименования (номер: строка):\n{items}\n"
         "Верни СТРОГО один JSON-массив без пояснений, markdown и кода — по одному "
         "объекту для КАЖДОЙ строки, в ТОМ ЖЕ порядке:\n"
         '{"name": "...", "size": "...", "unit": "...", "quantity": 0}\n'
@@ -204,10 +241,33 @@ def _build_prompt(rows: List[Dict]) -> str:
         '"ф125"); если размера нет — "".\n'
         '- unit — единица измерения, строго одна из: шт, м, м2, м².\n'
         '- quantity — целое количество из колонки «Кол-во» документа для этой '
-        "позиции (целое число > 0).\n"
-        "- Не выдумывай размеры, толщины и количества; бери только то, что есть "
-        "в исходной строке и документе."
+        "позиции (целое число > 0): найди строку наименования в тексте документа "
+        "и возьми число сразу после неё." + doc_section
     )
+
+
+def _match_score(llm_row: Dict, original: Dict) -> int:
+    """Сила связи LLM-строки с исходником: число общих алфавитно-цифровых
+    токенов имени/size/comment (lower). Позиционный zip не используем —
+    модель может пропустить/переставить строки, и тогда пары склеивались
+    по чужим оригиналам (массовые ложные (name)-отказы, см. смоук 168.pdf)."""
+    row_tokens = _name_tokens(
+        " ".join(str(llm_row.get(k) or "") for k in ("name", "size", "comment"))
+    )
+    orig_tokens = _name_tokens(
+        " ".join(str(original.get(k) or "") for k in ("name", "size", "comment"))
+    )
+    return len(row_tokens & orig_tokens)
+
+
+def _match_acceptable(llm_row: Dict, original: Dict) -> bool:
+    """Порог приёмки мэтча: ≥2 общих токена ИЛИ ≥1 общий не-числовой токен
+    (одного числа-размера мало — «Заглушка 150» не мэтчится с «Отвод 150»)."""
+    row_tokens = _name_tokens(
+        " ".join(str(llm_row.get(k) or "") for k in ("name", "size", "comment"))
+    )
+    common = row_tokens & _name_tokens(str(original.get("name") or ""))
+    return len(common) >= 2 or any(not t.isdigit() for t in common)
 
 
 def _loads_rows_array(content: str) -> List[Dict]:
@@ -228,14 +288,16 @@ def normalize_rows(
     """Skipped-строки → один батч-вызов LLM → валидные нормализованные строки.
 
     runner(prompt, cfg) -> stdout (stream-json) инжектируется в тестах.
-    LLM возвращает JSON-массив `{name, size, unit, quantity}` в том же
-    порядке; каждая пара (original, llm_row) проходит validate_normalized с
+    LLM возвращает JSON-массив `{name, size, unit, quantity}`; текст документа
+    (text) подмешивается в промпт, чтобы модель брала quantity из колонки
+    «Кол-во» сама. Пары со исходниками строятся токенным мэтчем (не по позиции
+    в массиве ответа — она ненадёжна) и валидируются validate_normalized с
     text-якорем количества (text=None — якорь отключен, только int > 0).
     Любой сбой / невалидный JSON (после max_retries попыток) / истёкший
     deadline → [] + logger.warning, исключений наружу нет."""
     cfg = get_row_fallback_config() if cfg is None else dict(cfg)
     run = _run_kimi if runner is None else runner
-    prompt = _build_prompt(rows)
+    prompt = _build_prompt(rows, text)
     max_retries = max(0, int(cfg.get("max_retries", 2)))
 
     for attempt in range(max_retries + 1):
@@ -267,16 +329,35 @@ def normalize_rows(
             )
             continue
         out: List[Dict] = []
-        for original, llm_row in zip(rows, llm_rows):
+        remaining = list(rows)
+        for llm_row in llm_rows:
             if not isinstance(llm_row, dict):
                 logger.warning("llm_row_fallback.failed: элемент не объект: %r", llm_row)
                 continue
-            parsed, reason = _validated_with_reason(original, llm_row, text)
-            if parsed is None:
+            # Fuzzy-мэтч к оригиналам: позиция в массиве ответа НЕ является
+            # надёжным ключом (модель переставляет/пропускает строки).
+            candidates = sorted(
+                remaining,
+                key=lambda o: -_match_score(llm_row, o),
+            )
+            best_reason: Optional[str] = None
+            accepted: Optional[Tuple[Dict, Dict, Optional[str]]] = None
+            for original in candidates[:5]:
+                if not _match_acceptable(llm_row, original):
+                    break  # дальше слабее — не рассматриваем
+                parsed, reason = _validated_with_reason(original, llm_row, text)
+                if parsed is not None:
+                    accepted = (original, parsed, reason)
+                    break
+                best_reason = reason
+            if accepted is None:
                 logger.warning(
-                    "llm_row_fallback.failed: строка отброшена (%s): %r", reason, llm_row,
+                    "llm_row_fallback.failed: строка отброшена (%s): %r",
+                    best_reason or "match", llm_row,
                 )
                 continue
+            original, parsed, reason = accepted
+            remaining.remove(original)
             if reason:
                 logger.info("llm_row_fallback: размер обнулён (%s): %r", reason, llm_row)
             out.append(parsed)

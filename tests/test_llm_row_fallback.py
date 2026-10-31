@@ -192,6 +192,51 @@ def test_normalize_rows_rejects_qty_not_in_text():
     assert got == []
 
 
+def test_normalize_rows_matches_reordered_llm_answers_by_tokens():
+    """Регрессия смоука 168.pdf: модель переставила/пропустила строки —
+    zip по позиции склеил чужие пары и всё улетело в (name). Мэтчим по токенам."""
+    import json
+    import llm_row_fallback as rf
+    rows = [
+        _skipped(name="Врезка ф125 х ф100", reason="Не удалось распознать количество (0)", quantity=0, unit=""),
+        _skipped(name="Отвод ф125 45", reason="Не удалось распознать количество (0)", quantity=0, unit=""),
+    ]
+    # Ответ в обратном порядке + без строки на первый исходник.
+    answer = json.dumps([
+        {"name": "Отвод 45°", "size": "ф125", "unit": "шт", "quantity": 2},
+    ], ensure_ascii=False)
+    got = rf.normalize_rows(rows, cfg={"max_retries": 0}, runner=lambda p, c: _stream(answer), text=TEXT_DOC)
+    assert len(got) == 1 and got[0]["name"] == "Отвод 45°" and got[0]["quantity"] == 2
+
+
+def test_validate_normalized_accepts_abbreviation_expansion():
+    """Регрессия смоука 168.pdf v4: «Возд.оц» → «Воздуховод оцинкованный»
+    не давал общего core-токена — легальное расширение аббревиатуры
+    отбрасывалось гардом переименования."""
+    import llm_row_fallback as rf
+    orig = _skipped(name="Возд.оц 0.5мм 150х150 1.25", quantity=0, unit="")
+    got = rf.validate_normalized(orig, {"name": "Воздуховод оцинкованный",
+                                        "size": "150х150", "unit": "м", "quantity": 5},
+                                 "1\nВозд.оц 0.5мм 150х150 1.25\n5\n")
+    assert got is not None and got["quantity"] == 5
+    # полное переименование по-прежнему отбрасывается
+    assert rf.validate_normalized(orig, {"name": "Клапан приточный",
+                                         "size": "150х150", "unit": "шт", "quantity": 5}) is None
+
+
+def test_build_prompt_includes_document_text_for_qty():
+    """Регрессия qty=1: в промпте только имена — модель не видит «Кол-во»
+    и ставит 1 везде. Текст документа теперь подмешивается в промпт."""
+    import llm_row_fallback as rf
+    rows = [_skipped(name="Отвод ф125 45", quantity=0, unit="")]
+    prompt = rf._build_prompt(rows, TEXT_DOC)
+    assert "Отвод ф125 45" in prompt
+    assert "Кол-во" in prompt
+    assert "Отвод ф125 45" in prompt.split("Текст документа", 1)[1]
+    # text=None — секции документа нет, но промпт валиден
+    assert "Текст документа" not in rf._build_prompt(rows, None)
+
+
 def test_run_row_fallback_recovers_vozd_row(monkeypatch, tmp_path):
     import llm_row_fallback as rf
     import process_specification_table as pst
