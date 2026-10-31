@@ -12,6 +12,11 @@ from bitrix_bot.pipeline import PipelineResult
 from report_xlsx import is_trading_skip
 
 DEFAULT_LIMIT = 3500
+# Капы детализации в чате: полные списки — в Excel-отчёте, в чат только верх
+# по каждой секции. Иначе большой документ (сотни skipped-строк) превращается
+# в десятки сообщений-«простынь» (инцидент: 20/3219, job «23-5-Р25-ОВ3.2»).
+LOADED_CHAT_CAP = 50
+SKIPPED_CHAT_CAP = 30
 
 
 def _position_line(p: dict) -> str:
@@ -56,11 +61,28 @@ def build_report(res: PipelineResult, limit: int = DEFAULT_LIMIT) -> List[str]:
         f" · Ошибок: {len(res.errors_1c)}"
     )
     lines: List[str] = [header, "", summary]
+    if res.llm_recovered:
+        lines.append(f"Восстановлено LLM (документ): {res.llm_recovered}")
+    if res.row_fallback_recovered:
+        lines.append(f"Нормализовано LLM (строки): {res.row_fallback_recovered}")
 
     if res.loaded:
-        lines += ["", "✅ Загружены:"] + [_position_line(p) for p in res.loaded]
+        llm_rows = [p for p in res.loaded if p.get("llm_source")]
+        plain_rows = [p for p in res.loaded if not p.get("llm_source")]
+        if plain_rows:
+            lines += ["", "✅ Загружены:"] + [_position_line(p) for p in plain_rows[:LOADED_CHAT_CAP]]
+            if len(plain_rows) > LOADED_CHAT_CAP:
+                lines.append(f"… и ещё {len(plain_rows) - LOADED_CHAT_CAP} — в отчёте")
+        if llm_rows:
+            lines += ["", "⚠ Восстановлено LLM (проверить):"] + [
+                _position_line(p) for p in llm_rows[:LOADED_CHAT_CAP]
+            ]
+            if len(llm_rows) > LOADED_CHAT_CAP:
+                lines.append(f"… и ещё {len(llm_rows) - LOADED_CHAT_CAP} — в отчёте")
     if res.skipped:
-        lines += ["", "⏭ Пропущены:"] + [_skipped_line(s) for s in res.skipped]
+        lines += ["", "⏭ Пропущены:"] + [_skipped_line(s) for s in res.skipped[:SKIPPED_CHAT_CAP]]
+        if len(res.skipped) > SKIPPED_CHAT_CAP:
+            lines.append(f"… и ещё {len(res.skipped) - SKIPPED_CHAT_CAP} — в отчёте")
     if res.errors_1c:
         lines += ["", "❌ Ошибки 1С:"] + [f"· {e}" for e in res.errors_1c]
     if res.warnings_1c:
@@ -78,12 +100,15 @@ def build_summary(res: PipelineResult) -> str:
     n_trading = sum(1 for s in res.skipped if is_trading_skip(s))
     n_skipped = len(res.skipped) - n_trading
     header = f"Заказ 1С: №{res.order_number}" if res.order_number else "Заказ НЕ создан"
+    n_llm = sum(1 for p in res.loaded if p.get("llm_source"))
     lines = [
         header,
         f"Файл: {res.file_name}",
         f"Загружено: {len(res.loaded)} · Пропущено: {n_skipped}"
         f" · Перекупное: {n_trading} · Ошибок 1С: {len(res.errors_1c)}",
     ]
+    if n_llm:
+        lines.append(f"Восстановлено LLM (проверить): {n_llm}")
     if res.errors_1c:
         lines.append("Ошибки: " + "; ".join(res.errors_1c[:5]))
     return "\n".join(lines)

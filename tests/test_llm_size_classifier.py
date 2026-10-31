@@ -6,7 +6,7 @@ import llm_size_classifier as lsc
 
 def test_get_llm_config_defaults(monkeypatch):
     cfg = lsc.get_llm_config()
-    assert cfg["enabled"] is False
+    assert cfg["enabled"] is True  # включено на проде (октябрь 2026)
     assert cfg["backend"] == "kimi-cli"
     assert cfg["batch_size"] >= 1
     assert cfg["timeout"] > 0
@@ -104,7 +104,7 @@ def test_out_of_range_rejected_by_domain_validation():
     assert "валидац" in r.detail.lower() or "диапазон" in r.detail.lower()
 
 
-def test_tee_ok_but_not_adoptable():
+def test_tee_ok_adoptable_for_fitting_path():
     # "315/315-160": 0-2 "315", 4-6 "315", 8-10 "160" — три числа тройника.
     content = json.dumps({"results": [
         {"format_class": "tee_axbxc",
@@ -116,8 +116,11 @@ def test_tee_ok_but_not_adoptable():
     r = lsc.classify_sizes_batch(["315/315-160"], cfg=CFG, runner=runner)["315/315-160"]
     assert r.status == "ok"                      # распознан и провалидирован
     assert r.dims == {"D0": 315.0, "D1": 315.0, "D2": 160.0}
-    assert r.adoptable is False                  # в воздуховоды не усыновляется
-    assert "не усыновляется" in r.detail
+    # Усыновляется фасонным путём (через подтверждение try_parse_fitting),
+    # а не duct-путём: section=None, поэтому в воздуховоды не превращается.
+    assert r.adoptable is True
+    assert r.section is None
+    assert r.detail == ""
 
 
 def test_batching_respects_batch_size():

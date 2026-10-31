@@ -154,6 +154,19 @@ def _normalize_skipped_for_prices(skipped_rows: List[dict]) -> List[dict]:
     return normalized
 
 
+def _regenerate_xml_if_llm_recovered(header, xml_text, success_rows, fb_meta):
+    """Перегенерирует XML из merged success_rows, если LLM-фолбэк что-то восстановил.
+
+    Восстановленные строки уже в форме parsed (article/params/comment) —
+    прошли process_rows внутри run_doc_fallback. Без восстановлений
+    возвращает исходный xml_text без изменений.
+    """
+    if fb_meta.get("recovered", 0) > 0:
+        from generate_order_xml import generate_order_xml
+        return generate_order_xml(header, success_rows)
+    return xml_text
+
+
 def _render_main_tab(tab_main):
     """Render the specification → XML tab. Early returns here do not stop the app."""
     with tab_main:
@@ -339,13 +352,49 @@ def _render_main_tab(tab_main):
             with st.spinner("Генерирую XML..."):
                 xml_text, skipped, success_rows = process_rows(rows, header=header)
 
+            # LLM document fallback: восстанавливает строки, пропущенные
+            # детерминированным каскадом (см. llm_document_fallback).
+            # Только PDF-путь; при восстановлении XML перегенерируется
+            # через _regenerate_xml_if_llm_recovered (старые позиции +
+            # LLM-восстановленные).
+            if file_name.lower().endswith(".pdf") and file_bytes:
+                import os
+                import tempfile
+
+                from llm_document_fallback import run_doc_fallback
+
+                with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+                    tmp.write(file_bytes)
+                    tmp_path = tmp.name
+                try:
+                    success_rows, skipped, fb_meta = run_doc_fallback(tmp_path, success_rows, skipped)
+                    # Строковый фолбэк (llm_row_fallback): нормализует
+                    # квалифицируемые skipped-строки, которые doc-fallback не поднял.
+                    # Тот же temp-пdf — quantity-якорю валидации нужен текст документа.
+                    from llm_row_fallback import run_row_fallback
+
+                    success_rows, skipped, row_meta = run_row_fallback(
+                        success_rows, skipped, pdf_path=tmp_path
+                    )
+                finally:
+                    os.unlink(tmp_path)
+                recovered_total = fb_meta.get("recovered", 0) + row_meta.get(
+                    "row_fallback_recovered", 0)
+                if recovered_total > 0:
+                    st.info(f"Восстановлено LLM: {recovered_total} строк")
+                    xml_text = _regenerate_xml_if_llm_recovered(
+                        header, xml_text, success_rows,
+                        {**fb_meta, "recovered": recovered_total})
+                if fb_meta.get("escalation"):
+                    st.warning(fb_meta["escalation"])
+
             # Учитываем уже пропущенное оборудование
             all_skipped = list(skipped)
             if equipment_skipped:
                 all_skipped.extend(equipment_skipped)
 
             st.success(
-                f"Готово! Загружено строк: {len(rows) - len(skipped)}, "
+                f"Готово! Загружено строк: {len(success_rows)}, "
                 f"пропущено в XML: {len(skipped)}"
             )
             if equipment_skipped:

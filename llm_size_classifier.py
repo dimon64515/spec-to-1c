@@ -11,12 +11,12 @@ import json
 import logging
 import re
 import shutil
-import subprocess
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 import size_notations
 from config import get_config
+from llm_client import run_kimi as _run_kimi, assistant_content as _assistant_content, extract_json_object as _extract_json_object
 
 REASON_LLM_REJECTED = "LLM-классификация отклонена"
 
@@ -29,9 +29,10 @@ FORMAT_CLASSES = [
     "unknown",
 ]
 
-# Классы, применимые к воздуховодам (duct-путь parse_row). Остальные
-# парсятся для лога/отчёта, но не усыновливаются как воздуховод.
-ADOPTABLE_CLASSES = ("round_diameter", "rect_axb")
+# Классы, результат которых усыновляется пайплайном: round_diameter/rect_axb —
+# в воздуховоды (duct-путь parse_row), tee_axbxc/reducer_pair — в фасонку
+# (fitting-путь, только через подтверждение try_parse_fitting).
+ADOPTABLE_CLASSES = ("round_diameter", "rect_axb", "tee_axbxc", "reducer_pair")
 
 logger = logging.getLogger(__name__)
 
@@ -85,43 +86,6 @@ def _build_prompt(strings: List[str]) -> str:
     )
 
 
-def _run_kimi(prompt: str, cfg: Dict) -> str:
-    """Один вызов kimi -p; возвращает сырой stdout. Бросает исключения при сбое."""
-    cmd = [str(cfg.get("command") or "kimi"), "-p", prompt, "--output-format", "stream-json"]
-    model = str(cfg.get("model") or "").strip()
-    if model:
-        cmd += ["-m", model]
-    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
-                          timeout=int(cfg.get("timeout", 120)))
-    if proc.returncode != 0:
-        raise RuntimeError(f"kimi exit {proc.returncode}: {proc.stderr[:300]}")
-    return proc.stdout
-
-
-def _assistant_content(stdout: str) -> str:
-    for line in stdout.splitlines():
-        line = line.strip()
-        if not line.startswith("{"):
-            continue
-        try:
-            rec = json.loads(line)
-        except ValueError:
-            continue
-        if rec.get("role") == "assistant" and isinstance(rec.get("content"), str):
-            return rec["content"]
-    raise ValueError("assistant-ответ не найден в stream-json")
-
-
-def _extract_json_object(text: str) -> Dict:
-    start = text.find("{")
-    if start < 0:
-        raise ValueError("JSON не найден в ответе")
-    obj, _ = json.JSONDecoder().raw_decode(text[start:])
-    if not isinstance(obj, dict):
-        raise ValueError("ответ — не объект")
-    return obj
-
-
 def _spans_to_dims(format_class: str, spans: List[Dict], source: str) -> Optional[Dict[str, float]]:
     """Детерминированное извлечение цифр ИСХОДНОЙ строки по spans. None = отказ."""
     values: Dict[str, float] = {}
@@ -173,7 +137,8 @@ def _spans_to_dims(format_class: str, spans: List[Dict], source: str) -> Optiona
 
 def _classify_one(source: str, result: Dict, raw_response: str) -> "SizeClassification":
     """status='ok' — spans дали валидные числа И валидация диапазонов пройдена.
-    adoptable — дополнительно: класс применим к воздуховодам (duct-путь)."""
+    adoptable — дополнительно: класс усыновляется пайплайном (duct-путь
+    для round_diameter/rect_axb, fitting-путь для tee_axbxc/reducer_pair)."""
     fmt = str(result.get("format_class") or "unknown")
     if fmt not in FORMAT_CLASSES:
         fmt = "unknown"
@@ -238,7 +203,7 @@ def classify_sizes_batch(strings, cfg=None, runner=None):
             return
         try:
             content = _assistant_content(raw)
-            obj = _extract_json_object(content)
+            obj, _ = _extract_json_object(content)
             results = obj.get("results")
             if not isinstance(results, list) or len(results) != len(batch):
                 raise ValueError(

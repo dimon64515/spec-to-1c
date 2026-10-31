@@ -8,6 +8,9 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 
+import llm_document_fallback
+import llm_row_fallback
+
 # Артикулы, непригодные для прямой загрузки в 1С: программное создание
 # асСпецификацияЗаказа с любой строкой группы 20 (противопожарные клапаны
 # 20-1/20-2 и вентустановка 20-9) падает в ПередЗаписью
@@ -65,19 +68,36 @@ class PipelineResult:
     errors_1c: List[str] = field(default_factory=list)
     warnings_1c: List[str] = field(default_factory=list)
     raw_text: str = ""
+    escalation: Optional[str] = None
+    partial_warning: Optional[str] = None
+    llm_recovered: int = 0
+    row_fallback_recovered: int = 0
 
 
-def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict]]:
-    """PDF → (успешные строки пайплайна, пропущенные с причинами).
+def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict], Dict[str, Any]]:
+    """PDF → (успешные строки пайплайна, пропущенные с причинами, meta фолбэка).
 
     Берёт таблицы из PDF; если их нет — текстовый слой, разобранный блоками
-    (ГОСТ-бланки, см. api.load_tables_from_pdf).
+    (ГОСТ-бланки, см. api.load_tables_from_pdf). После process_rows запускает
+    документный LLM-фолбэк (llm_document_fallback.run_doc_fallback), затем
+    строковый (llm_row_fallback.run_row_fallback — нормализация квалифицируемых
+    skipped-строк) и лишь потом отфильтровывает blocked-артикулы 20-*: skip_ratio
+    и мердж считаются по выходу process_rows, blocked-строки ещё в success и не
+    раздувают skip_ratio. meta — триггер/восстановление/эскалация фолбэков,
+    дополненная ключами row_fallback_*.
     """
-    from api import load_tables_from_pdf
+    import os
+    import tempfile
+
     from pdf_spec_extractor import df_to_spec_rows
     from process_specification_table import process_rows
 
-    data = load_tables_from_pdf(pdf_bytes)
+    ltf = load_tables_from_pdf
+    if ltf is None:
+        # api тянет тяжёлые зависимости — импортируется лениво; тесты
+        # подменяют либо этот атрибут, либо сам модуль в sys.modules.
+        from api import load_tables_from_pdf as ltf
+    data = ltf(pdf_bytes)
     if "tables" in data:
         rows: List[dict] = []
         for tables in data["tables"].values():
@@ -86,8 +106,26 @@ def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict]]:
     else:
         rows = data.get("block_rows") or []
     _, skipped, success = process_rows(rows)
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+        tmp.write(pdf_bytes)
+        tmp_path = tmp.name
+    try:
+        success, skipped, meta = llm_document_fallback.run_doc_fallback(
+            tmp_path, success, skipped
+        )
+        success, skipped, row_meta = llm_row_fallback.run_row_fallback(
+            success, skipped, pdf_path=tmp_path
+        )
+        meta.update(row_meta)
+    finally:
+        os.unlink(tmp_path)
     success = _filter_blocked_articles(success, skipped)
-    return success, skipped
+    return success, skipped, meta
+
+
+# Ленивый импорт api.load_tables_from_pdf (см. process_pdf_to_positions):
+# значение None — признак «ещё не импортирован», тесты подменяют атрибут.
+load_tables_from_pdf = None
 
 
 def parse_1c_result(text: str) -> Dict[str, Any]:
@@ -215,26 +253,75 @@ def run_pipeline(
     """Полный цикл: PDF → позиции → заказ 1С → PipelineResult."""
     from json_positions import build_positions
 
-    success, skipped = process_pdf_to_positions(pdf_bytes)
+    success, skipped, meta = process_pdf_to_positions(pdf_bytes)
+    escalation = meta.get("escalation")
+    llm_recovered = int(meta.get("recovered") or 0)
+    row_fallback_recovered = int(meta.get("row_fallback_recovered") or 0)
+    partial_warning = None
     if not success:
+        # пустой success после обоих фолбэков: сначала doc-meta эскалация,
+        # иначе строим причину из финальных skipped-строк
+        if not escalation:
+            escalation = llm_document_fallback.build_escalation_reason(skipped)
         return PipelineResult(
             file_name=file_name,
             skipped=skipped,
             raw_text="Позиции не распознаны: бот не распознал в PDF ни одной валидной строки спецификации.",
+            escalation=escalation,
+            llm_recovered=llm_recovered,
+            row_fallback_recovered=row_fallback_recovered,
         )
+    # пост-мердж skip_ratio по ФИНАЛЬНЫМ спискам (после row-fallback):
+    # доля пропущенных среди всех строк документа. Предупреждение только при
+    # непустом success — пустой success уже покрывается эскалацией (заказ не
+    # создан вовсе). И только когда хотя бы один фолбэк реально триггерился:
+    # без них высокий skip_ratio означает неизменное поведение
+    # детерминированного каскада, предупреждать менеджера не о чем
+    # (безопасная выкатка при выключенных fallback).
+    total = len(success) + len(skipped)
+    skip_ratio_post = len(skipped) / total if total else 0.0
+    threshold = float(
+        llm_document_fallback.get_doc_fallback_config().get("skip_threshold", 0.3)
+    )
+    if (meta.get("triggered") or meta.get("row_fallback_triggered")) \
+            and skip_ratio_post > threshold:
+        partial_warning = (
+            f"Заказ по файлу «{file_name}» загружен частично: "
+            f"распознано {len(success)} из {total} строк, проверьте отчёт"
+        )
+    for row in success:
+        # стабы/восстановленные LLM строки без полного набора ключей —
+        # дефолты совпадают с процессором process_rows
+        row.setdefault("params", {})
+        row.setdefault("thickness", 0.8)
+        row.setdefault("comment", "")
     positions = build_positions(success)
     out = load_order_to_1c(
         positions, execute_url, order_comment, timeout=timeout,
         order_service=order_service, request_id=request_id,
     )
+    # контракт load_order_to_1c — dict; тапл (order_number, errors, warnings)
+    # принимаем тоже (обратная совместимость со стабами)
+    if isinstance(out, tuple):
+        order_number, errors_1c, warnings_1c = out
+        raw_text = ""
+    else:
+        order_number = out["order_number"]
+        errors_1c = out["errors"]
+        warnings_1c = out["warnings"]
+        raw_text = out["raw"]
     return PipelineResult(
         file_name=file_name,
-        order_number=out["order_number"],
+        order_number=order_number,
         loaded=success,
         skipped=skipped,
-        errors_1c=out["errors"],
-        warnings_1c=out["warnings"],
-        raw_text=out["raw"],
+        errors_1c=errors_1c,
+        warnings_1c=warnings_1c,
+        raw_text=raw_text,
+        escalation=escalation,
+        partial_warning=partial_warning,
+        llm_recovered=llm_recovered,
+        row_fallback_recovered=row_fallback_recovered,
     )
 
 
