@@ -12,6 +12,11 @@ from bitrix_bot.pipeline import PipelineResult
 from report_xlsx import is_trading_skip
 
 DEFAULT_LIMIT = 3500
+# Капы детализации в чате: полные списки — в Excel-отчёте, в чат только верх
+# по каждой секции. Иначе большой документ (сотни skipped-строк) превращается
+# в десятки сообщений-«простынь» (инцидент: 20/3219, job «23-5-Р25-ОВ3.2»).
+LOADED_CHAT_CAP = 50
+SKIPPED_CHAT_CAP = 30
 
 
 def _position_line(p: dict) -> str:
@@ -65,13 +70,19 @@ def build_report(res: PipelineResult, limit: int = DEFAULT_LIMIT) -> List[str]:
         llm_rows = [p for p in res.loaded if p.get("llm_source")]
         plain_rows = [p for p in res.loaded if not p.get("llm_source")]
         if plain_rows:
-            lines += ["", "✅ Загружены:"] + [_position_line(p) for p in plain_rows]
+            lines += ["", "✅ Загружены:"] + [_position_line(p) for p in plain_rows[:LOADED_CHAT_CAP]]
+            if len(plain_rows) > LOADED_CHAT_CAP:
+                lines.append(f"… и ещё {len(plain_rows) - LOADED_CHAT_CAP} — в отчёте")
         if llm_rows:
             lines += ["", "⚠ Восстановлено LLM (проверить):"] + [
-                _position_line(p) for p in llm_rows
+                _position_line(p) for p in llm_rows[:LOADED_CHAT_CAP]
             ]
+            if len(llm_rows) > LOADED_CHAT_CAP:
+                lines.append(f"… и ещё {len(llm_rows) - LOADED_CHAT_CAP} — в отчёте")
     if res.skipped:
-        lines += ["", "⏭ Пропущены:"] + [_skipped_line(s) for s in res.skipped]
+        lines += ["", "⏭ Пропущены:"] + [_skipped_line(s) for s in res.skipped[:SKIPPED_CHAT_CAP]]
+        if len(res.skipped) > SKIPPED_CHAT_CAP:
+            lines.append(f"… и ещё {len(res.skipped) - SKIPPED_CHAT_CAP} — в отчёте")
     if res.errors_1c:
         lines += ["", "❌ Ошибки 1С:"] + [f"· {e}" for e in res.errors_1c]
     if res.warnings_1c:

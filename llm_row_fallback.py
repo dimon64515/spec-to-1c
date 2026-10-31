@@ -98,13 +98,23 @@ def excluded_skipped(skipped: List[Dict]) -> List[Dict]:
 
 def qualifying_skipped(skipped: List[Dict]) -> List[Dict]:
     """Skipped-строки, пригодные для LLM-нормализации: ВСЕ skipped минус
-    м²-строки из excluded_skipped (v2 — blacklist вместо whitelist)."""
+    м²-строки из excluded_skipped (v2 — blacklist вместо whitelist), минус
+    фрагменты без цифр в name/size.
+
+    Фрагмент без цифр — обломок разорванной ячейки ГОСТ-бланка или шапка
+    («канальный», «Согласовано:», «Вентиляция подвала»): размера в нём нет,
+    валидация всё равно отбросит результат, а батч из сотен таких фрагментов
+    сжигает минуты LLM-времени (инцидент: job 170, 1346 qualifying)."""
     excluded = excluded_skipped(skipped)
-    return [
-        row
-        for row in skipped or []
-        if isinstance(row, dict) and all(row is not e for e in excluded)
-    ]
+    out = []
+    for row in skipped or []:
+        if not isinstance(row, dict) or any(row is e for e in excluded):
+            continue
+        text = f"{row.get('name') or ''} {row.get('size') or ''}"
+        if not any(ch.isdigit() for ch in text):
+            continue
+        out.append(row)
+    return out
 
 
 def _core_tokens(s: str) -> set:
@@ -278,6 +288,12 @@ def _loads_rows_array(content: str) -> List[Dict]:
     return data
 
 
+# Размер батча строк на один вызов LLM: больше — и промпт раздувается
+# (текст документа + сотни имён), kimi-cli не укладывается в таймаут вызова
+# (инцидент: 1275 строк одним батчем, оба вызова умерли по таймауту).
+ROW_BATCH_SIZE = 60
+
+
 def normalize_rows(
     rows: List[Dict],
     cfg: Optional[Dict] = None,
@@ -293,9 +309,21 @@ def normalize_rows(
     «Кол-во» сама. Пары со исходниками строятся токенным мэтчем (не по позиции
     в массиве ответа — она ненадёжна) и валидируются validate_normalized с
     text-якорем количества (text=None — якорь отключен, только int > 0).
-    Любой сбой / невалидный JSON (после max_retries попыток) / истёкший
-    deadline → [] + logger.warning, исключений наружу нет."""
+    Большие входы нарезаются на чанки по ROW_BATCH_SIZE строк — общий
+    deadline сохраняется между чанками. Любой сбой / невалидный JSON (после
+    max_retries попыток) / истёкший deadline → [] + logger.warning,
+    исключений наружу нет."""
     cfg = get_row_fallback_config() if cfg is None else dict(cfg)
+    if len(rows) > ROW_BATCH_SIZE:
+        out: List[Dict] = []
+        for i in range(0, len(rows), ROW_BATCH_SIZE):
+            out.extend(
+                normalize_rows(
+                    rows[i : i + ROW_BATCH_SIZE],
+                    cfg=cfg, runner=runner, deadline=deadline, text=text,
+                )
+            )
+        return out
     run = _run_kimi if runner is None else runner
     prompt = _build_prompt(rows, text)
     max_retries = max(0, int(cfg.get("max_retries", 2)))
@@ -440,10 +468,26 @@ def run_row_fallback(
         return success, skipped, noop_meta
 
     logger.info("llm_row_fallback.triggered: %d строк", len(qualifying))
+    # Кап строк на LLM: сверх него качество не растёт (остальное — обломки
+    # разорванных таблиц, которые валидация всё равно отбросит), а обход
+    # сотен чанков занимает десятки минут (инцидент: job 170). Хвост остаётся
+    # в skipped с исходной причиной.
+    MAX_LLM_ROWS = 400
+    if len(qualifying) > MAX_LLM_ROWS:
+        logger.warning(
+            "llm_row_fallback: %d qualifying строк, в LLM идут первые %d",
+            len(qualifying), MAX_LLM_ROWS,
+        )
+        qualifying = qualifying[:MAX_LLM_ROWS]
     # MERGED cfg (парковочное решение Task 2): command/model из общей секции
     # llm + timeout/max_retries из row_fallback.
     merged_cfg = {**llm_size_classifier.get_llm_config(), **get_row_fallback_config(cfg)}
-    deadline = time.monotonic() + float(merged_cfg.get("timeout") or 180)
+    # Дедлайн масштабируется от числа чанков: normalize_rows нарезает большие
+    # входы по ROW_BATCH_SIZE, и одного timeout на всё не хватает
+    # (инцидент: 1275 строк → 22 чанка). Потолок — защита от бесконечного жанра.
+    n_chunks = max(1, -(-len(qualifying) // ROW_BATCH_SIZE))
+    chunk_timeout = float(merged_cfg.get("timeout") or 180)
+    deadline = time.monotonic() + min(chunk_timeout * n_chunks, 900.0)
 
     # Текст документа — лениво и мягко: только для quantity-якоря; сбой
     # извлечения (битый pdf и т.п.) → text=None, якорь отключается.

@@ -224,6 +224,28 @@ def test_validate_normalized_accepts_abbreviation_expansion():
                                          "size": "150х150", "unit": "шт", "quantity": 5}) is None
 
 
+def test_normalize_rows_chunks_large_input():
+    """Регрессия job 170: >ROW_BATCH_SIZE строк одним батчем убивали вызов
+    kimi по таймауту промпта. Большие входы нарезаются, runner получает
+    чанки по ROW_BATCH_SIZE строк."""
+    import json
+    import llm_row_fallback as rf
+    rows = [
+        _skipped(name=f"Отвод ф125 45 №{i}", reason="Не удалось распознать количество (0)", quantity=0, unit="")
+        for i in range(rf.ROW_BATCH_SIZE + 10)
+    ]
+    calls = []
+
+    def runner(prompt, cfg):
+        calls.append(prompt.count("№"))
+        return _stream("[]")
+
+    got = rf.normalize_rows(rows, cfg={"max_retries": 0}, runner=runner, text=TEXT_DOC)
+    assert got == []
+    assert len(calls) == 2
+    assert calls[0] == rf.ROW_BATCH_SIZE and calls[1] == 10
+
+
 def test_build_prompt_includes_document_text_for_qty():
     """Регрессия qty=1: в промпте только имена — модель не видит «Кол-во»
     и ставит 1 везде. Текст документа теперь подмешивается в промпт."""
@@ -357,7 +379,7 @@ def test_blocked_20x_never_in_success_after_row_fallback(monkeypatch):
     import bitrix_bot.pipeline as pl
     import llm_row_fallback as rf
     import pandas as pd
-    df = pd.DataFrame([{"name": "Клапан противопожарный", "size": "",
+    df = pd.DataFrame([{"name": "Клапан противопожарный 90", "size": "",
                         "unit": "шт", "quantity": 1}])
     monkeypatch.setattr(pl, "load_tables_from_pdf", lambda b, **kw: {"tables": {1: [df]}})
     doc_meta = {"triggered": False, "recovered": 0, "skip_ratio": 1.0,

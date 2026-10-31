@@ -46,11 +46,23 @@ def test_report_splits_long_details():
         for i in range(80)
     ]
     msgs = build_report(_res(loaded=loaded, warnings_1c=[]), limit=3500)
-    assert len(msgs) > 1
+    assert len(msgs) >= 1
     assert all(len(m) <= 3500 for m in msgs)
     assert msgs[0].startswith("Заказ 1С")
     total = "".join(msgs)
-    assert total.count("1-2-1") == 80
+    # детализация в чате капнута (LOADED_CHAT_CAP), остальное — в отчёте
+    assert total.count("1-2-1") == 50
+    assert "и ещё 30 — в отчёте" in total
+
+
+def test_report_caps_skipped_list_in_chat():
+    skipped = [{"name": f"Позиция {i}", "reason": "нет размера"} for i in range(100)]
+    msgs = build_report(_res(loaded=[], skipped=skipped), limit=3500)
+    total = "".join(msgs)
+    # в чат только SKIPPED_CHAT_CAP строк, остальные — в отчёте
+    assert total.count("Позиция 29") == 1
+    assert "Позиция 30" not in total
+    assert "и ещё 70 — в отчёте" in total
 
 
 def test_report_summary_shows_split_llm_counts():

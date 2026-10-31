@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import fitz
 import pandas as pd
@@ -64,7 +64,24 @@ def load_tables_from_pdf(
         tmp.write(file_bytes)
         tmp_path = Path(tmp.name)
     try:
-        tables_by_page = extract_tables_from_pdf(str(tmp_path), pages=selected_pages)
+        # Дешёвый скан текстового слоя — источник строк для фолбэков и основа
+        # отбора кандидатных страниц: тяжёлые извлекатели (таблицы, позиционный
+        # разбор чертежей, OCR) гоняем только по ним. Иначе большой проектный
+        # документ (сотни страниц ПЗ/планов + ведомости) кладём всеми
+        # экстракторами на все страницы — медленно, а блокный разбор собирает
+        # тысячи мусорных «строк» из текста ПЗ (инцидент: 20/3219).
+        text_by_page = extract_text_lines_from_pdf(str(tmp_path), pages=selected_pages)
+        if selected_pages is not None:
+            table_pages = ocr_pages = list(selected_pages)
+        else:
+            marker_pages, scan_pages = _spec_candidate_pages(text_by_page)
+            if not marker_pages:
+                # Маркеров нет нигде — малый документ без заголовков ГОСТ:
+                # старое поведение, все страницы (сканы на OCR уйдут внутри).
+                marker_pages = scan_pages = sorted(text_by_page)
+            table_pages = marker_pages
+            ocr_pages = scan_pages
+        tables_by_page = extract_tables_from_pdf(str(tmp_path), pages=table_pages)
         if any(tables_by_page.values()):
             total_rows = 0
             valid_rows = 0
@@ -76,13 +93,16 @@ def load_tables_from_pdf(
                             valid_rows += 1
             if total_rows and valid_rows / total_rows >= 0.25:
                 return {"tables": tables_by_page}
-        text_by_page = extract_text_lines_from_pdf(str(tmp_path), pages=selected_pages)
-        all_lines = [line for page in sorted(text_by_page) for line in text_by_page[page]]
-        # Чертёж с встроенной таблицей «Спецификация изделий и материалов»:
+        all_lines = [
+            line
+            for page in table_pages
+            for line in text_by_page.get(page, [])
+        ]
+        # Чертёж с встроенной таблицей «Спецификация изделей и материалов»:
         # строки восстанавливаются по координатам колонок точнее, чем блоками
         # по текстовому слою; если таблица найдена — блокный разбор не нужен
         # (иначе те же позиции продублируются).
-        drawing_rows = extract_drawing_spec_rows(str(tmp_path), pages=selected_pages)
+        drawing_rows = extract_drawing_spec_rows(str(tmp_path), pages=table_pages)
         if drawing_rows:
             block_rows = [
                 row for page in sorted(drawing_rows) for row in drawing_rows[page]
@@ -93,7 +113,7 @@ def load_tables_from_pdf(
         # кривые вместо текста). Страницы с текстовым слоем и страницы без
         # сетки ведомости (чертежи, планы) внутри функции пропускаются.
         ocr_rows = extract_ocr_spec_rows(
-            str(tmp_path), pages=selected_pages, cache_path=ocr_cache_path)
+            str(tmp_path), pages=ocr_pages, cache_path=ocr_cache_path)
         if ocr_rows:
             block_rows = block_rows + [
                 row for page in sorted(ocr_rows) for row in ocr_rows[page]
@@ -105,6 +125,29 @@ def load_tables_from_pdf(
         }
     finally:
         tmp_path.unlink(missing_ok=True)
+
+
+# Маркеры страницы со спецификацией: заголовок колонки «Наименование»,
+# шапки «Спецификация …» / «Ведомость …» (ГОСТ 21.602, заявки).
+SPEC_PAGE_MARKERS = ("наименование", "спецификац", "ведомост")
+# Страница с таким числом непустых строк или меньше — без текстового слоя
+# (растровый скан) или чистый чертёж: кандидат на OCR, не на таблицы.
+SCAN_PAGE_MAX_LINES = 2
+
+
+def _spec_candidate_pages(text_by_page: Dict[int, List[str]]) -> Tuple[List[int], List[int]]:
+    """Разбить страницы на (marker_pages, scan_pages).
+
+    marker_pages — страницы с маркерами спецификации: по ним идут извлекатели
+    таблиц, позиционный разбор чертежей и блокный разбор текста. scan_pages —
+    страницы без текстового слоя (сканы): по ним — только OCR."""
+    pages = sorted(text_by_page)
+    marker_pages = [
+        p for p in pages
+        if any(m in " ".join(text_by_page[p]).lower() for m in SPEC_PAGE_MARKERS)
+    ]
+    scan_pages = [p for p in pages if len(text_by_page[p]) <= SCAN_PAGE_MAX_LINES]
+    return marker_pages, scan_pages
 
 
 def extract_equipment_from_bytes(
