@@ -17,6 +17,7 @@ import pandas as pd
 from pdf_spec_extractor import (
     df_to_spec_rows,
     extract_drawing_spec_rows,
+    extract_gost_spec_rows,
     extract_ocr_spec_rows,
     extract_tables_from_pdf,
     extract_text_lines_from_pdf,
@@ -51,9 +52,11 @@ def load_tables_from_pdf(
 
     Если таблицы найдены, но строки съезжаются (меньше 25% строк имеют и имя,
     и размер — типично для ГОСТ-бланков с многострочными ячейками), падаем
-    в разбор текстового слоя: сначала позиционный разбор встроенной в чертёж
-    таблицы «Спецификация изделий и материалов» (extract_drawing_spec_rows),
-    при её отсутствии — блоками по текстовому слою (parse_spec_text_blocks).
+    в разбор текстового слоя: сначала позиционный разбор спецификации
+    ГОСТ 21.602 на бланке (extract_gost_spec_rows), затем позиционный разбор
+    встроенной в чертёж таблицы «Спецификация изделий и материалов»
+    (extract_drawing_spec_rows), при её отсутствии — блоками по текстовому
+    слою (parse_spec_text_blocks).
     Страницы без текстового слоя вообще (текст преобразован в кривые), но с
     сеткой ведомости ГОСТ 21.602 разбираются через OCR (extract_ocr_spec_rows,
     tesseract); результаты кэшируются в ocr_cache_path, чтобы повторные
@@ -98,17 +101,28 @@ def load_tables_from_pdf(
             for page in table_pages
             for line in text_by_page.get(page, [])
         ]
-        # Чертёж с встроенной таблицей «Спецификация изделей и материалов»:
-        # строки восстанавливаются по координатам колонок точнее, чем блоками
-        # по текстовому слою; если таблица найдена — блокный разбор не нужен
+        # Спецификация ГОСТ 21.602 на бланке (многостраничный проектный
+        # документ): find_tables распадается на ячейки, построчный разбор
+        # теряет количества. Позиционный разбор собирает многострочные
+        # ячейки в строки; если он нашёл строки — блокный разбор не нужен
         # (иначе те же позиции продублируются).
-        drawing_rows = extract_drawing_spec_rows(str(tmp_path), pages=table_pages)
-        if drawing_rows:
+        gost_rows = extract_gost_spec_rows(str(tmp_path), pages=table_pages)
+        if gost_rows:
             block_rows = [
-                row for page in sorted(drawing_rows) for row in drawing_rows[page]
+                row for page in sorted(gost_rows) for row in gost_rows[page]
             ]
         else:
-            block_rows = parse_spec_text_blocks(all_lines)
+            # Чертёж с встроенной таблицей «Спецификация изделей и материалов»:
+            # строки восстанавливаются по координатам колонок точнее, чем блоками
+            # по текстовому слою; если таблица найдена — блокный разбор не нужен
+            # (иначе те же позиции продублируются).
+            drawing_rows = extract_drawing_spec_rows(str(tmp_path), pages=table_pages)
+            if drawing_rows:
+                block_rows = [
+                    row for page in sorted(drawing_rows) for row in drawing_rows[page]
+                ]
+            else:
+                block_rows = parse_spec_text_blocks(all_lines)
         # OCR-фолбэк: страницы-ведомости без текстового слоя (векторные
         # кривые вместо текста). Страницы с текстовым слоем и страницы без
         # сетки ведомости (чертежи, планы) внутри функции пропускаются.
