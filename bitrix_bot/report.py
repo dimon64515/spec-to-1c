@@ -109,6 +109,9 @@ def build_summary(res: PipelineResult) -> str:
     ]
     if n_llm:
         lines.append(f"Восстановлено LLM (проверить): {n_llm}")
+    n_no_price = sum(1 for p in res.loaded if p.get("price") is None)
+    if n_no_price:
+        lines.append(f"⚠ Без цены: {n_no_price}")
     if res.errors_1c:
         lines.append("Ошибки: " + "; ".join(res.errors_1c[:5]))
     return "\n".join(lines)

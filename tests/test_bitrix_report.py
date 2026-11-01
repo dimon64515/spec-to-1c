@@ -94,3 +94,8 @@ def test_build_summary_counts_trading():
     assert "Пропущено: 1" in text
     assert "Перекупное: 1" in text
     assert "Ошибок 1С: 1" in text
+
+
+def test_summary_mentions_positions_without_price():
+    res = PipelineResult(file_name="f.pdf", loaded=[{"price": 10.0}, {"price": None}])
+    assert "Без цены: 1" in build_summary(res)
