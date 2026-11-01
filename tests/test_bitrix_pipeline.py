@@ -328,3 +328,23 @@ def test_llm_source_flag_does_not_break_positions():
            "llm_source": True}
     positions = jp.build_positions([row])
     assert positions and all("llm_source" not in p for p in positions)
+
+
+def test_parse_1c_result_extracts_prices_from_tail():
+    text = ("ЗАКАЗ 851 | строк=2 | ошибок=0 | предупр=0 ## "
+            "1|1-1|t=0.8|мат=Оцинкованная|шина0=|с0=|тип=Розница|цена=1250.5|S=3.2|n=2 ## "
+            "2|2-1|t=0.8|мат=Оцинкованная|шина0=|с0=|тип=|цена=0|S=0|n=1")
+    res = pl.parse_1c_result(text)
+    assert res["prices"][0] == {"row": 1, "article": "1-1", "price": 1250.5,
+                                "area": 3.2, "qty": 2}
+    assert res["prices"][1]["price"] == 0
+
+
+def test_parse_1c_result_no_tail_prices_empty():
+    assert pl.parse_1c_result("ЗАКАЗ 851 | строк=0 | ошибок=0 | предупр=0")["prices"] == []
+
+
+def test_parse_1c_result_skips_malformed_tail_segment():
+    res = pl.parse_1c_result("ЗАКАЗ 851 | строк=1 ## битый-сегмент ## "
+                             "1|1-1|цена=10|S=1|n=1")
+    assert len(res["prices"]) == 1 and res["prices"][0]["price"] == 10
