@@ -266,3 +266,19 @@ def test_load_order_dispatches_by_url(monkeypatch):
     )
     assert out2["order_number"] == "000000860"
     assert set(calls2["json"].keys()) == {"code"}
+
+
+def test_to_result_includes_prices():
+    data = {"Успех": True, "НомерЗаказа": "851",
+            "Ошибки": [], "Предупреждения": [],
+            "Строки": [{"Артикул": "1-1", "ЦенаЕд": 1250.5, "S": 3.2, "Количество": 2},
+                       {"Артикул": "2-1", "ЦенаЕд": 0, "S": 0, "Количество": 1}]}
+    res = oc.HttpServiceTransport._to_result(data, "{}")
+    assert res["prices"][0] == {"row": 1, "article": "1-1", "price": 1250.5,
+                                "area": 3.2, "qty": 2}
+    assert res["prices"][1]["price"] == 0
+
+
+def test_to_result_prices_missing_key_empty():
+    res = oc.HttpServiceTransport._to_result({"Успех": True}, "{}")
+    assert res["prices"] == []

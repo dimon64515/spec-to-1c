@@ -175,6 +175,19 @@ class HttpServiceTransport:
             segments.append("; ".join(warnings))
         out = parse_1c_result(" | ".join(segments))
         out["raw"] = raw
+        prices = []
+        for i, row in enumerate(data.get("Строки") or [], start=1):
+            try:
+                prices.append({
+                    "row": i,
+                    "article": str(row.get("Артикул", "")),
+                    "price": float(row.get("ЦенаЕд") or 0),
+                    "area": float(row.get("S") or 0),
+                    "qty": float(row.get("Количество") or 0),
+                })
+            except (TypeError, ValueError):
+                continue
+        out["prices"] = prices
         return out
 
 
