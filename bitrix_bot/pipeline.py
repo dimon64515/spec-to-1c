@@ -265,6 +265,28 @@ def load_order_to_1c(
         ) from exc
 
 
+def _merge_prices(
+    success: List[Dict[str, Any]], prices: List[Dict[str, Any]]
+) -> int:
+    """Смержить построчные цены из ответа 1С в loaded по НомерСтроки
+    (row == i+1). Ключи loaded: "price" (None при цене 0/нет данных) и
+    "sum" = цена × количество, округление 2 знака. Вернуть число позиций
+    без цены."""
+    by_row = {int(p.get("row") or 0): p for p in prices or []}
+    n_no_price = 0
+    for i, row in enumerate(success, start=1):
+        info = by_row.get(i)
+        price = float(info["price"]) if info else None
+        if not price:
+            price = None
+        row["price"] = price
+        qty = row.get("quantity")
+        row["sum"] = round(price * qty, 2) if price is not None and qty else None
+        if price is None:
+            n_no_price += 1
+    return n_no_price
+
+
 def run_pipeline(
     pdf_bytes: bytes,
     file_name: str,
@@ -329,11 +351,16 @@ def run_pipeline(
     if isinstance(out, tuple):
         order_number, errors_1c, warnings_1c = out
         raw_text = ""
+        prices: List[Dict[str, Any]] = []
     else:
         order_number = out["order_number"]
         errors_1c = out["errors"]
-        warnings_1c = out["warnings"]
+        warnings_1c = list(out["warnings"])
         raw_text = out["raw"]
+        prices = out.get("prices") or []
+    n_no_price = _merge_prices(success, prices)
+    if n_no_price:
+        warnings_1c.append(f"{n_no_price} позиций без цены из 1С")
     return PipelineResult(
         file_name=file_name,
         order_number=order_number,
@@ -395,15 +422,21 @@ def recreate_order_from_report(
         positions, execute_url, comment, timeout=timeout,
         order_service=order_service, request_id=request_id,
     )
+    n_no_price = 0
+    if isinstance(out, dict):
+        n_no_price = _merge_prices(success, out.get("prices") or [])
     # Включённые позиции из skipped_rows (маркер "_include") исключаем:
     # они либо уже в extra_success, либо дублируются в extra_skipped с причиной.
     skipped = [s for s in edited.skipped_rows if not s.get("_include")]
+    warnings_1c = list(out["warnings"]) if isinstance(out, dict) else out[2]
+    if n_no_price:
+        warnings_1c.append(f"{n_no_price} позиций без цены из 1С")
     return PipelineResult(
         file_name=f"edited_report_{edited.replaced_order or 'new'}",
         order_number=out["order_number"],
         loaded=success,
         skipped=skipped + extra_skipped,
         errors_1c=out["errors"],
-        warnings_1c=out["warnings"],
+        warnings_1c=warnings_1c,
         raw_text=out["raw"],
     )

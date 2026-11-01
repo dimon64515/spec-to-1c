@@ -169,7 +169,8 @@ def test_run_pipeline_end_to_end_mocked(monkeypatch):
     assert res.order_number == "000000860"
     assert len(res.loaded) == 1
     assert res.skipped[0]["name"] == "Клапан"
-    assert res.warnings_1c == ["Строка 1 (1-2-1): цена 0 — проверьте прайс"]
+    assert res.warnings_1c == ["Строка 1 (1-2-1): цена 0 — проверьте прайс",
+                               "1 позиций без цены из 1С"]
 
 
 def test_recreate_order_from_report(monkeypatch):
@@ -348,3 +349,47 @@ def test_parse_1c_result_skips_malformed_tail_segment():
     res = pl.parse_1c_result("ЗАКАЗ 851 | строк=1 ## битый-сегмент ## "
                              "1|1-1|цена=10|S=1|n=1")
     assert len(res["prices"]) == 1 and res["prices"][0]["price"] == 10
+
+
+def _two_positions(b):
+    return (
+        [{"article": "1-1", "quantity": 2, "comment": "", "thickness": 0.8,
+          "params": {"A0": 300, "B0": 200}, "material_code": "1",
+          "connection_0": "", "connection_1": "",
+          "connection_2": "", "connection_3": "", "system": ""},
+         {"article": "2-1", "quantity": 1, "comment": "", "thickness": 0.8,
+          "params": {"A0": 100, "B0": 100}, "material_code": "1",
+          "connection_0": "", "connection_1": "",
+          "connection_2": "", "connection_3": "", "system": ""}],
+        [],
+        {"triggered": False, "recovered": 0, "escalation": None},
+    )
+
+
+def test_run_pipeline_merges_prices_and_warns_on_zero(monkeypatch):
+    monkeypatch.setattr(pl, "process_pdf_to_positions", _two_positions)
+    monkeypatch.setattr(
+        pl, "load_order_to_1c",
+        lambda *a, **k: {"order_number": "851", "errors": [], "warnings": [],
+                         "raw": "",
+                         "prices": [
+                             {"row": 1, "article": "1-1", "price": 1250.5,
+                              "area": 3.2, "qty": 2},
+                             {"row": 2, "article": "2-1", "price": 0,
+                              "area": 0, "qty": 1}]},
+    )
+    res = pl.run_pipeline(b"pdf", "f.pdf", "c", "http://x/api/execute_code")
+    assert res.loaded[0]["price"] == 1250.5
+    assert res.loaded[0]["sum"] == 2501.0
+    assert res.loaded[1]["price"] is None and res.loaded[1]["sum"] is None
+    assert any("без цены" in w for w in res.warnings_1c)
+
+
+def test_run_pipeline_no_prices_key_no_crash(monkeypatch):
+    monkeypatch.setattr(pl, "process_pdf_to_positions", _two_positions)
+    monkeypatch.setattr(
+        pl, "load_order_to_1c",
+        lambda *a, **k: {"order_number": "851", "errors": [], "warnings": [], "raw": ""},
+    )
+    res = pl.run_pipeline(b"pdf", "f.pdf", "c", "http://x/api/execute_code")
+    assert all(p["price"] is None for p in res.loaded)
