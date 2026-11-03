@@ -427,7 +427,13 @@ class PresaleDB:
 
     def set_override(self, scope: str, key: str, price: Decimal,
                      user: int) -> None:
-        """Создаёт или перезаписывает переопределение цены (scope, key)."""
+        """Создаёт или перезаписывает переопределение цены (scope, key).
+
+        key — ВСЕГДА уже JSON-закодированная СТРОКА (например
+        json.dumps(["ocsink", "0.7", "rect", "standard"])), никогда
+        список: get_overrides отдаёт json.loads(key), двойное кодирование
+        (передача списка) сломает чтение.
+        """
         with self._connect() as conn:
             conn.execute(
                 "INSERT INTO price_overrides (scope, key_json, price, set_by,"

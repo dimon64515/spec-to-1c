@@ -377,3 +377,24 @@ def test_boris_override_applied_in_estimate(client, app, monkeypatch):
     _, items = app.state.db.get_estimate(1)
     assert items[0].internal_price == Decimal("9999")
     assert items[0].price_source == "boris"
+
+
+def test_edit_non_finite_value_rejected(client, igor_bytes, db):
+    """NaN/Infinity не проходят в правку: 400, строка не изменена, лог чист."""
+    login(client)
+    upload(client, igor_bytes)
+    row_id = "Л40"
+    _, items = db.get_estimate(1)
+    before = next(i for i in items if i.row_id == row_id)
+    r = client.post(f"/estimate/1/item/{row_id}/edit",
+                    data={"field": "internal_price", "value": "nan"},
+                    follow_redirects=False)
+    assert r.status_code == 400
+    r = client.post(f"/estimate/1/item/{row_id}/edit",
+                    data={"field": "qty", "value": "Infinity"},
+                    follow_redirects=False)
+    assert r.status_code == 400
+    _, items = db.get_estimate(1)
+    after = next(i for i in items if i.row_id == row_id)
+    assert after == before
+    assert db.get_edits(1, row_id) == []

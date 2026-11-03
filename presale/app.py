@@ -456,6 +456,8 @@ def create_app(
                 new_value = Decimal(value.replace(",", "."))
             except InvalidOperation:
                 raise HTTPException(400, f"не число: {value!r}")
+            if not new_value.is_finite():
+                raise HTTPException(400, f"не число: {value!r}")
         elif field == "category":
             try:
                 new_value = Category(value)
