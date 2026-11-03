@@ -184,7 +184,12 @@ def create_app(db_path: str = "tmp/web_ui/web_ui.db") -> FastAPI:
     return app
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Запуск uvicorn: 127.0.0.1:8092, каталог tmp/web_ui создаётся Store'ом."""
     import uvicorn
 
     uvicorn.run(create_app(), host="127.0.0.1", port=8092)
+
+
+if __name__ == "__main__":
+    main()
