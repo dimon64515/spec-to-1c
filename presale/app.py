@@ -472,10 +472,19 @@ def create_app(
         return cells
 
     def _parse_decimal(raw: str) -> Decimal:
+        """Decimal из формы; не-числа и NaN/±Infinity → 400.
+
+        Decimal("nan")/("inf") парсятся без InvalidOperation — отсекаем
+        по is_finite(), иначе яд отравит override/расценку/ручную цену.
+        Отрицательные значения допустимы (скидочный override возможен).
+        """
         try:
-            return Decimal(raw.replace(",", ".").strip())
+            value = Decimal(raw.replace(",", ".").strip())
         except InvalidOperation:
             raise HTTPException(400, f"не число: {raw!r}")
+        if not value.is_finite():
+            raise HTTPException(400, f"не число: {raw!r}")
+        return value
 
     @app.get("/admin/prices", response_class=HTMLResponse)
     async def admin_prices(request: Request):

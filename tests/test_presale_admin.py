@@ -168,3 +168,27 @@ def test_manual_price_add_applies(client, app, monkeypatch):
     priced = upload_single(app, client, item, monkeypatch)
     assert priced.internal_price == Decimal("1200")
     assert priced.price_source == "manual"
+
+
+# ---- не-конечные числа (NaN/Infinity) ----
+
+@pytest.mark.parametrize("route,data", [
+    ("/admin/prices/boris",
+     {"material": "aisi304", "thickness": "0.8", "shape": "rect",
+      "product_kind": "standard"}),
+    ("/admin/prices/work-rates",
+     {"name": "Монтаж воздуховода", "unit": "м²", "coefficient": "1.5"}),
+    ("/admin/prices/manual",
+     {"name": "Клапан КВБ 600×300", "unit": "шт"}),
+])
+@pytest.mark.parametrize("bad", ["nan", "inf", "Infinity"])
+def test_non_finite_price_rejected(client, app, route, data, bad):
+    """NaN/±Infinity парсятся Decimal'ом без InvalidOperation — роуты 400."""
+    login(client)
+    payload = dict(data)
+    payload["price" if route != "/admin/prices/work-rates" else "rate"] = bad
+    r = client.post(route, data=payload, follow_redirects=False)
+    assert r.status_code == 400
+    # борис: в БД ничего не записалось
+    if route == "/admin/prices/boris":
+        assert app.state.db.get_overrides("boris") == {}
