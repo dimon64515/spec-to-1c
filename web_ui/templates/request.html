@@ -21,6 +21,9 @@
 {% if req.meta and req.meta.get("partial_warning") %}
 <section class="banner banner-warn">{{ req.meta.get("partial_warning") }}</section>
 {% endif %}
+{% if req.meta and req.meta.get("load_error") %}
+<section class="banner banner-error" title="Ошибка загрузки заказа в 1С">Ошибка 1С: {{ req.meta.get("load_error") }}</section>
+{% endif %}
 
 <section class="actions">
   <form action="/r/{{ req.id }}/load-1c" method="post" class="header-form">

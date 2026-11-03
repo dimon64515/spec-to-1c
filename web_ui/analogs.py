@@ -101,6 +101,8 @@ def accept_analog(row: dict, suggestion: dict, mapping: dict) -> dict:
         raise AnalogError("количество не распознано") from None
     if quantity <= 0:
         raise AnalogError("количество не распознано")
+    if quantity.is_integer():
+        quantity = int(quantity)
 
     section = determine_section(dims, category)
     connections = default_connections(section, suggestion["article"])
@@ -111,7 +113,7 @@ def accept_analog(row: dict, suggestion: dict, mapping: dict) -> dict:
         "name": suggestion["spec_name"],
         "size": build_spec_size(dims),
         "unit": row.get("unit") or DEFAULT_UNIT,
-        "quantity": row.get("quantity", 1),
+        "quantity": quantity,  # валидированное число, не сырая строка
         "params": dims,
         "material": material,
         "material_code": material_to_code(material),

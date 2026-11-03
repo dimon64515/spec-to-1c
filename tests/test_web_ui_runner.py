@@ -98,6 +98,27 @@ async def test_run_processing_exception_sets_error_status(monkeypatch, tmp_path)
     assert "PDF corrupted" in req["error"]
 
 
+@pytest.mark.anyio
+async def test_run_processing_save_failure_sets_error_status(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        "web_ui.runner.pipeline.process_pdf_to_positions",
+        lambda pdf_bytes: ([{"name": "Воздуховод"}], [], {}),
+    )
+    store = Store(str(tmp_path / "t.db"))
+    rid = store.create_request("spec.pdf")
+
+    def _boom(request_id, loaded, skipped):
+        raise RuntimeError("sqlite locked")
+
+    monkeypatch.setattr(store, "save_positions", _boom)
+
+    await run_processing(store, rid, "spec.pdf", b"%PDF", None)
+
+    req = store.get_request(rid)
+    assert req["status"] == "error"
+    assert "sqlite locked" in req["error"]
+
+
 def test_trading_row_without_offers_has_none_price():
     trading = [{"name": "Вентилятор", "reason": "Покупная позиция: вентилятор"}]
     _attach_dealer_prices(trading, [_result([])])
@@ -238,6 +259,32 @@ def test_load_to_1c_business_error_keeps_done_and_allows_retry(monkeypatch, tmp_
     # повторный вызов не бросает ValueError (в отличие от loaded_1c)
     result2 = load_to_1c(store, rid, {})
     assert result2["errors"] == ["Успех=false"]
+
+
+def test_load_to_1c_bad_prices_keeps_order(monkeypatch, tmp_path):
+    from bitrix_bot.config import BotConfig
+
+    monkeypatch.setattr(
+        "web_ui.runner.load_bot_config", lambda: BotConfig(execute_code_url="http://x"),
+    )
+
+    def _stub_load(*args, **kwargs):
+        return {
+            "order_number": "А-1", "errors": [], "warnings": [],
+            "raw": "", "prices": [{"row": 1, "article": "18-2-1", "price": "abc"}],
+        }
+
+    monkeypatch.setattr("web_ui.runner.pipeline.load_order_to_1c", _stub_load)
+    store, rid = _store_with_loaded(tmp_path)
+
+    result = load_to_1c(store, rid, {})
+
+    # заказ создан — loaded_1c и номер сохранены, цены не смержены, но предупреждение есть
+    assert result["order_number"] == "А-1"
+    assert any("цены не смержены" in w for w in result["warnings"])
+    req = store.get_request(rid)
+    assert req["status"] == "loaded_1c"
+    assert req["order_number"] == "А-1"
 
 
 def test_apply_analog_moves_row_to_loaded(tmp_path):

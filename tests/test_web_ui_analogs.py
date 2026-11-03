@@ -99,3 +99,16 @@ def test_accept_analog_none_quantity_raises():
     assert suggestion is not None
     with pytest.raises(AnalogError, match="количество не распознано"):
         accept_analog(row, suggestion, MAPPING)
+
+
+def test_accept_analog_string_quantity_becomes_number():
+    row = {
+        "name": "Клапан обратный АОС 100",
+        "size": "100x100",
+        "unit": "шт",
+        "quantity": "4",
+    }
+    suggestion = suggest_analog(row, MAPPING)
+    loaded = accept_analog(row, suggestion, MAPPING)
+    assert loaded["quantity"] == 4
+    assert isinstance(loaded["quantity"], int)

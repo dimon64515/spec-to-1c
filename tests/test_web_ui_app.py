@@ -148,3 +148,15 @@ def test_error_status_shows_error_and_export_buttons(client, app_store):
     # экспорт доступен даже при ошибке (Review Focus #5)
     assert f"/r/{rid}/xml" in resp.text
     assert f"/r/{rid}/report.xlsx" in resp.text
+
+
+def test_load_error_shows_banner(client, app_store):
+    rid = app_store.create_request("spec.pdf")
+    app_store.save_positions(rid, [dict(LOADED_ROW)], [])
+    app_store.set_status(rid, "done")
+    app_store.save_meta(rid, {"load_error": "Успех=false"})
+
+    resp = client.get(f"/r/{rid}")
+
+    assert resp.status_code == 200
+    assert "Успех=false" in resp.text

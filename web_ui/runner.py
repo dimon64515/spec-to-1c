@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict, List, Optional
 
 from bitrix_bot import pipeline
@@ -15,6 +16,8 @@ from map_customer_equipment import load_mapping
 from report_xlsx import is_trading_skip
 from web_ui import analogs
 from web_ui.store import Store
+
+logger = logging.getLogger(__name__)
 
 
 async def run_processing(
@@ -28,7 +31,9 @@ async def run_processing(
 
     Статусы: processing → done (позиции, meta, дилерские цены trading-строк)
     или error (текст исключения в requests.error). Пустой success — не ошибка:
-    заявка уходит в done с meta.escalation пайплайна.
+    заявка уходит в done с meta.escalation пайплайна. Любая ошибка после
+    пайплайна (attach цен, save_positions/save_meta/set_status) тоже переводит
+    заявку в error — навсегда зависшей в processing быть не должно.
 
     Args:
         store: хранилище заявок.
@@ -41,26 +46,31 @@ async def run_processing(
     try:
         success, skipped, meta = pipeline.process_pdf_to_positions(pdf_bytes)
     except Exception as exc:  # пайплайн падает по-разному — эскалация в error
+        logger.exception("пайплайн заявки %s упал", request_id)
         store.set_status(request_id, "error", str(exc))
         return
 
-    trading = [s for s in skipped if is_trading_skip(s)]
-    if price_engine is not None and trading:
-        items = [
-            {"name": s.get("name") or s.get("raw_name") or "", "size": s.get("size") or ""}
-            for s in trading
-        ]
-        try:
-            results = await price_engine.search(items)
-        except Exception:
-            # недоступность источников цен не должна ронять заявку:
-            # строки получат price_info=None («цена не найдена»)
-            results = []
-        _attach_dealer_prices(trading, results)
+    try:
+        trading = [s for s in skipped if is_trading_skip(s)]
+        if price_engine is not None and trading:
+            items = [
+                {"name": s.get("name") or s.get("raw_name") or "", "size": s.get("size") or ""}
+                for s in trading
+            ]
+            try:
+                results = await price_engine.search(items)
+            except Exception:
+                # недоступность источников цен не должна ронять заявку:
+                # строки получат price_info=None («цена не найдена»)
+                results = []
+            _attach_dealer_prices(trading, results)
 
-    store.save_positions(request_id, success, skipped)
-    store.save_meta(request_id, meta or {})
-    store.set_status(request_id, "done")
+        store.save_positions(request_id, success, skipped)
+        store.save_meta(request_id, meta or {})
+        store.set_status(request_id, "done")
+    except Exception as exc:
+        logger.exception("сохранение результата заявки %s упало", request_id)
+        store.set_status(request_id, "error", str(exc))
 
 
 def _attach_dealer_prices(trading: List[dict], results: List[Any]) -> None:
@@ -163,7 +173,12 @@ def load_to_1c(store: Store, request_id: int, header: dict, base_comment: str = 
         store.save_meta(request_id, meta)
         return {"order_number": None, "errors": errors_1c, "warnings": warnings_1c}
 
-    pipeline._merge_prices(loaded, prices)
+    try:
+        pipeline._merge_prices(loaded, prices)
+    except (TypeError, ValueError) as exc:
+        # заказ в 1С уже создан — цены не должны ронять загрузку
+        logger.exception("мерж цен заявки %s упал", request_id)
+        warnings_1c = warnings_1c + [f"цены не смержены: {exc}"]
     for i, row in enumerate(loaded):
         store.update_position(request_id, "loaded", i, row)
     store.set_order_number(request_id, order_number)
