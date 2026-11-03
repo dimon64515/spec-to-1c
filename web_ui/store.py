@@ -181,6 +181,49 @@ class Store:
                 (json.dumps(data, ensure_ascii=False), request_id, kind, index),
             )
 
+    def move_position(
+        self,
+        request_id: int,
+        from_kind: str,
+        from_index: int,
+        to_kind: str,
+        data: dict | None = None,
+    ) -> dict:
+        """Переместить строку из from_kind в конец to_kind; индексы from_kind уплотняются.
+
+        data задана — в to_kind попадёт она (принятие аналога), иначе строка
+        переносится без изменений. Вернуть данные, оказавшиеся в to_kind.
+        """
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT id, data FROM positions WHERE request_id = ? AND kind = ?"
+                " AND idx = ? ORDER BY id LIMIT 1",
+                (request_id, from_kind, from_index),
+            ).fetchone()
+            if row is None:
+                raise ValueError(
+                    f"нет позиции {from_kind}[{from_index}] в заявке {request_id}"
+                )
+            moved = json.dumps(data, ensure_ascii=False) if data is not None else row["data"]
+            conn.execute("DELETE FROM positions WHERE id = ?", (row["id"],))
+            rest = conn.execute(
+                "SELECT id FROM positions WHERE request_id = ? AND kind = ?"
+                " ORDER BY idx, id",
+                (request_id, from_kind),
+            ).fetchall()
+            for i, r in enumerate(rest):
+                conn.execute("UPDATE positions SET idx = ? WHERE id = ?", (i, r["id"]))
+            max_idx = conn.execute(
+                "SELECT COALESCE(MAX(idx), -1) FROM positions"
+                " WHERE request_id = ? AND kind = ?",
+                (request_id, to_kind),
+            ).fetchone()[0]
+            conn.execute(
+                "INSERT INTO positions (request_id, kind, idx, data) VALUES (?, ?, ?, ?)",
+                (request_id, to_kind, max_idx + 1, moved),
+            )
+        return json.loads(moved)
+
     def set_order_number(self, request_id: int, order_number: str) -> None:
         """Сохранить номер заказа 1С."""
         with self._connect() as conn:

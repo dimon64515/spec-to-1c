@@ -9,11 +9,12 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from bitrix_bot import pipeline
+from bitrix_bot.config import load_bot_config
+from json_positions import build_positions
+from map_customer_equipment import load_mapping
 from report_xlsx import is_trading_skip
+from web_ui import analogs
 from web_ui.store import Store
-
-# Конфигурация аналогов подгружается лениво в apply_analog — файл mapping'а
-# может отсутствовать в тестах, не связанных с аналогами.
 
 
 async def run_processing(
@@ -76,3 +77,112 @@ def _attach_dealer_prices(trading: List[dict], results: List[Any]) -> None:
             "url": best.url if best is not None else None,
             "supplier": best.supplier if best is not None else None,
         }
+
+
+def load_to_1c(store: Store, request_id: int, header: dict, base_comment: str = "Web-заявка") -> dict:
+    """Загрузить loaded-позиции заявки в 1С и смержить построчные цены обратно.
+
+    Порядок: loaded из store → build_positions → pipeline.load_order_to_1c
+    (конфигурация из load_bot_config; order_service только при непустом
+    order_service_url) → pipeline._merge_prices в строки store →
+    set_order_number → статус loaded_1c. Повторный вызов для заявки в
+    статусе loaded_1c отклоняется ValueError (защита от дублей заказа в 1С).
+
+    При исключении 1С статус остаётся done (повтор возможен), текст ошибки
+    пишется в meta.load_error заявки.
+
+    Args:
+        store: хранилище заявок.
+        request_id: id заявки в статусе done.
+        header: реквизиты заказа (в загрузке не участвуют — см. Task 5).
+        base_comment: базовый комментарий заказа 1С.
+
+    Returns:
+        {"order_number": str|None, "errors": list, "warnings": list}.
+    """
+    req = store.get_request(request_id)
+    if req is None:
+        raise ValueError(f"нет заявки {request_id}")
+    if req["status"] == "loaded_1c":
+        raise ValueError(
+            f"заявка {request_id} уже загружена в 1С (loaded_1c) — повтор запрещён"
+        )
+
+    loaded = store.get_positions(request_id, "loaded")
+    for row in loaded:
+        # стабы/принятые аналоги без полного набора ключей — дефолты
+        # совпадают с run_pipeline
+        row.setdefault("params", {})
+        row.setdefault("thickness", 0.8)
+        row.setdefault("comment", "")
+
+    cfg = load_bot_config()
+    order_service = None
+    if cfg.order_service_url:
+        order_service = {
+            "url": cfg.order_service_url,
+            "key": cfg.order_service_key,
+            "user": cfg.order_service_user,
+            "password": cfg.order_service_password,
+        }
+
+    try:
+        out = pipeline.load_order_to_1c(
+            build_positions(loaded),
+            cfg.execute_code_url,
+            base_comment,
+            timeout=cfg.request_timeout,
+            order_service=order_service,
+            request_id=str(request_id),
+        )
+    except Exception as exc:
+        meta = dict(req["meta"] or {})
+        meta["load_error"] = str(exc)
+        store.save_meta(request_id, meta)
+        return {"order_number": None, "errors": [str(exc)], "warnings": []}
+
+    if isinstance(out, tuple):
+        # обратная совместимость со стабами (order_number, errors, warnings)
+        order_number, errors_1c, warnings_1c = out
+        prices = []
+    else:
+        order_number = out["order_number"]
+        errors_1c = list(out["errors"])
+        warnings_1c = list(out["warnings"])
+        prices = out.get("prices") or []
+
+    pipeline._merge_prices(loaded, prices)
+    for i, row in enumerate(loaded):
+        store.update_position(request_id, "loaded", i, row)
+    store.set_order_number(request_id, order_number)
+    store.set_status(request_id, "loaded_1c")
+    return {"order_number": order_number, "errors": errors_1c, "warnings": warnings_1c}
+
+
+def apply_analog(store: Store, request_id: int, index: int) -> dict:
+    """Принять предложенный аналог для skipped-строки с порядковым номером index.
+
+    Строка конвертируется analogs.accept_analog и перемещается из skipped
+    в loaded (store.move_position уплотняет индексы skipped). При AnalogError
+    (нет категории, размер не распознан) строка остаётся skipped, в неё
+    пишется "analog_error" — UI показывает причину без падения.
+
+    Returns:
+        Новая loaded-позиция или исходная skipped-строка с analog_error.
+    """
+    skipped = store.get_positions(request_id, "skipped")
+    if index < 0 or index >= len(skipped):
+        raise ValueError(f"нет skipped-позиции с индексом {index}")
+    row = skipped[index]
+    mapping = load_mapping()
+    suggestion = analogs.suggest_analog(row, mapping)
+    try:
+        if suggestion is None:
+            raise analogs.AnalogError("категория не определена")
+        position = analogs.accept_analog(row, suggestion, mapping)
+    except analogs.AnalogError as exc:
+        row = dict(row)
+        row["analog_error"] = str(exc)
+        store.update_position(request_id, "skipped", index, row)
+        return row
+    return store.move_position(request_id, "skipped", index, "loaded", data=position)
