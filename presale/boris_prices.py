@@ -7,6 +7,7 @@
 
 Все цены — Decimal (в ячейках xlsx лежат целые числа, float не используется).
 """
+import logging
 import re
 from decimal import Decimal
 from pathlib import Path
@@ -15,10 +16,17 @@ from typing import Optional
 from openpyxl import load_workbook
 from pydantic import BaseModel
 
+log = logging.getLogger(__name__)
+
 # Группы материалов прайса.
 _MATERIAL_RE = re.compile(r"(aisi\s*430|aisi\s*304|08пс|оц|черн)", re.IGNORECASE)
 _THICKNESS_RE = re.compile(r"(\d+(?:[.,]\d+)?)\s*$")
 _FORM_WORDS_RE = re.compile(r"(рулон|лист|штрипс)\.?", re.IGNORECASE)
+_STRIP_RE = re.compile(r"штрипс", re.IGNORECASE)
+
+# При слиянии дублей (group, thickness) в одном листе форма «рулон/лист»
+# первична, «штрипс» — вторична: цену рулона штрипс не перекрывает.
+_ROW_FORM_PRIORITY = {"primary": 1, "secondary": 0}
 
 # Нормализованный запрос → группа материала прайса.
 MATERIAL_ALIASES: dict[str, str] = {
@@ -78,15 +86,30 @@ def _kind_of_header(header: str) -> Optional[str]:
 
 
 class BorisPriceTable:
-    """Таблица цен Бориса: сетка из xlsx + переопределения поверх неё."""
+    """Таблица цен Бориса: сетка из xlsx + переопределения поверх неё.
+
+    Слияние дублей (group, thickness) внутри одного листа детерминировано:
+    первичная форма «рулон/лист» побеждает вторичную «штрипс» независимо от
+    порядка строк; пустые ячейки уже записанные значения не затирают;
+    при конфликте двух непустых цен берётся значение из строки рулона/листа
+    и пишется log.warning.
+
+    overrides копируется и приводится к Decimal на входе; ключ задаётся по
+    уже округлённой до сетки толщине (0.7, а не 0.65):
+    {(material_group, thickness, shape, product_kind): Decimal}.
+    """
 
     def __init__(self, overrides: Optional[dict] = None):
-        self.overrides = overrides or {}
+        self.overrides = {
+            key: Decimal(str(value)) for key, value in dict(overrides or {}).items()
+        }
         # {(group, thickness): {kind: Decimal}} для каждой формы.
         self._grids: dict[str, dict[tuple[str, Decimal], dict[str, Decimal]]] = {
             "rect": {},
             "round": {},
         }
+        # Источник записанной цены: {(shape, group, thickness, kind): form}.
+        self._sources: dict[tuple[str, str, Decimal, str], str] = {}
 
     @classmethod
     def from_xlsx(
@@ -114,6 +137,10 @@ class BorisPriceTable:
             if header_row:
                 break
         if header_row is None:
+            log.warning(
+                "Прайс %s: колонка «Материал» не найдена — лист не распознан, цены пропущены",
+                path,
+            )
             return
         kind_cols: dict[str, int] = {}
         for r in range(header_row, min(header_row + 3, ws.max_row) + 1):
@@ -130,11 +157,32 @@ class BorisPriceTable:
             if parsed is None:
                 continue
             group, thickness = parsed
+            row_form = "secondary" if _STRIP_RE.search(name) else "primary"
             cells = self._grids[shape].setdefault((group, thickness), {})
             for kind, col in kind_cols.items():
                 value = ws.cell(row=r, column=col).value
-                if isinstance(value, (int, float)):
-                    cells[kind] = Decimal(str(value))
+                if not isinstance(value, (int, float)) or isinstance(value, bool):
+                    continue
+                new_price = Decimal(str(value))
+                cell_key = (shape, group, thickness, kind)
+                old_price = cells.get(kind)
+                if old_price is None:
+                    cells[kind] = new_price
+                    self._sources[cell_key] = row_form
+                    continue
+                if old_price == new_price:
+                    continue
+                # Конфликт двух непустых цен: первична форма «рулон/лист».
+                old_form = self._sources[cell_key]
+                log.warning(
+                    "Прайс %s: конфликт цен %s %s %s %s: %s (%s) vs %s (%s); беру %s",
+                    path, group, thickness, shape, kind,
+                    old_price, old_form, new_price, row_form,
+                    new_price if _ROW_FORM_PRIORITY[row_form] > _ROW_FORM_PRIORITY[old_form] else old_price,
+                )
+                if _ROW_FORM_PRIORITY[row_form] > _ROW_FORM_PRIORITY[old_form]:
+                    cells[kind] = new_price
+                    self._sources[cell_key] = row_form
 
     def lookup(
         self,
