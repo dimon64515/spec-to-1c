@@ -49,3 +49,6 @@ verify_order.xml
 shipilovsky_positions.json
 price_search/diag_results.json
 price_search/diag_test.py
+
+# git worktrees
+.worktrees/
