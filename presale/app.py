@@ -21,6 +21,7 @@ import argparse
 import json
 import logging
 import os
+import re
 import secrets as _secrets
 from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
@@ -43,7 +44,7 @@ from presale.chatgpt_table import parse_chatgpt_workbook
 from presale.db import PresaleDB
 from presale.jobs import JobRunner
 from presale.mcp_1c import BackendUnavailableError, OneCPriceBackend
-from presale.models import CENT, Category, PriceStatus, build_summary
+from presale.models import CENT, Category, EstimateItem, PriceStatus, build_summary
 from presale.pricing import MarketPricer, PriceBackend, price_items
 from presale.report import build_customer_xlsx, build_internal_xlsx
 
@@ -97,6 +98,50 @@ def _money(value: Optional[Decimal]) -> str:
     if isinstance(value, Decimal):
         return str(value.quantize(CENT, rounding=ROUND_HALF_UP))
     return str(value)
+
+
+_WORD_RE = re.compile(r"[0-9a-zа-яё]+")
+
+
+def _norm_item_name(name: str) -> str:
+    """Нормализация имени строки: casefold + только слова/цифры."""
+    return " ".join(_WORD_RE.findall(name.casefold()))
+
+
+def find_similar_estimates(db: PresaleDB,
+                           items: list[EstimateItem],
+                           customer: str) -> list[int]:
+    """id похожих расчётов по убыванию релевантности.
+
+    Похожесть: совпадение заказчика (casefold) ИЛИ пересечение ≥ 50%
+    нормализованных имён строк. Оценка = 2 (заказчик) + доля пересечения,
+    иначе 1 + доля пересечения — заказчик ранжируется выше чистого
+    совпадения имён. Расчёт, из которого взяты items, в выборку попадает
+    (вызывальщик отсекает самого себя).
+    """
+    names = {n for n in (_norm_item_name(i.name) for i in items) if n}
+    customer_key = (customer or "").casefold()
+    scored: list[tuple[float, int]] = []
+    for meta in db.list_estimates():
+        score = 0.0
+        if customer_key and (meta.get("customer") or "").casefold() \
+                == customer_key:
+            score = 2.0
+        try:
+            _, other_items = db.get_estimate(meta["id"])
+        except KeyError:
+            continue
+        other = {n for n in (_norm_item_name(i.name) for i in other_items)
+                 if n}
+        overlap = len(names & other) / len(names) if names and other else 0.0
+        if score:
+            score += overlap
+        elif overlap >= 0.5:
+            score = 1.0 + overlap
+        if score:
+            scored.append((score, meta["id"]))
+    scored.sort(key=lambda p: (-p[0], p[1]))
+    return [est_id for _, est_id in scored]
 
 
 def create_app(
@@ -369,11 +414,27 @@ def create_app(
         summary = build_summary(items)
         grouped = {c: [i for i in shown if i.category == c]
                    for c in Category}
+        similar = []
+        if meta.get("status") == "done":
+            metas = {m["id"]: m for m in db.list_estimates()}
+            for est_id in find_similar_estimates(
+                    db, items, meta.get("customer") or ""):
+                # бейдж — только на более ранние расчёты («от <date>»)
+                if est_id != estimate_id and est_id in metas \
+                        and metas[est_id]["created_at"] \
+                        < meta["created_at"]:
+                    similar.append({
+                        "id": est_id,
+                        "created_at": metas[est_id]["created_at"][:10],
+                    })
+                if len(similar) >= 3:
+                    break
         return templates.TemplateResponse(
             request, "result.html",
             {"user": user, "meta": meta,
              "items": items, "summary": summary, "grouped": grouped,
-             "only": only, "editable_fields": EDITABLE_FIELDS},
+             "only": only, "editable_fields": EDITABLE_FIELDS,
+             "similar": similar},
         )
 
     @app.post("/estimate/{estimate_id}/item/{row_id}/edit")

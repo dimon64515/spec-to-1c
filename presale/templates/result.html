@@ -4,6 +4,13 @@
 <h1>Расчёт №{{ meta.id }} — {{ meta.customer }}</h1>
 <p>Тендер: {{ meta.tender_no or '—' }} · Дедлайн: {{ meta.deadline or '—' }}
    · Файл: {{ meta.source_filename }} · Статус: {{ meta.status }}</p>
+{% if similar %}
+<p class="similar">
+  {% for s in similar %}
+  <a class="badge" href="/estimate/{{ s.id }}">похожий расчёт от {{ s.created_at }}</a>
+  {% endfor %}
+</p>
+{% endif %}
 <p>
   <a href="/estimate/{{ meta.id }}/export/internal.xlsx">Внутренняя выгрузка</a> ·
   <a href="/estimate/{{ meta.id }}/export/customer.xlsx">КП заказчику</a> ·
