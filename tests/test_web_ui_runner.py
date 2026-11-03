@@ -203,6 +203,43 @@ def test_load_to_1c_refused_when_already_loaded(tmp_path):
         load_to_1c(store, rid, {})
 
 
+def test_load_to_1c_refused_from_processing(tmp_path):
+    store, rid = _store_with_loaded(tmp_path)
+    store.set_status(rid, "processing")
+
+    with pytest.raises(ValueError, match="done"):
+        load_to_1c(store, rid, {})
+
+
+def test_load_to_1c_business_error_keeps_done_and_allows_retry(monkeypatch, tmp_path):
+    from bitrix_bot.config import BotConfig
+
+    monkeypatch.setattr(
+        "web_ui.runner.load_bot_config", lambda: BotConfig(execute_code_url="http://x"),
+    )
+
+    def _stub_load(*args, **kwargs):
+        return {
+            "order_number": None, "errors": ["Успех=false"], "warnings": [],
+            "raw": "", "prices": [],
+        }
+
+    monkeypatch.setattr("web_ui.runner.pipeline.load_order_to_1c", _stub_load)
+    store, rid = _store_with_loaded(tmp_path)
+
+    result = load_to_1c(store, rid, {})
+
+    assert result["order_number"] is None
+    assert result["errors"] == ["Успех=false"]
+    req = store.get_request(rid)
+    assert req["status"] == "done"  # loaded_1c не ставим — заказ не создан
+    assert req["order_number"] is None
+    assert "Успех=false" in req["meta"]["load_error"]
+    # повторный вызов не бросает ValueError (в отличие от loaded_1c)
+    result2 = load_to_1c(store, rid, {})
+    assert result2["errors"] == ["Успех=false"]
+
+
 def test_apply_analog_moves_row_to_loaded(tmp_path):
     store = Store(str(tmp_path / "t.db"))
     rid = store.create_request("spec.pdf")

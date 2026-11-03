@@ -85,8 +85,10 @@ def load_to_1c(store: Store, request_id: int, header: dict, base_comment: str = 
     Порядок: loaded из store → build_positions → pipeline.load_order_to_1c
     (конфигурация из load_bot_config; order_service только при непустом
     order_service_url) → pipeline._merge_prices в строки store →
-    set_order_number → статус loaded_1c. Повторный вызов для заявки в
-    статусе loaded_1c отклоняется ValueError (защита от дублей заказа в 1С).
+    set_order_number → статус loaded_1c. Загрузка разрешена только из статуса
+    done — повторный вызов после успеха отклоняется ValueError. Бизнес-ошибка 1С
+    (пустой order_number или непустые errors) исключением не бросается: статус
+    остаётся done, повтор возможен, текст пишется в meta.load_error.
 
     При исключении 1С статус остаётся done (повтор возможен), текст ошибки
     пишется в meta.load_error заявки.
@@ -103,9 +105,9 @@ def load_to_1c(store: Store, request_id: int, header: dict, base_comment: str = 
     req = store.get_request(request_id)
     if req is None:
         raise ValueError(f"нет заявки {request_id}")
-    if req["status"] == "loaded_1c":
+    if req["status"] != "done":
         raise ValueError(
-            f"заявка {request_id} уже загружена в 1С (loaded_1c) — повтор запрещён"
+            f"загрузка в 1С разрешена только из статуса done, текущий: {req['status']}"
         )
 
     loaded = store.get_positions(request_id, "loaded")
@@ -150,6 +152,16 @@ def load_to_1c(store: Store, request_id: int, header: dict, base_comment: str = 
         errors_1c = list(out["errors"])
         warnings_1c = list(out["warnings"])
         prices = out.get("prices") or []
+
+    if not order_number or errors_1c:
+        # бизнес-ошибка 1С исключением не бросается: заказ не создан — статус
+        # loaded_1c не ставим, повторная загрузка остаётся возможной
+        meta = dict(req["meta"] or {})
+        meta["load_error"] = "; ".join(str(e) for e in errors_1c) or (
+            "1С не вернул номер заказа"
+        )
+        store.save_meta(request_id, meta)
+        return {"order_number": None, "errors": errors_1c, "warnings": warnings_1c}
 
     pipeline._merge_prices(loaded, prices)
     for i, row in enumerate(loaded):
