@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Предрасчёт{% endblock %}</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em auto; max-width: 1100px; }
+    nav a { margin-right: 1em; }
+    nav .user { float: right; color: #666; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+    th, td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
+    th { background: #f0f0f0; }
+    .overdue { background: #ffe0e0; }
+    .missing { background: #fff3f3; }
+    .num { text-align: right; white-space: nowrap; }
+    form.inline { display: inline; }
+    input, select { margin: 2px 0; }
+    .error { color: #b00; }
+    .summary td:first-child { font-weight: bold; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="/">История</a>
+  <a href="/upload">Новый расчёт</a>
+  {% if user %}
+    <span class="user">{{ user.display_name }} · <a href="/logout">Выход</a></span>
+  {% endif %}
+</nav>
+{% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Расчёт №{{ meta.id }}{% endblock %}
+{% block content %}
+<h1>Расчёт №{{ meta.id }} — {{ meta.customer }}</h1>
+<p>Тендер: {{ meta.tender_no or '—' }} · Дедлайн: {{ meta.deadline or '—' }}
+   · Файл: {{ meta.source_filename }} · Статус: {{ meta.status }}</p>
+<p>
+  <a href="/estimate/{{ meta.id }}/export/internal.xlsx">Внутренняя выгрузка</a> ·
+  <a href="/estimate/{{ meta.id }}/export/customer.xlsx">КП заказчику</a> ·
+  {% if only %}
+    <a href="/estimate/{{ meta.id }}">Показать все строки</a>
+  {% else %}
+    <a href="/estimate/{{ meta.id }}?status=missing">Только без цен</a>
+  {% endif %}
+</p>
+
+<h2>Сводка</h2>
+<table class="summary">
+  <tr><th>Категория</th><th>Рынок</th><th>Внутренняя</th></tr>
+  {% for cat, totals in summary.by_category.items() %}
+  <tr>
+    <td>{{ category_label(cat) }}</td>
+    <td class="num">{{ money(totals.market) }}</td>
+    <td class="num">{{ money(totals.internal) }}</td>
+  </tr>
+  {% endfor %}
+  <tr><td>Итого</td>
+      <td class="num">{{ money(summary.market_total) }}</td>
+      <td class="num">{{ money(summary.internal_total) }}</td></tr>
+  <tr><td>Разница</td><td colspan="2" class="num">{{ money(summary.delta) }}</td></tr>
+  <tr><td>Маржа, %</td>
+      <td colspan="2" class="num">{{ money(summary.margin_pct) if summary.margin_pct is not none else '—' }}</td></tr>
+</table>
+
+{% for cat, items in grouped.items() %}
+  {% if items %}
+  <h2>{{ category_label(cat) }}</h2>
+  <table>
+    <tr><th></th><th>Наименование</th><th>Ед.</th><th class="num">Кол-во</th>
+        <th class="num">Рынок</th><th class="num">Цена</th><th class="num">Сумма</th>
+        <th>Примечание</th><th>Правка</th></tr>
+    {% for item in items %}
+    <tr class="{{ 'missing' if item.status.value == 'missing' }}">
+      <td>{{ status_icon(item.status) }}</td>
+      <td>{{ item.name }}</td>
+      <td>{{ item.unit }}</td>
+      <td class="num">{{ money(item.qty) }}</td>
+      <td class="num">{{ money(item.market_price) }}</td>
+      <td class="num">{{ money(item.internal_price) }}</td>
+      <td class="num">{{ money(item.computed_total()) }}</td>
+      <td>{{ item.status_note }}</td>
+      <td>
+        <form class="inline" method="post" action="/estimate/{{ meta.id }}/item/{{ item.row_id }}/edit">
+          <select name="field">
+            {% for key, label in editable_fields.items() %}
+              <option value="{{ key }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+          <input name="value" size="8" required>
+          <button type="submit">OK</button>
+        </form>
+        <a href="/estimate/{{ meta.id }}/item/{{ item.row_id }}/edits">лог</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+{% endfor %}
+{% endblock %}

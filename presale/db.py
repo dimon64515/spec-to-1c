@@ -120,6 +120,15 @@ class PresaleDB:
             )
             return int(cur.lastrowid)
 
+    def get_user(self, user_id: int) -> Optional[dict]:
+        """Пользователь по id: {"id", "login", "display_name"}; None если нет."""
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT id, login, display_name FROM users WHERE id = ?",
+                (user_id,),
+            ).fetchone()
+        return dict(row) if row else None
+
     def verify_user(self, login: str, password: str) -> Optional[int]:
         """Проверяет пароль; возвращает id пользователя или None."""
         with self._connect() as conn:
@@ -198,6 +207,14 @@ class PresaleDB:
                 "SELECT * FROM estimates ORDER BY id"
             ).fetchall()
         return [dict(r) for r in rows]
+
+    def set_estimate_status(self, estimate_id: int, status: str) -> None:
+        """Переводит расчёт в новое состояние (running/done/error/...)."""
+        with self._connect() as conn:
+            conn.execute(
+                "UPDATE estimates SET status = ? WHERE id = ?",
+                (status, estimate_id),
+            )
 
     # ---- правки ----
 

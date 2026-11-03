@@ -193,3 +193,18 @@ def test_apply_edit_not_found_raises_keyerror_and_keeps_connection(db):
     db.apply_edit(eid, "Л1", "internal_price", "5000")
     _, items = db.get_estimate(eid)
     assert items[0].internal_price == Decimal("5000")
+
+
+def test_get_user_returns_display_name(db):
+    uid = db.create_user("u", "p", "Юзер")
+    assert db.get_user(uid) == {"id": uid, "login": "u",
+                                "display_name": "Юзер"}
+    assert db.get_user(999) is None
+
+
+def test_set_estimate_status(db):
+    uid = db.create_user("u", "p", "U")
+    eid = db.create_estimate(uid, {"title": "t", "status": "running"})
+    assert db.get_estimate(eid)[0]["status"] == "running"
+    db.set_estimate_status(eid, "done")
+    assert db.get_estimate(eid)[0]["status"] == "done"

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Вход — Предрасчёт{% endblock %}
+{% block content %}
+<h1>Вход</h1>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<form method="post" action="/login">
+  <p>Логин:<br><input name="login" required></p>
+  <p>Пароль:<br><input name="password" type="password" required></p>
+  <p><button type="submit">Войти</button></p>
+</form>
+{% endblock %}

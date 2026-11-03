@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}История расчётов{% endblock %}
+{% block content %}
+<h1>История расчётов</h1>
+<table>
+  <tr><th>№</th><th>Заказчик</th><th>Тендер</th><th>Дедлайн</th><th>Создан</th><th>Статус</th></tr>
+  {% for est in estimates %}
+  <tr class="{{ 'overdue' if est.overdue }}">
+    <td><a href="/estimate/{{ est.id }}">{{ est.id }}</a></td>
+    <td>{{ est.customer }}</td>
+    <td>{{ est.tender_no }}</td>
+    <td>{{ est.deadline }}</td>
+    <td>{{ est.created_at[:10] }}</td>
+    <td>{{ est.status }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

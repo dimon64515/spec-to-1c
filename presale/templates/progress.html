@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Расчёт выполняется{% endblock %}
+{% block content %}
+<h1>Расчёт выполняется…</h1>
+<p>Шаг: <span id="step">{{ status.step }}</span></p>
+<p id="msg" class="error"></p>
+<script>
+async function poll() {
+  const r = await fetch('/job/{{ job_id }}');
+  const st = await r.json();
+  document.getElementById('step').textContent = st.step;
+  if (st.state === 'done') {
+    window.location = '/estimate/' + st.result_id;
+  } else if (st.state === 'error') {
+    document.getElementById('msg').textContent = 'Ошибка: ' + st.error;
+    clearInterval(timer);
+  }
+}
+const timer = setInterval(poll, 1000);
+</script>
+{% endblock %}

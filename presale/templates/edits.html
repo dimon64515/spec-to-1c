@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Лог правок {{ row_id }}{% endblock %}
+{% block content %}
+<h1>Лог правок строки «{{ row_id }}» (расчёт №{{ estimate_id }})</h1>
+<p><a href="/estimate/{{ estimate_id }}">← назад к расчёту</a></p>
+<table>
+  <tr><th>Время</th><th>Пользователь</th><th>Поле</th><th>Было</th><th>Стало</th></tr>
+  {% for edit in edits %}
+  <tr>
+    <td>{{ edit.ts[:19] }}</td>
+    <td>{{ edit.user_name }}</td>
+    <td>{{ edit.field }}</td>
+    <td>{{ edit.old_value or '—' }} → {{ edit.new_value }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

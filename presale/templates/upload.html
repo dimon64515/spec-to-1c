@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Новый расчёт{% endblock %}
+{% block content %}
+<h1>Новый расчёт</h1>
+<form method="post" action="/upload" enctype="multipart/form-data">
+  <p>Файл ChatGPT (xlsx):<br><input type="file" name="file" accept=".xlsx" required></p>
+  <p>Заказчик:<br><input name="customer"></p>
+  <p>Номер тендера:<br><input name="tender_no"></p>
+  <p>Дедлайн:<br><input type="date" name="deadline"></p>
+  <p><button type="submit">Загрузить и рассчитать</button></p>
+</form>
+{% endblock %}
