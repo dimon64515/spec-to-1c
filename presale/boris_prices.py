@@ -48,6 +48,21 @@ _KIND_HEADERS = {
     "nonstandard": ("нестандартн",),
 }
 
+# Человеческие подписи канонических ключей (селекты админки / отчёты).
+MATERIAL_GROUP_LABELS = {
+    "ocsink": "Оцинкованная сталь",
+    "aisi430": "AISI 430",
+    "aisi304": "AISI 304",
+    "black": "Чёрная сталь",
+}
+SHAPE_LABELS = {"rect": "Прямоугольные", "round": "Круглые"}
+PRODUCT_KIND_LABELS = {
+    "standard": "Стандартный (L=1250)",
+    "short": "Короткий (L<1250)",
+    "fitting": "Фасонная часть",
+    "nonstandard": "Нестандартный",
+}
+
 
 class BorisPrice(BaseModel):
     """Найденная цена: значение, толщина сетки и факт округления."""
@@ -183,6 +198,19 @@ class BorisPriceTable:
                 if _ROW_FORM_PRIORITY[row_form] > _ROW_FORM_PRIORITY[old_form]:
                     cells[kind] = new_price
                     self._sources[cell_key] = row_form
+
+    def cells(self) -> list[tuple[str, str, Decimal, str, Decimal]]:
+        """Все ячейки сетки: (shape, group, thickness, kind, price), отсортированы.
+
+        Публичный доступ к сетке для админки: селекты формы переопределений
+        строятся из реальных ячеек, чтобы ключ нельзя было опечатать.
+        """
+        out = []
+        for shape, grid in self._grids.items():
+            for (group, thickness), kinds in grid.items():
+                for kind, price in kinds.items():
+                    out.append((shape, group, thickness, kind, price))
+        return sorted(out, key=lambda c: (c[0], c[1], c[2], c[3]))
 
     def lookup(
         self,

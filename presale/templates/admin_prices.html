@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Цены · Предрасчёт{% endblock %}
+{% block content %}
+<h1>Глобальные цены</h1>
+
+{% if saved %}<p style="color:#060">Сохранено.</p>{% endif %}
+
+<h2>Переопределения прайса Бориса</h2>
+<form method="post" action="/admin/prices/boris" id="boris-form">
+  <label>Материал
+    <select name="material" id="b-material"></select></label>
+  <label>Форма
+    <select name="shape" id="b-shape"></select></label>
+  <label>Вид изделия
+    <select name="product_kind" id="b-kind"></select></label>
+  <label>Толщина
+    <select name="thickness" id="b-thickness"></select></label>
+  <label>Новая цена
+    <input name="price" size="8" required></label>
+  <button type="submit">Сохранить override</button>
+  <span id="b-current"></span>
+</form>
+
+{% if overrides %}
+<table>
+  <tr><th>Материал</th><th>Толщина</th><th>Форма</th><th>Вид</th><th class="num">Цена</th></tr>
+  {% for o in overrides %}
+  <tr>
+    <td>{{ material_labels.get(o.material, o.material) }}</td>
+    <td>{{ o.thickness }}</td>
+    <td>{{ shape_labels.get(o.shape, o.shape) }}</td>
+    <td>{{ kind_labels.get(o.kind, o.kind) }}</td>
+    <td class="num">{{ money(o.price) }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>Переопределений нет — цены берутся из прайс-листов.</p>
+{% endif %}
+
+<h2>Расценки работ</h2>
+{% if work_rates %}
+<table>
+  <tr><th>Название</th><th>Ед.</th><th class="num">Ставка</th><th class="num">Коэффициент</th><th></th></tr>
+  {% for row in work_rates %}
+  <tr>
+    <td>{{ row.name }}<input type="hidden" form="wr-{{ row.id }}" name="name" value="{{ row.name }}"></td>
+    <td><input form="wr-{{ row.id }}" name="unit" value="{{ row.unit }}" size="4"></td>
+    <td><input form="wr-{{ row.id }}" name="rate" value="{{ row.rate }}" size="8"></td>
+    <td><input form="wr-{{ row.id }}" name="coefficient" value="{{ row.coefficient }}" size="5"></td>
+    <td><form method="post" action="/admin/prices/work-rates" id="wr-{{ row.id }}" class="inline">
+          <button type="submit">Сохранить</button>
+        </form></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>Расценок нет — работы оцениваются по рынку × коэффициент.</p>
+{% endif %}
+<h3>Новая расценка</h3>
+<form method="post" action="/admin/prices/work-rates">
+  <input name="name" placeholder="Название" required>
+  <input name="unit" placeholder="Ед." size="4">
+  <input name="rate" placeholder="Ставка" size="8" required>
+  <input name="coefficient" placeholder="Коэфф." size="5" value="1">
+  <button type="submit">Добавить</button>
+</form>
+
+<h2>Ручные цены</h2>
+<form method="post" action="/admin/prices/manual">
+  <input name="name" placeholder="Название позиции" required>
+  <input name="unit" placeholder="Ед." size="4">
+  <input name="price" placeholder="Цена" size="8" required>
+  <button type="submit">Сохранить цену</button>
+</form>
+{% if manual_prices %}
+<table>
+  <tr><th>Позиция</th><th>Ед.</th><th class="num">Цена</th></tr>
+  {% for row in manual_prices %}
+  <tr>
+    <td>{{ row.normalized_name }}</td>
+    <td>{{ row.unit }}</td>
+    <td class="num">{{ money(row.price) }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<script>
+const CELLS = {{ cells | tojson }};
+const LABELS = {
+  material: {{ material_labels | tojson }},
+  shape: {{ shape_labels | tojson }},
+  kind: {{ kind_labels | tojson }},
+};
+const KEYS = Object.keys(CELLS).map(k => k.split('|'));  // [group, thickness, kind, shape]
+
+function fillSelect(id, values, labels) {
+  const sel = document.getElementById(id);
+  sel.innerHTML = '';
+  for (const v of values) {
+    const opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = labels[v] || v;
+    sel.appendChild(opt);
+  }
+}
+
+function uniqSorted(values, numeric) {
+  const u = [...new Set(values)];
+  return numeric
+    ? u.sort((a, b) => parseFloat(a) - parseFloat(b))
+    : u.sort();
+}
+
+function refreshBorisForm() {
+  const groupSel = document.getElementById('b-material');
+  const shapeSel = document.getElementById('b-shape');
+  const kindSel = document.getElementById('b-kind');
+  const thickSel = document.getElementById('b-thickness');
+  const prevGroup = groupSel.dataset.filled ? groupSel.value : null;
+  const prevShape = shapeSel.dataset.filled ? shapeSel.value : null;
+  const prevKind = kindSel.dataset.filled ? kindSel.value : null;
+  const prevThick = thickSel.dataset.filled ? thickSel.value : null;
+
+  fillSelect('b-material', uniqSorted(KEYS.map(k => k[0])), LABELS.material);
+  if (prevGroup && [...groupSel.options].some(o => o.value === prevGroup)) groupSel.value = prevGroup;
+  groupSel.dataset.filled = '1';
+
+  const group = groupSel.value;
+  fillSelect('b-shape', uniqSorted(KEYS.filter(k => k[0] === group).map(k => k[3])), LABELS.shape);
+  if (prevShape && [...shapeSel.options].some(o => o.value === prevShape)) shapeSel.value = prevShape;
+  shapeSel.dataset.filled = '1';
+
+  const shape = shapeSel.value;
+  fillSelect('b-kind', uniqSorted(KEYS.filter(k => k[0] === group && k[3] === shape).map(k => k[2])), LABELS.kind);
+  if (prevKind && [...kindSel.options].some(o => o.value === prevKind)) kindSel.value = prevKind;
+  kindSel.dataset.filled = '1';
+
+  const kind = kindSel.value;
+  const ths = KEYS.filter(k => k[0] === group && k[3] === shape && k[2] === kind).map(k => k[1]);
+  fillSelect('b-thickness', uniqSorted(ths, true), {});
+  if (prevThick && [...thickSel.options].some(o => o.value === prevThick)) thickSel.value = prevThick;
+  thickSel.dataset.filled = '1';
+
+  const price = CELLS[[group, thickSel.value, kind, shape].join('|')];
+  document.getElementById('b-current').textContent =
+    price !== undefined ? 'Текущая цена: ' + price : 'Ячейка не найдена';
+}
+
+document.querySelectorAll('#boris-form select').forEach(
+  el => el.addEventListener('change', refreshBorisForm));
+refreshBorisForm();
+</script>
+{% endblock %}

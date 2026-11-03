@@ -33,7 +33,12 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from itsdangerous import BadSignature, TimestampSigner
 
-from presale.boris_prices import BorisPriceTable
+from presale.boris_prices import (
+    MATERIAL_GROUP_LABELS,
+    PRODUCT_KIND_LABELS,
+    SHAPE_LABELS,
+    BorisPriceTable,
+)
 from presale.chatgpt_table import parse_chatgpt_workbook
 from presale.db import PresaleDB
 from presale.jobs import JobRunner
@@ -450,6 +455,93 @@ def create_app(
     async def export_customer(request: Request, estimate_id: int):
         require_user(request)
         return _export(estimate_id, customer=True)
+
+    # ---- админка глобальных цен ----
+
+    def _boris_cell_map() -> dict[str, str]:
+        """Карта ячеек сетки Бориса "group|thickness|kind|shape" → цена.
+
+        Толщина — строка сетки после округления ("0.7", не "0.65"); ключ
+        совпадает с ключом override в БД (массив из 4 строк).
+        """
+        cells = {}
+        for shape, group, thickness, kind, price in build_boris().cells():
+            # нормализация "0.80" → "0.8": ключ формы и ключ override — одна строка
+            t = format(thickness.normalize(), "f")
+            cells[f"{group}|{t}|{kind}|{shape}"] = str(price)
+        return cells
+
+    def _parse_decimal(raw: str) -> Decimal:
+        try:
+            return Decimal(raw.replace(",", ".").strip())
+        except InvalidOperation:
+            raise HTTPException(400, f"не число: {raw!r}")
+
+    @app.get("/admin/prices", response_class=HTMLResponse)
+    async def admin_prices(request: Request):
+        user = require_user(request)
+        overrides = []
+        for key, price in sorted(db.get_overrides("boris").items()):
+            try:
+                material, thickness, shape, kind = json.loads(key)
+            except (ValueError, TypeError):
+                continue  # посторонний ключ в БД — не роняем страницу
+            overrides.append({
+                "material": material, "thickness": thickness,
+                "shape": shape, "kind": kind, "price": price,
+            })
+        return templates.TemplateResponse(
+            request, "admin_prices.html",
+            {"user": user, "saved": request.query_params.get("saved"),
+             "cells": _boris_cell_map(), "overrides": overrides,
+             "work_rates": db.list_work_rates(),
+             "manual_prices": db.list_manual_prices(),
+             "material_labels": MATERIAL_GROUP_LABELS,
+             "shape_labels": SHAPE_LABELS, "kind_labels": PRODUCT_KIND_LABELS},
+        )
+
+    @app.post("/admin/prices/boris")
+    async def admin_boris_override(request: Request):
+        user = require_user(request)
+        form = await request.form()
+        material = str(form.get("material", ""))
+        thickness = str(form.get("thickness", ""))
+        kind = str(form.get("product_kind", ""))
+        shape = str(form.get("shape", ""))
+        cells = _boris_cell_map()
+        if f"{material}|{thickness}|{kind}|{shape}" not in cells:
+            raise HTTPException(400, "такой ячейки нет в прайсе Бориса")
+        price = _parse_decimal(str(form.get("price", "")))
+        key_json = json.dumps([material, thickness, shape, kind],
+                              ensure_ascii=False)
+        db.set_override("boris", key_json, price, user["id"])
+        return RedirectResponse("/admin/prices?saved=1", status_code=303)
+
+    @app.post("/admin/prices/work-rates")
+    async def admin_work_rate(request: Request):
+        require_user(request)
+        form = await request.form()
+        name = str(form.get("name", "")).strip()
+        if not name:
+            raise HTTPException(400, "нет названия расценки")
+        rate = _parse_decimal(str(form.get("rate", "")))
+        coefficient = _parse_decimal(str(form.get("coefficient", "")))
+        db.upsert_work_rate(
+            name, str(form.get("unit", "")), rate, coefficient
+        )
+        return RedirectResponse("/admin/prices?saved=1", status_code=303)
+
+    @app.post("/admin/prices/manual")
+    async def admin_manual_price(request: Request):
+        user = require_user(request)
+        form = await request.form()
+        name = str(form.get("name", "")).strip()
+        if not name:
+            raise HTTPException(400, "нет названия позиции")
+        price = _parse_decimal(str(form.get("price", "")))
+        db.set_manual_price(name, price, str(form.get("unit", "")),
+                            user["id"])
+        return RedirectResponse("/admin/prices?saved=1", status_code=303)
 
     return app
 

@@ -24,6 +24,7 @@
   <a href="/">История</a>
   <a href="/upload">Новый расчёт</a>
   {% if user %}
+    <a href="/admin/prices">Цены</a>
     <span class="user">{{ user.display_name }} · <a href="/logout">Выход</a></span>
   {% endif %}
 </nav>

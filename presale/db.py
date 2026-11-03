@@ -369,6 +369,20 @@ class PresaleDB:
                 (_normalize(name), str(price), unit, user, _now()),
             )
 
+    def list_manual_prices(self) -> list[dict]:
+        """Все ручные цены по алфавиту; price — Decimal."""
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT id, normalized_name, price, unit, set_by, ts"
+                " FROM manual_prices ORDER BY normalized_name"
+            ).fetchall()
+        result = []
+        for r in rows:
+            d = dict(r)
+            d["price"] = Decimal(d["price"])
+            result.append(d)
+        return result
+
     # ---- расценки работ ----
 
     def list_work_rates(self) -> list[dict]:
