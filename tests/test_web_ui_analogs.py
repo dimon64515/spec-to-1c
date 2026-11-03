@@ -86,3 +86,16 @@ def test_accept_analog_bad_size_raises():
     assert suggestion is not None  # категория по ключевым словам найдётся
     with pytest.raises(AnalogError, match="размер не распознан"):
         accept_analog(row, suggestion, MAPPING)
+
+
+def test_accept_analog_none_quantity_raises():
+    row = {
+        "name": "Клапан обратный АОС 100",
+        "size": "100x100",
+        "unit": "шт",
+        "quantity": None,
+    }
+    suggestion = suggest_analog(row, MAPPING)
+    assert suggestion is not None
+    with pytest.raises(AnalogError, match="количество не распознано"):
+        accept_analog(row, suggestion, MAPPING)

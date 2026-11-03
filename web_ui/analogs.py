@@ -84,7 +84,8 @@ def accept_analog(row: dict, suggestion: dict, mapping: dict) -> dict:
     0.8, connection_* через default_connections(section, article)).
 
     Raises:
-        AnalogError: категория не определена или размеры не распознаны.
+        AnalogError: категория не определена, размеры или количество
+        не распознаны.
     """
     if not suggestion:
         raise AnalogError("категория не определена")
@@ -94,6 +95,12 @@ def accept_analog(row: dict, suggestion: dict, mapping: dict) -> dict:
     dims = _parse_dims(row, category)
     if not dims:
         raise AnalogError("размер не распознан")
+    try:
+        quantity = float(row.get("quantity"))
+    except (TypeError, ValueError):
+        raise AnalogError("количество не распознано") from None
+    if quantity <= 0:
+        raise AnalogError("количество не распознано")
 
     section = determine_section(dims, category)
     connections = default_connections(section, suggestion["article"])
