@@ -12,6 +12,7 @@ import secrets
 import sqlite3
 from datetime import datetime, timezone
 from decimal import Decimal
+from enum import Enum
 from pathlib import Path
 from typing import Optional, Union
 
@@ -284,6 +285,65 @@ class PresaleDB:
                 (estimate_id, row_id),
             ).fetchall()
         return [dict(r) for r in rows]
+
+    def apply_edit_logged(self, estimate_id: int, row_id: str, user_id: int,
+                          field: str, value: Union[str, Decimal, None]
+                          ) -> dict:
+        """Обновляет поле строки и логирует правку в ОДНОЙ транзакции.
+
+        BEGIN IMMEDIATE: строка залочена на всю операцию, old value читается
+        из payload внутри транзакции — лог не врёт при гонке редакторов,
+        два одновременных редактора разных полей не теряют правки друг друга.
+        Возвращает {"field", "old", "new"} — строковые старые/новые значения.
+        """
+        conn = self._connect()
+        conn.isolation_level = None
+        conn.execute("BEGIN IMMEDIATE")
+        try:
+            row = conn.execute(
+                "SELECT payload_json FROM estimate_items"
+                " WHERE estimate_id = ? AND row_id = ?",
+                (estimate_id, row_id),
+            ).fetchone()
+            if row is None:
+                raise KeyError(
+                    f"строка {row_id} не найдена в расчёте {estimate_id}"
+                )
+            item = EstimateItem.model_validate_json(row["payload_json"])
+            annotation = EstimateItem.model_fields[field].annotation
+            if annotation is Decimal or (
+                hasattr(annotation, "__args__")
+                and Decimal in getattr(annotation, "__args__", ())
+            ):
+                value = Decimal(str(value)) if value is not None else None
+
+            def _str(v: object) -> Optional[str]:
+                if v is None:
+                    return None
+                if isinstance(v, Enum):
+                    return v.value
+                return str(v)
+
+            old = _str(getattr(item, field))
+            setattr(item, field, value)
+            new = _str(getattr(item, field))
+            conn.execute(
+                "UPDATE estimate_items SET payload_json = ?"
+                " WHERE estimate_id = ? AND row_id = ?",
+                (item.model_dump_json(), estimate_id, row_id),
+            )
+            conn.execute(
+                "INSERT INTO item_edits (estimate_id, row_id, user_id, field,"
+                " old_value, new_value, ts) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (estimate_id, row_id, user_id, field, old, new, _now()),
+            )
+            conn.execute("COMMIT")
+            return {"field": field, "old": old, "new": new}
+        except Exception:
+            conn.execute("ROLLBACK")
+            raise
+        finally:
+            conn.close()
 
     # ---- ручные цены ----
 

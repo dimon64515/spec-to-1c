@@ -5,6 +5,7 @@ TestClient + tmp db, stub backend/market, sync_jobs=True (джобы испол�
 применяется последняя.
 """
 import io
+import json
 import time
 from decimal import Decimal
 from pathlib import Path
@@ -346,3 +347,33 @@ def test_job_status_endpoint(client):
             break
     assert r.status_code == 200
     assert data["state"] == "done" and data["result_id"] == 7
+
+
+def test_job_status_requires_login(client):
+    job_id = client.app.state.runner.submit(lambda: 7)
+    r = client.get(f"/job/{job_id}", follow_redirects=False)
+    assert r.status_code == 303
+    assert r.headers["location"] == "/login"
+
+
+def test_boris_override_applied_in_estimate(client, app, monkeypatch):
+    """Override Бориса из БД применяется в расчёте (таблица строится в job)."""
+    import presale.app as app_module
+    from presale.models import Category, EstimateItem, PriceStatus
+
+    item = EstimateItem(
+        row_id="Т1", category=Category.MATERIALS,
+        name="Воздуховод прямоугольный 0.65", unit="м²", qty=Decimal("10"),
+        material="оцинкованная сталь", thickness=Decimal("0.65"),
+        status=PriceStatus.MISSING,
+    )
+    monkeypatch.setattr(app_module, "parse_chatgpt_workbook",
+                        lambda content: [item])
+    uid = app.state.db.verify_user("igor", "secret")
+    key = json.dumps(["ocsink", "0.7", "rect", "standard"])
+    app.state.db.set_override("boris", key, Decimal("9999"), uid)
+    login(client)
+    upload(client, b"ignored-by-stub")
+    _, items = app.state.db.get_estimate(1)
+    assert items[0].internal_price == Decimal("9999")
+    assert items[0].price_source == "boris"

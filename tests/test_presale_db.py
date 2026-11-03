@@ -208,3 +208,56 @@ def test_set_estimate_status(db):
     assert db.get_estimate(eid)[0]["status"] == "running"
     db.set_estimate_status(eid, "done")
     assert db.get_estimate(eid)[0]["status"] == "done"
+
+
+def test_apply_edit_logged_returns_old_and_writes_log(db):
+    uid = db.create_user("u", "p", "U")
+    eid = db.create_estimate(uid, {"title": "t"})
+    db.save_items(eid, [_item("Л1")])
+    result = db.apply_edit_logged(eid, "Л1", uid, "internal_price",
+                                  Decimal("777.50"))
+    assert result == {"field": "internal_price", "old": None,
+                      "new": "777.50"}
+    _, items = db.get_estimate(eid)
+    assert items[0].internal_price == Decimal("777.50")
+    edits = db.get_edits(eid, "Л1")
+    assert len(edits) == 1
+    assert edits[0]["old_value"] is None and edits[0]["new_value"] == "777.50"
+    assert edits[0]["user_id"] == uid
+
+
+def test_apply_edit_logged_concurrent_fields_no_lost_update(db):
+    """Гонка двух правок разных полей одной строки: обе в логе,
+    old-значения корректны, оба изменения в payload (потерь нет)."""
+    import threading
+    uid = db.create_user("u", "p", "U")
+    eid = db.create_estimate(uid, {"title": "t"})
+    db.save_items(eid, [_item("Л1")])  # qty=1, internal_price=None
+    barrier = threading.Barrier(2)
+    results = []
+
+    def edit_price():
+        barrier.wait()
+        results.append(db.apply_edit_logged(
+            eid, "Л1", uid, "internal_price", Decimal("500")))
+
+    def edit_qty():
+        barrier.wait()
+        results.append(db.apply_edit_logged(eid, "Л1", uid, "qty",
+                                            Decimal("7")))
+
+    threads = [threading.Thread(target=f) for f in (edit_price, edit_qty)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    _, items = db.get_estimate(eid)
+    assert items[0].internal_price == Decimal("500")
+    assert items[0].qty == Decimal("7")
+    edits = db.get_edits(eid, "Л1")
+    assert len(edits) == 2
+    by_field = {e["field"]: e for e in edits}
+    assert by_field["qty"]["old_value"] == "1"
+    assert by_field["qty"]["new_value"] == "7"
+    assert by_field["internal_price"]["old_value"] is None
+    assert by_field["internal_price"]["new_value"] == "500"

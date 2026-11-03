@@ -18,12 +18,12 @@
     # PRESALE_SECRET=... uvicorn run_presale:app
 """
 import argparse
+import json
 import logging
 import os
 import secrets as _secrets
 from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
-from enum import Enum
 from pathlib import Path
 from typing import Optional, Union
 
@@ -111,7 +111,23 @@ def create_app(
     """
     app = FastAPI(title="Предварительный расчёт")
     db = PresaleDB(Path(db_path))
-    boris = BorisPriceTable.from_xlsx(Path(boris_paths[0]), Path(boris_paths[1]))
+    rect_path = Path(boris_paths[0])
+    round_path = Path(boris_paths[1])
+
+    def build_boris() -> BorisPriceTable:
+        """Таблица Бориса с актуальными overrides из БД (на каждый расчёт).
+
+        Ключ override в БД — JSON-массив строк
+        [material_group, thickness, shape, product_kind]; толщина
+        приводится к Decimal (в таблице ключ по округлённой толщине).
+        """
+        overrides = {}
+        for key, price in db.get_overrides("boris").items():
+            material, thickness, shape, kind = json.loads(key)
+            overrides[(material, Decimal(str(thickness)), shape, kind)] = price
+        return BorisPriceTable.from_xlsx(
+            rect_path, round_path, overrides=overrides
+        )
 
     if backend is None:
         backend = (OneCPriceBackend(execute_url)
@@ -143,7 +159,6 @@ def create_app(
     signer = TimestampSigner(secret)
 
     app.state.db = db
-    app.state.boris = boris
     app.state.backend = backend
     app.state.market = market
     app.state.runner = JobRunner(sync=sync_jobs)
@@ -240,7 +255,8 @@ def create_app(
                          set_step) -> int:
         """Тело job'ы: парсинг → цены → сохранение; вернуть estimate_id.
 
-        Зависимости (boris/backend/market) читаются из app.state на момент
+        Таблица Бориса собирается здесь, на каждый расчёт — с актуальными
+        overrides из БД. backend/market читаются из app.state на момент
         исполнения — тесты подменяют их через app.state.*.
         """
         try:
@@ -249,7 +265,7 @@ def create_app(
             set_step("цены")
             try:
                 priced = price_items(
-                    items, boris=app.state.boris,
+                    items, boris=build_boris(),
                     backend=app.state.backend,
                     market=app.state.market, db=db,
                 )
@@ -257,7 +273,7 @@ def create_app(
                 # 1С легла: пересчитываем без неё, ненайденное — красное
                 # с пометкой «1С недоступна» (не падаем, расчёт живой).
                 priced = price_items(
-                    items, boris=app.state.boris, backend=_NullBackend(),
+                    items, boris=build_boris(), backend=_NullBackend(),
                     market=app.state.market, db=db,
                 )
                 for item in priced:
@@ -315,7 +331,8 @@ def create_app(
         )
 
     @app.get("/job/{job_id}")
-    async def job_status(job_id: str):
+    async def job_status(request: Request, job_id: str):
+        require_user(request)
         return JSONResponse(app.state.runner.status(job_id))
 
     @app.get("/job/{job_id}/progress", response_class=HTMLResponse)
@@ -363,17 +380,9 @@ def create_app(
         if field not in EDITABLE_FIELDS:
             raise HTTPException(400, f"неизвестное поле: {field!r}")
         try:
-            _, items = db.get_estimate(estimate_id)
+            db.get_estimate(estimate_id)
         except KeyError:
             raise HTTPException(404, "расчёт не найден")
-        item = next((i for i in items if i.row_id == row_id), None)
-        if item is None:
-            raise HTTPException(404, "строка не найдена")
-        old_value: Optional[str] = getattr(item, field)
-        if isinstance(old_value, Enum):
-            old_value = old_value.value
-        elif old_value is not None:
-            old_value = str(old_value)
 
         new_value: Union[str, Decimal, Category] = value
         if field in ("internal_price", "qty"):
@@ -387,11 +396,12 @@ def create_app(
             except ValueError:
                 raise HTTPException(400, f"нет такой категории: {value!r}")
 
-        db.apply_edit(estimate_id, row_id, field, new_value)
-        new_str = new_value.value if isinstance(new_value, Enum) \
-            else str(new_value)
-        db.log_edit(estimate_id, row_id, user["id"], field,
-                    old_value, new_str)
+        # Обновление + лог — одна транзакция (old value читается внутри неё)
+        try:
+            db.apply_edit_logged(estimate_id, row_id, user["id"], field,
+                                 new_value)
+        except KeyError:
+            raise HTTPException(404, "строка не найдена")
         back = request.query_params.get("back")
         target = back if back and back.startswith("/estimate/") \
             else f"/estimate/{estimate_id}"
