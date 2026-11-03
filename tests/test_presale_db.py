@@ -181,3 +181,15 @@ def test_log_edit_accepts_unknown_user_id(db):
     db.log_edit(eid, "Л1", user_id=999, field="internal_price",
                 old=None, new="5000")
     assert db.get_edits(eid, "Л1")[0]["user_id"] == 999
+
+
+def test_apply_edit_not_found_raises_keyerror_and_keeps_connection(db):
+    """not-found путь: KeyError, а не маскирующий OperationalError; соединение живо."""
+    uid = db.create_user("u", "p", "U")
+    eid = db.create_estimate(uid, {"title": "t"})
+    db.save_items(eid, [_item("Л1")])
+    with pytest.raises(KeyError):
+        db.apply_edit(eid, "НЕТ-ТАКОЙ-СТРОКИ", "internal_price", "100")
+    db.apply_edit(eid, "Л1", "internal_price", "5000")
+    _, items = db.get_estimate(eid)
+    assert items[0].internal_price == Decimal("5000")

@@ -235,7 +235,6 @@ class PresaleDB:
                 (estimate_id, row_id),
             ).fetchone()
             if row is None:
-                conn.execute("ROLLBACK")
                 raise KeyError(
                     f"строка {row_id} не найдена в расчёте {estimate_id}"
                 )
