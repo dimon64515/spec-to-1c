@@ -1,4 +1,6 @@
 """Тесты SQLite-хранилища предварительного расчёта (presale/db.py)."""
+import sqlite3
+import threading
 from decimal import Decimal
 
 import pytest
@@ -90,7 +92,7 @@ def test_verify_user_unknown_login(db):
 
 def test_create_user_duplicate_login_raises(db):
     db.create_user("u", "p", "U")
-    with pytest.raises(Exception):
+    with pytest.raises(sqlite3.IntegrityError):
         db.create_user("u", "p2", "U2")
 
 
@@ -129,3 +131,53 @@ def test_payload_json_roundtrip_full_item(db):
     db.save_items(eid, [item])
     _, items = db.get_estimate(eid)
     assert items[0] == item
+
+
+def _edit_with_retry(db, estimate_id, row_id, field, value):
+    """apply_edit с retry при database is locked (busy_timeout уже 30s)."""
+    for attempt in range(5):
+        try:
+            db.apply_edit(estimate_id, row_id, field, value)
+            return
+        except sqlite3.OperationalError as exc:
+            if "database is locked" in str(exc) and attempt < 4:
+                continue
+            raise
+
+
+def test_two_writers_same_row_keep_both_edits(tmp_path):
+    """Два потока правят разные поля одной строки — обе правки сохраняются."""
+    db = PresaleDB(tmp_path / "t.db")
+    uid = db.create_user("u", "p", "U")
+    eid = db.create_estimate(uid, {"title": "t"})
+    db.save_items(eid, [_item()])
+
+    errors = []
+    threads = [
+        threading.Thread(
+            target=lambda: _edit_with_retry(db, eid, "Л1",
+                                            "internal_price", "5000"),
+        ),
+        threading.Thread(
+            target=lambda: _edit_with_retry(db, eid, "Л1", "qty", "3"),
+        ),
+    ]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert errors == []
+
+    _, items = db.get_estimate(eid)
+    assert items[0].internal_price == Decimal("5000")
+    assert items[0].qty == Decimal("3")
+
+
+def test_log_edit_accepts_unknown_user_id(db):
+    """audit-ссылка без FK: правка логируется, даже если user_id неизвестен."""
+    uid = db.create_user("u", "p", "U")
+    eid = db.create_estimate(uid, {"title": "t"})
+    db.save_items(eid, [_item()])
+    db.log_edit(eid, "Л1", user_id=999, field="internal_price",
+                old=None, new="5000")
+    assert db.get_edits(eid, "Л1")[0]["user_id"] == 999

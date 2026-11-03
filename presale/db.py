@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS item_edits (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     estimate_id INTEGER NOT NULL REFERENCES estimates(id) ON DELETE CASCADE,
     row_id TEXT NOT NULL,
-    user_id INTEGER REFERENCES users(id),
+    user_id INTEGER,
     field TEXT NOT NULL,
     old_value TEXT,
     new_value TEXT,
@@ -203,7 +203,12 @@ class PresaleDB:
 
     def log_edit(self, estimate_id: int, row_id: str, user_id: int,
                  field: str, old: Optional[str], new: Optional[str]) -> None:
-        """Протоколирует правку поля строки."""
+        """Протоколирует правку поля строки.
+
+        user_id — audit-ссылка без FOREIGN KEY: система пользователя
+        (Task 10) может логировать правки, даже если запись пользователя
+        уже удалена или ещё не создана.
+        """
         with self._connect() as conn:
             conn.execute(
                 "INSERT INTO item_edits (estimate_id, row_id, user_id, field,"
@@ -216,17 +221,26 @@ class PresaleDB:
         """Обновляет поле в payload_json строки расчёта.
 
         Decimal-поля принимают str/Decimal и хранятся как Decimal в модели.
+        Read-modify-write выполняется в одной транзакции BEGIN IMMEDIATE:
+        строка залочена на запись на всю операцию, два одновременных
+        редактора не теряют правки друг друга (второй ждёт busy_timeout).
         """
-        with self._connect() as conn:
+        conn = self._connect()
+        conn.isolation_level = None
+        conn.execute("BEGIN IMMEDIATE")
+        try:
             row = conn.execute(
                 "SELECT payload_json FROM estimate_items"
                 " WHERE estimate_id = ? AND row_id = ?",
                 (estimate_id, row_id),
             ).fetchone()
             if row is None:
-                raise KeyError(f"строка {row_id} не найдена в расчёте {estimate_id}")
+                conn.execute("ROLLBACK")
+                raise KeyError(
+                    f"строка {row_id} не найдена в расчёте {estimate_id}"
+                )
             item = EstimateItem.model_validate_json(row["payload_json"])
-            annotation = item.model_fields[field].annotation
+            annotation = EstimateItem.model_fields[field].annotation
             if annotation is Decimal or (
                 hasattr(annotation, "__args__")
                 and Decimal in getattr(annotation, "__args__", ())
@@ -238,6 +252,12 @@ class PresaleDB:
                 " WHERE estimate_id = ? AND row_id = ?",
                 (item.model_dump_json(), estimate_id, row_id),
             )
+            conn.execute("COMMIT")
+        except Exception:
+            conn.execute("ROLLBACK")
+            raise
+        finally:
+            conn.close()
 
     def get_edits(self, estimate_id: int, row_id: str) -> list[dict]:
         """История правок строки от старых к новым."""
