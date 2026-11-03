@@ -62,6 +62,7 @@ __all__ = [
     "validate_normalized",
     "normalize_rows",
     "run_row_fallback",
+    "build_no_quantity_escalation",
 ]
 
 
@@ -278,6 +279,37 @@ def _match_acceptable(llm_row: Dict, original: Dict) -> bool:
     )
     common = row_tokens & _name_tokens(str(original.get("name") or ""))
     return len(common) >= 2 or any(not t.isdigit() for t in common)
+
+
+# Маркеры документов без количеств: гос-ТЗ/контракты с поставкой «по заявке»,
+# где колонка «Кол-во» отсутствует физически (инцидент: ТЗ 17164731 — LLM-фолбэки
+# по дизайну требуют quantity > 0 и правильно отклоняют всё, но генерическая
+# эскалация «не распознано N строк» менеджеру ни о чём не говорит).
+NO_QTY_DOC_MARKERS = ("по заявке", "по заявкам")
+NO_QTY_ESCALATION = (
+    "В документе не указаны количества (поставка «по заявке»): позиции найдены, "
+    "но без количеств заказ в 1С оформить нельзя. Пришлите спецификацию/ведомость "
+    "с колонкой «Кол-во» или заполненный Excel-шаблон."
+)
+
+
+def build_no_quantity_escalation(skipped: List[Dict], text: Optional[str]) -> Optional[str]:
+    """Эскалация для документов без количеств: текст содержит маркер «по заявке»
+    и ≥80% skipped-строк — с нераспознанным количеством. None — паттерн не тот,
+    вызывающий код использует генерическую эскалацию."""
+    if not text or not skipped:
+        return None
+    tl = text.lower()
+    if not any(m in tl for m in NO_QTY_DOC_MARKERS):
+        return None
+    qty_broken = sum(
+        1
+        for s in skipped
+        if str(s.get("reason") or "").startswith(QTY_BROKEN_REASON_PREFIX)
+    )
+    if qty_broken / len(skipped) < 0.8:
+        return None
+    return NO_QTY_ESCALATION
 
 
 def _loads_rows_array(content: str) -> List[Dict]:

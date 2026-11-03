@@ -117,6 +117,19 @@ def process_pdf_to_positions(pdf_bytes: bytes) -> Tuple[List[dict], List[dict], 
             success, skipped, pdf_path=tmp_path
         )
         meta.update(row_meta)
+        # Пустой success: если документ физически без количеств (поставка
+        # «по заявке») — эскалация с объяснением причины вместо генерического
+        # «не распознано N строк» (инцидент: ТЗ 17164731).
+        if not success:
+            try:
+                doc_text = llm_document_fallback.extract_document_text(tmp_path)
+            except Exception:  # noqa: BLE001 — эскалация не критична
+                doc_text = None
+            escalation = llm_row_fallback.build_no_quantity_escalation(
+                skipped, doc_text
+            )
+            if escalation:
+                meta["escalation"] = escalation
     finally:
         os.unlink(tmp_path)
     success = _filter_blocked_articles(success, skipped)

@@ -412,3 +412,50 @@ def test_run_pipeline_partial_warning_via_row_fallback_only(monkeypatch):
     res = pl.run_pipeline(b"pdf", "f.pdf", "c", "http://x")
     assert res.row_fallback_recovered == 1
     assert res.partial_warning and "частично" in res.partial_warning
+
+
+def test_build_no_quantity_escalation_detects_tender_tz():
+    """ТЗ 17164731: документ с поставкой «по заявке» — количеств нет физически.
+    Эскалация должна объяснять причину, а не «не распознано N строк»."""
+    import llm_row_fallback as rf
+
+    skipped = [
+        {"name": "Вентилятор канальный Тип: Канальный 2400", "reason": "Не удалось распознать количество (0)"},
+        {"name": "Клапан воздушный 250", "reason": "Не удалось распознать количество (0)"},
+        {"name": "Диффузор", "reason": "Не удалось распознать количество (0)"},
+        {"name": "Шибер 400", "reason": "Не удалось распознать количество (0)"},
+        {"name": "инициалы фамилии", "reason": "Не удалось распознать количество (0)"},
+    ]
+    text = ("Приложение 1. Перечень объектов закупки. 1. Вентилятор канальный. "
+            "Способ поставки товара: По заявке. Единица измерения Штука.")
+    esc = rf.build_no_quantity_escalation(skipped, text)
+    assert esc and "по заявке" in esc.lower() and "количеств" in esc.lower()
+    # без маркера / без skipped / доля qty-broken < 80% — None (генерическая)
+    assert rf.build_no_quantity_escalation(skipped, "обычная спецификация отвод 100х100 кол-во 2") is None
+    assert rf.build_no_quantity_escalation(skipped, None) is None
+    assert rf.build_no_quantity_escalation([], text) is None
+    other_reasons = [{"name": "x", "reason": "Отсутствует размер"}] * 4 + skipped[:1]
+    assert rf.build_no_quantity_escalation(other_reasons, text) is None
+
+
+def test_pipeline_sets_no_quantity_escalation(monkeypatch, tmp_path):
+    """Пустой success + документ «по заявке» → meta['escalation'] специфическая,
+    run_pipeline отдаёт её в PipelineResult вместо генерической."""
+    import bitrix_bot.pipeline as pl
+    import llm_row_fallback as rf
+    import pandas as pd
+
+    df = pd.DataFrame([{"name": "Вентилятор канальный 400", "size": "",
+                        "unit": "шт", "quantity": 0}])
+    monkeypatch.setattr(pl, "load_tables_from_pdf", lambda b, **kw: {"tables": {1: [df]}})
+    doc_meta = {"triggered": True, "recovered": 0, "skip_ratio": 1.0,
+                "skip_ratio_post": 1.0, "escalation": None}
+    monkeypatch.setattr("llm_document_fallback.run_doc_fallback",
+                        lambda path, s, sk: (s, sk, doc_meta))
+    monkeypatch.setattr("llm_document_fallback.extract_document_text",
+                        lambda p, max_chars=60000: "Способ поставки товара: По заявке.")
+    monkeypatch.setattr(rf, "row_fallback_enabled", lambda cfg=None: True)
+    monkeypatch.setattr(rf, "normalize_rows", lambda rows, **kw: [])
+    success, skipped, meta = pl.process_pdf_to_positions(b"%PDF-fake")
+    assert not success
+    assert meta.get("escalation") == rf.NO_QTY_ESCALATION
