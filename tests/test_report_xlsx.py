@@ -196,3 +196,32 @@ def test_parse_edited_report_empty_loaded_with_include_ok():
     assert edited.loaded_rows == []
     assert len(edited.include_rows) == 1
     assert edited.include_rows[0]["name"] == "Воздуховод прямошовный 300x200"
+
+
+def _loaded_pos(article, price, sum_):
+    return {"article": article, "params": {"A0": 100, "B0": 50}, "quantity": 2,
+            "material_code": "1", "thickness": 0.8,
+            "connection_0": "", "connection_1": "",
+            "connection_2": "", "connection_3": "",
+            "system": "", "comment": "", "price": price, "sum": sum_}
+
+
+def test_excel_report_has_price_columns():
+    res = PipelineResult(file_name="f.pdf", order_number="851",
+                         loaded=[_loaded_pos("1-1", 1250.5, 2501.0),
+                                 _loaded_pos("2-1", None, None)])
+    data = build_excel_report(res)
+    ws = load_workbook(io.BytesIO(data))[SHEET_LOADED]
+    headers = [c.value for c in ws[1]]
+    assert headers[-2:] == ["ЦенаЕд", "Сумма"]
+    assert ws.cell(row=2, column=14).value == 1250.5
+    assert ws.cell(row=2, column=15).value == 2501.0
+    assert ws.cell(row=3, column=14).value is None  # цена 0 → пусто
+
+
+def test_parse_edited_report_ignores_price_columns():
+    res = PipelineResult(file_name="f.pdf", order_number="851",
+                         loaded=[_loaded_pos("1-1", 1250.5, 2501.0)])
+    edited = parse_edited_report(build_excel_report(res))
+    assert edited.loaded_rows[0]["article"] == "1-1"
+    assert "price" not in edited.loaded_rows[0]

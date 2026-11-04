@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Заявка {{ req.id }}{% endblock %}
+{% block content %}
+<section class="kpi">
+  <div class="kpi-item"><b>{{ req.id }}</b><span title="Номер заявки">#</span></div>
+  <div class="kpi-item"><b>{{ loaded|length }}</b><span title="Загружено позиций">загружено</span></div>
+  <div class="kpi-item"><b>{{ trading|length }}</b><span title="Перекупные позиции">перекупное</span></div>
+  <div class="kpi-item"><b>{{ skipped|length }}</b><span title="Пропущено строк">пропущено</span></div>
+  <div class="kpi-item"><b>{{ "{:,.0f}".format(loaded_sum) }}</b><span title="Сумма загруженных (цены 1С)">сумма</span></div>
+  <div class="kpi-item"><span class="chip chip-{{ req.status }}">{{ req.status }}</span>
+    {% if req.order_number %}<span class="chip chip-order" title="Заказ 1С">{{ req.order_number }}</span>{% endif %}
+  </div>
+</section>
+
+{% if req.error %}
+<section class="banner banner-error">{{ req.error }}</section>
+{% endif %}
+{% if req.meta and req.meta.get("escalation") %}
+<section class="banner banner-warn">{{ req.meta.get("escalation") }}</section>
+{% endif %}
+{% if req.meta and req.meta.get("partial_warning") %}
+<section class="banner banner-warn">{{ req.meta.get("partial_warning") }}</section>
+{% endif %}
+{% if req.meta and req.meta.get("load_error") %}
+<section class="banner banner-error" title="Ошибка загрузки заказа в 1С">Ошибка 1С: {{ req.meta.get("load_error") }}</section>
+{% endif %}
+
+<section class="actions">
+  <form action="/r/{{ req.id }}/load-1c" method="post" class="header-form">
+    {% for key in header_keys %}
+    <input type="text" name="{{ key }}" value="{{ (req.header or {}).get(key, "") }}"
+           placeholder="{{ key }}" title="{{ key }}">
+    {% endfor %}
+    <button type="submit" {% if req.status == "loaded_1c" %}disabled title="Заказ уже загружен в 1С"{% else %}title="Сохранить реквизиты и загрузить заказ в 1С"{% endif %}>Загрузить в 1С</button>
+  </form>
+  <div class="exports">
+    <a class="btn" href="/r/{{ req.id }}/xml" title="Скачать XML для импорта в 1С">XML</a>
+    <a class="btn" href="/r/{{ req.id }}/report.xlsx" title="Скачать отчёт xlsx">Отчёт xlsx</a>
+  </div>
+</section>
+
+<section>
+  <h2>Загружено</h2>
+  <table class="grid">
+    <thead><tr><th>Артикул</th><th>Наименование</th><th>Размер</th><th class="num">Кол-во</th><th class="num" title="Цена из 1С">Цена</th><th class="num">Сумма</th></tr></thead>
+    <tbody>
+      {% for p in loaded %}
+      {% set price = p.get("price") %}
+      {% set sum = p.get("sum") %}
+      <tr>
+        <td>{{ p.article }}</td><td>{{ p.name }}</td><td>{{ p.size }}</td>
+        <td class="num">{{ p.quantity }}</td>
+        <td class="num">{{ "{:,.2f}".format(price).replace(",", " ") if price is not none else "—" }}</td>
+        <td class="num">{{ "{:,.2f}".format(sum).replace(",", " ") if sum is not none else "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Перекупное</h2>
+  <table class="grid">
+    <thead><tr><th>Наименование</th><th>Размер</th><th class="num" title="Минимальная дилерская цена">Цена</th><th>Поставщик</th></tr></thead>
+    <tbody>
+      {% for p in trading %}
+      {% set pi = p.get("price_info") %}
+      <tr>
+        <td>{{ p.name }}</td><td>{{ p.size }}</td>
+        <td class="num">{{ pi.get("price") if pi and pi.get("price") is not none else "цена не найдена" }}</td>
+        <td>{% if pi and pi.get("url") %}<a href="{{ pi.get("url") }}">{{ pi.get("supplier") or "источник" }}</a>{% else %}{{ pi.get("supplier") if pi else "—" }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Пропущено</h2>
+  <table class="grid">
+    <thead><tr><th>Наименование</th><th>Размер</th><th>Причина</th><th>Аналог</th><th></th></tr></thead>
+    <tbody>
+      {% for p in skipped %}
+      {% set s = suggestions[loop.index0] %}
+      <tr>
+        <td>{{ p.name }}</td><td>{{ p.size }}</td><td>{{ p.reason }}</td>
+        <td>
+          {% if p.analog_error %}<span class="chip chip-warn" title="Аналог недоступен">{{ p.analog_error }}</span>
+          {% elif s %}<span title="{{ s.category }}">{{ s.article }} · {{ s.spec_name }} {{ s.spec_size }}</span>
+          {% else %}<span class="chip">нет аналога</span>{% endif %}
+        </td>
+        <td>
+          {% if s and not p.analog_error %}
+          <form action="/r/{{ req.id }}/analog/{{ loop.index0 }}" method="post">
+            <button type="submit" title="Принять аналог: строка переедет в загруженные">Принять</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{% if req.status == "processing" %}
+<script>
+  const timer = setInterval(async () => {
+    const resp = await fetch("/api/status/{{ req.id }}");
+    if (!resp.ok) return;
+    const data = await resp.json();
+    if (data.status && data.status !== "processing") {
+      clearInterval(timer);
+      location.reload();
+    }
+  }, 2000);
+</script>
+{% endif %}
+{% endblock %}

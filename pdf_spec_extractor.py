@@ -1254,6 +1254,265 @@ def _extract_drawing_spec_rows_from_page(page) -> List[dict]:
     return rows
 
 
+# --- Позиционный разбор спецификации на бланке ГОСТ 21.602 ---
+
+# Единицы вне общего словаря _UNIT_TOKENS, встречающиеся в колонке
+# «Количество» бланка («30 кг», «20рул»).
+_GOST_UNIT_EXTRA = {
+    "кг": "кг", "рул": "рул", "рулон": "рул", "рулонов": "рул", "т": "т",
+}
+
+
+def _gost_remark_meaningful(text: str) -> bool:
+    """Отсекает штамповый мусор («Лист», «24», «N док») из примечаний."""
+    words = [
+        w.strip(".№")
+        for w in _norm_span_text(text).split()
+    ]
+    words = [w for w in words if w]
+    if not words:
+        return False
+    return not all(w in _STAMP_WORDS or w.isdigit() for w in words)
+
+
+def extract_gost_spec_rows(
+    pdf_path: str,
+    pages: Optional[List[int]] = None,
+) -> Dict[int, List[dict]]:
+    """Позиционно разбирает спецификацию ГОСТ 21.602 в многостраничном
+    проектном документе (бланк с колонками «Позиция | Наименование и
+    техническая характеристика | Тип, марка | Код | Завод | Ед. изм. |
+    Количество | Масса | Примечание»).
+
+    Ячейки такого бланка не имеют линий сетки, поэтому find_tables
+    распадает таблицу на отдельные ячейки, а построчный разбор текстового
+    слоя теряет количества. Здесь строки восстанавливаются по координатам
+    спанов: якоря колонок («Наименование», «Единица измерения», «Количество»)
+    берутся из шапки страницы, номера позиций — из колонки «Позиция», и все
+    спаны между соседними номерами позиций склеиваются в одну строку —
+    многострочные ячейки (перенос марки над наименованием) собираются
+    целиком, «Количество» и «Ед. изм.» берутся строго из своих колонок.
+
+    Returns:
+        Словарь {номер_страницы: [row, ...]}; пустой, если бланк не найден.
+    """
+    try:
+        import fitz  # PyMuPDF
+    except ImportError as exc:  # pragma: no cover
+        raise ImportError(
+            "PyMuPDF (fitz) не установлен. Установите: pip install pymupdf"
+        ) from exc
+
+    result: Dict[int, List[dict]] = {}
+    try:
+        doc = fitz.open(pdf_path)
+    except Exception as exc:  # повреждённый/не-PDF файл — не роняем fallback
+        logger.warning("extract_gost_spec_rows: не удалось открыть %s: %s",
+                       pdf_path, exc)
+        return result
+    with doc:
+        page_indices = (
+            [p - 1 for p in pages if 1 <= p <= doc.page_count]
+            if pages is not None
+            else range(doc.page_count)
+        )
+        for idx in page_indices:
+            try:
+                rows = _extract_gost_spec_rows_from_page(doc[idx])
+            except Exception as exc:  # pragma: no cover
+                logger.warning("extract_gost_spec_rows: страница %s: %s",
+                               idx + 1, exc)
+                continue
+            if rows:
+                result[idx + 1] = rows
+    return result
+
+
+def _extract_gost_spec_rows_from_page(page) -> List[dict]:
+    """Разбор одной страницы; [] если бланка ГОСТ 21.602 нет."""
+    spans = []
+    for block in page.get_text("dict")["blocks"]:
+        if block.get("type") != 0:
+            continue
+        for line in block["lines"]:
+            for span in line["spans"]:
+                text = str(span["text"]).strip()
+                if text:
+                    spans.append((fitz_rect(span["bbox"]), text))
+    if not spans:
+        return []
+
+    def norm(t: str) -> str:
+        return _norm_span_text(t)
+
+    def ymid(s) -> float:
+        return (s[0].y0 + s[0].y1) / 2
+
+    # Шапка колонок: «Наименование …» левее «Единица измерения» левее «Количество»
+    header_zone = [s for s in spans if s[0].y0 < 140]
+    name_h = next(
+        (s for s in header_zone if norm(s[1]).startswith("наименование")), None)
+    # «Ед…» матчит и «Единица измерения», и «Масса единицы, кг» — берём
+    # левую пару заголовков, где «Ед…» левее «Кол…» (порядок колонок ГОСТ).
+    unit_cands = sorted(
+        (s for s in header_zone
+         if norm(s[1]).startswith(("единица", "еди"))), key=lambda s: s[0].x0)
+    qty_cands = sorted(
+        (s for s in header_zone
+         if norm(s[1]).startswith(("количество", "коли"))), key=lambda s: s[0].x0)
+    pair = next(
+        ((u, q) for u in unit_cands for q in qty_cands
+         if u[0].x0 < q[0].x0), None)
+    if name_h is None or pair is None:
+        return []
+    unit_h, qty_h = pair
+    name_x, unit_x, qty_x = name_h[0].x0, unit_h[0].x0, qty_h[0].x0
+    if not (name_x < unit_x < qty_x):
+        return []
+    remark_h = next(
+        (s for s in header_zone if norm(s[1]).startswith("примечан")), None)
+
+    header_bottom = max(name_h[0].y1, unit_h[0].y1, qty_h[0].y1)
+    # Зоны колонок. Левые края с запасом: в книжной развёртке единица
+    # и количество часто склеены в один спан («шт.           1»).
+    unit_zone = (unit_x - 40, qty_x - 25)
+    qty_zone = (qty_x - 25, remark_h[0].x0 - 5 if remark_h else qty_x + 140)
+    if qty_zone[1] <= qty_zone[0]:
+        qty_zone = (qty_zone[0], qty_zone[0] + 140)
+
+    # Левая граница колонки наименований — по реальным спанам с буквами
+    # (данные начинаются левее заголовка колонки)
+    lettered = [
+        s[0].x0 for s in spans
+        if s[0].y0 >= header_bottom - 2
+        and name_x - 100 <= s[0].x0 < unit_zone[0]
+        and re.search(r"[A-Za-zА-Яа-я]", s[1])
+    ]
+    if not lettered:
+        return []
+    name_x0 = min(lettered) - 8
+
+    # Номера позиций — целые числа в колонке «Позиция» (левее наименований).
+    # Штамп «Лист N» и номера колонок шапки правее/выше — сюда не попадают.
+    anchor_cands = [
+        s for s in spans
+        if re.fullmatch(r"\d+", s[1]) and s[0].x0 < name_x0 - 5
+        and s[0].y0 >= header_bottom - 2
+    ]
+    if not anchor_cands:
+        return []
+    # Валидация: у настоящей позиции справа в колонке наименований на той
+    # же строке есть текст с буквами; у цифр штампа и шапки — нет.
+    anchors = []
+    for s in anchor_cands:
+        m = ymid(s)
+        if any(
+            abs(ymid(o) - m) <= 10
+            and name_x0 <= o[0].x0 < unit_zone[0]
+            and re.search(r"[A-Za-zА-Яа-я]", o[1])
+            for o in spans
+        ):
+            anchors.append(s)
+    if not anchors:
+        return []
+    anchors.sort(key=lambda s: (s[0].y0, s[0].x0))
+
+    # Отсекаем служебный мусор: всё, что выше первой позиции (подписи систем
+    # «В1», «ПД72.2 …»), и всё, что ниже последней (штамп «Изм Кол. уч. …»).
+    data = [
+        s for s in spans
+        if ymid(s) >= ymid(anchors[0]) - 20
+        and ymid(s) <= ymid(anchors[-1]) + 30
+        and s[0].x0 >= anchors[0][0].x0 - 20
+    ]
+
+    rows: List[dict] = []
+    for i, (rect, _pos_text) in enumerate(anchors):
+        a_mid = ymid((rect, ""))
+        lower = header_bottom - 2 if i == 0 else (anchors[i - 1][0].y0 + rect.y0) / 2
+        upper = ((rect.y0 + anchors[i + 1][0].y0) / 2
+                 if i + 1 < len(anchors) else a_mid + 30)
+        band = [s for s in data if lower <= ymid(s) < upper]
+
+        # Строки собираем по визуальным линиям (round(y0/3)): марка/завод на
+        # одной строке с наименованием идут после него по x, многострочная
+        # марка над наименованием — строкой раньше.
+        name_spans = sorted(
+            (s for s in band
+             if name_x0 <= s[0].x0 < unit_zone[0]
+             and ymid(s) >= a_mid - 20),
+            key=lambda s: (round(s[0].y0 / 3), s[0].x0),
+        )
+        name = " ".join(t for _, t in name_spans).strip()
+        if not name:
+            continue
+
+        unit_raw = " ".join(
+            t for r, t in sorted(
+                (s for s in band if unit_zone[0] <= s[0].x0 < unit_zone[1]),
+                key=lambda s: s[0].x0))
+        qty_raw = " ".join(
+            t for r, t in sorted(
+                (s for s in band if qty_zone[0] <= s[0].x0 < qty_zone[1]),
+                key=lambda s: s[0].x0))
+        unit = ""
+        for token in unit_raw.split():
+            unit = _norm_unit_token(token) or unit
+            if unit:
+                break
+        quantity = 0.0
+        qty_src = qty_raw
+        if not re.search(r"\d", qty_src):
+            # Единица и количество склеены в один спан («м2          410,0»,
+            # «30 кг», «20рул»): ищем число в зоне единицы, пропуская
+            # токены-единицы («м2»), а единицу — после числа.
+            qty_src = " ".join(
+                t for t in unit_raw.split() if not _norm_unit_token(t))
+        m = re.search(r"\d+(?:[.,]\d+)?", qty_src)
+        if m:
+            quantity = _to_float(m.group(0), 0.0)
+            if not unit:
+                for token in qty_src[m.end():].split():
+                    unit = _norm_unit_token(token) or _GOST_UNIT_EXTRA.get(
+                        token.strip(".,;").lower(), "")
+                    if unit:
+                        break
+        if not unit and quantity > 0:
+            # Пустая ячейка «Ед. изм.» у штучного крепежа — штуки.
+            unit = "шт"
+        remark_parts = [
+            t for r, t in sorted(
+                (s for s in band if s[0].x0 >= qty_zone[1]
+                 or (qty_zone[0] <= s[0].x0 < qty_zone[1]
+                     and not re.fullmatch(r"\d+(?:[.,]\d+)?", s[1].strip()))),
+                key=lambda s: (s[0].y0, s[0].x0))
+            if _gost_remark_meaningful(t)
+        ]
+        if remark_parts:
+            name = f"{name} [{' '.join(remark_parts)}]"
+        name, size = _split_name_size(name)
+        if not size and re.match(r"(?i)\s*воздуховод", name):
+            # Сечение («500х300», «Ø250») живёт в колонке «Тип, марка» и
+            # оказывается в середине наименования — выносим в size, иначе
+            # parse_row не видит размера.
+            m_sec = re.search(
+                r"(?<![\w/])([Øø⌀]\s*\d{2,4}|\d{3,4}\s*[xXх×]\s*\d{2,4})(?![\w/])",
+                name)
+            if m_sec:
+                size = re.sub(r"\s+", "", m_sec.group(1))
+                name = (name[:m_sec.start()] + name[m_sec.end():])
+                name = re.sub(r"\s{2,}", " ", name).strip(" ,;")
+        rows.append({
+            "name": name,
+            "size": size,
+            "unit": unit,
+            "quantity": quantity,
+            "material": DEFAULT_MATERIAL,
+            "thickness": DEFAULT_THICKNESS,
+        })
+    return rows
+
+
 def fitz_rect(bbox) -> "object":
     """Минимальный accessor к bbox спана (x0, y0, x1, y1) без зависимости от fitz."""
     class _R:

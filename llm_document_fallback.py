@@ -1,0 +1,414 @@
+"""LLM-фолбэк на уровне документа: сырой текст PDF → kimi → JSON со spans.
+
+При полном промахе/деградации основного парсера сырой текст документа
+отправляется в kimi-cli; модель возвращает JSON-массив строк спецификации
+с spans — смещениями подстрок В ИСХОДНОМ тексте. Все значения (name, size,
+quantity) вырезаются детерминированно text[a:b]; LLM никогда не является
+источником чисел.
+
+Любой сбой (runner бросил, невалидный JSON, истёк дедлайн) → [] + warning,
+исключений наружу нет.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import re
+import time
+from collections import Counter
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+import llm_size_classifier
+from config import get_config
+from llm_client import (
+    assistant_content as _assistant_content,
+    run_kimi as _run_kimi,
+)
+
+logger = logging.getLogger(__name__)
+
+LlmDocRow = Dict[str, Any]
+
+# Единицы, допустимые для позиций спецификации (м2 = «м²» в разных записях).
+VALID_UNITS = ("шт", "м", "м2", "м²")
+
+MIN_TEXT_CHARS = 200       # меньше — считаем, что текстового слоя нет, идём в OCR
+DEFAULT_MAX_CHARS = 60000  # обрезка входа для kimi
+
+__all__ = [
+    "LlmDocRow",
+    "get_doc_fallback_config",
+    "doc_fallback_enabled",
+    "extract_document_text",
+    "parse_document_with_llm",
+    "build_escalation_reason",
+    "run_doc_fallback",
+]
+
+
+def get_doc_fallback_config(cfg: Optional[Dict] = None) -> Dict:
+    """Секция ``llm.doc_fallback`` конфигурации (по образцу get_llm_config)."""
+    llm_cfg = (get_config().get("llm") or {}) if cfg is None else cfg
+    return dict((llm_cfg or {}).get("doc_fallback") or {})
+
+
+def doc_fallback_enabled(cfg: Optional[Dict] = None) -> bool:
+    """Гейтинг: глобальный llm_enabled И флаг doc_fallback.enabled."""
+    return bool(llm_size_classifier.llm_enabled(cfg)) and bool(
+        get_doc_fallback_config(cfg).get("enabled")
+    )
+
+
+def extract_document_text(pdf_path: str, max_chars: int = DEFAULT_MAX_CHARS) -> str:
+    """Сырой текст документа: текстовый слой постранично; если суммарно
+    меньше MIN_TEXT_CHARS символов — OCR-строки, сериализованные как
+    «name size unit quantity». Результат обрезается до max_chars."""
+    import pdf_spec_extractor
+
+    pages = pdf_spec_extractor.extract_text_lines_from_pdf(pdf_path)
+    text = "\n".join(
+        "\n".join(pages[p]) for p in sorted(pages)
+    )
+    if len(text) < MIN_TEXT_CHARS:
+        ocr_pages = pdf_spec_extractor.extract_ocr_spec_rows(pdf_path)
+        lines = []
+        for p in sorted(ocr_pages):
+            for row in ocr_pages[p]:
+                lines.append(
+                    "{} {} {} {}".format(
+                        row.get("name") or "",
+                        row.get("size") or "",
+                        row.get("unit") or "",
+                        row.get("quantity") if row.get("quantity") is not None else "",
+                    ).strip()
+                )
+        if lines:
+            text = "\n".join(lines)
+            logger.info("llm_doc_fallback.ocr: извлечено %d OCR-строк из %s", len(lines), pdf_path)
+    return text[:max_chars]
+
+
+def _build_prompt(text: str) -> str:
+    return (
+        "Ты извлекаешь строки оборудования из проектной спецификации вентиляции.\n"
+        "Ниже — сырой текст документа (может содержать мусор, колонтитулы, разрывы).\n\n"
+        f"<document>\n{text}\n</document>\n\n"
+        "Верни СТРОГО один JSON-массив без пояснений, markdown и кода. Каждый элемент:\n"
+        '{"name": "...", "size": "...", "unit": "...", "quantity": N}\n'
+        "Правила:\n"
+        "- name — ДОСЛОВНАЯ подстрока из текста документа (полное наименование "
+        "позиции, как оно написано, без номера позиции).\n"
+        "- size — дословная подстрока наименования с размером (например \"ф125\", "
+        '"150х150"); если размера нет — "".\n'
+        "- quantity — целое число из колонки количества для этой позиции. "
+        "НИКОГДА не выдумывай числа.\n"
+        '- unit — одно из: "шт", "м", "м2", "м²".\n'
+        "- Единицы измерения и служебные колонки в name не включай."
+    )
+
+
+_QTY_WINDOW = 30  # сколько символов после наименования просматриваем на количество
+
+
+def _name_positions(name: str, text: str) -> List[int]:
+    """Позиции всех вхождений name в text (точных; при нуле — с нормализацией
+    пробелов). Пустой список — наименования нет в документе."""
+    positions = []
+    start = 0
+    while True:
+        i = text.find(name, start)
+        if i < 0:
+            break
+        positions.append(i)
+        start = i + max(1, len(name))
+    if positions:
+        return positions
+    collapsed_text = re.sub(r"\s+", " ", text)
+    collapsed_name = re.sub(r"\s+", " ", name).strip()
+    if not collapsed_name:
+        return []
+    # Карта позиций collapsed → original: идём по text, схлопывая пробелы.
+    result = []
+    c = collapsed_text.find(collapsed_name)
+    while c >= 0:
+        orig = 0
+        cp = 0
+        while cp < c and orig < len(text):
+            if text[orig].isspace():
+                while orig < len(text) and text[orig].isspace():
+                    orig += 1
+                cp += 1
+            else:
+                orig += 1
+                cp += 1
+        result.append(orig)
+        c = collapsed_text.find(collapsed_name, c + max(1, len(collapsed_name)))
+    return result
+
+
+def _quantity_matches(text: str, name_end: int, quantity: int) -> bool:
+    """Количество обязано буквально встречаться среди чисел в окне
+    сразу после наименования (анти-галлюцинация без привязки к смещениям)."""
+    window = text[name_end:name_end + _QTY_WINDOW]
+    return str(quantity) in re.findall(r"\d+", window)
+
+
+def _validate_row(row: Dict, text: str) -> Optional[LlmDocRow]:
+    """Детерминированная проверка строки LLM якорями исходного текста.
+    None — строка отброшена (наименование не найдено в документе или
+    количество не подтверждено текстом)."""
+    name = str(row.get("name") or "").strip()
+    if not name:
+        return None
+    positions = _name_positions(name, text)
+    if not positions:
+        return None  # LLM выдумала наименование — отбрасываем
+
+    try:
+        quantity = int(row.get("quantity"))
+    except (TypeError, ValueError):
+        return None
+    if quantity <= 0:
+        return None
+    if not any(_quantity_matches(text, pos + len(name), quantity) for pos in positions):
+        return None  # количество не подтверждено текстом после наименования
+
+    size = str(row.get("size") or "").strip()
+    if size:
+        window = " ".join(text[pos:pos + len(name) + _QTY_WINDOW] for pos in positions)
+        if size.lower() not in name.lower() and size not in window:
+            size = ""  # размер не подтверждён текстом — парсер доберёт из name
+
+    unit = str(row.get("unit") or "").strip()
+    if unit not in VALID_UNITS:
+        return None
+    return {"name": name, "size": size, "unit": unit, "quantity": quantity}
+
+
+def _loads_rows_array(content: str) -> List[Dict]:
+    """Парсит JSON-массив из ответа модели (с терпимостью к мусору вокруг)."""
+    data = json.loads(content)
+    if not isinstance(data, list):
+        raise ValueError("ответ LLM — не JSON-массив")
+    return data
+
+
+def parse_document_with_llm(
+    text: str,
+    cfg: Optional[Dict] = None,
+    runner: Optional[Callable] = None,
+    deadline: Optional[float] = None,
+) -> List[LlmDocRow]:
+    """Текст документа → LLM → список LlmDocRow, собранных строго по spans.
+
+    runner(prompt, cfg) -> stdout (stream-json) инжектируется в тестах.
+    Любой сбой / невалидный JSON (после max_retries попыток) / истёкший
+    deadline → [] + logger.warning, исключений наружу нет."""
+    cfg = get_doc_fallback_config() if cfg is None else dict(cfg)
+    run = _run_kimi if runner is None else runner
+    prompt = _build_prompt(text)
+    max_retries = max(0, int(cfg.get("max_retries", 2)))
+
+    for attempt in range(max_retries + 1):
+        attempt_cfg = dict(cfg)
+        if deadline is not None:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                logger.warning("llm_doc_fallback.failed: дедлайн истёк (попытка %d)", attempt + 1)
+                return []
+            attempt_cfg["timeout"] = max(1, int(remaining))
+        try:
+            raw = run(prompt, attempt_cfg)
+        except Exception as exc:  # noqa: BLE001 — runner обязан не ронять пайплайн
+            logger.warning(
+                "llm_doc_fallback.failed: вызов неудачен (попытка %d/%d): %s",
+                attempt + 1, max_retries + 1, exc,
+            )
+            continue
+        if deadline is not None and time.monotonic() >= deadline:
+            logger.warning("llm_doc_fallback.failed: дедлайн истёк после вызова LLM")
+            return []
+        try:
+            content = _assistant_content(raw)
+            rows = _loads_rows_array(content)
+        except (ValueError, json.JSONDecodeError) as exc:
+            logger.warning(
+                "llm_doc_fallback.failed: ответ LLM не распознан (попытка %d/%d): %s; raw: %.300s",
+                attempt + 1, max_retries + 1, exc, raw,
+            )
+            continue
+        out: List[LlmDocRow] = []
+        for row in rows:
+            if not isinstance(row, dict):
+                logger.warning("llm_doc_fallback.failed: элемент не объект: %r", row)
+                continue
+            parsed = _validate_row(row, text)
+            if parsed is None:
+                logger.warning(
+                    "llm_doc_fallback.failed: строка отброшена (невалидные spans/значения): %r", row,
+                )
+                continue
+            out.append(parsed)
+        logger.info("llm_doc_fallback.parsed: %d/%d строк из текста (%d символов)",
+                    len(out), len(rows), len(text))
+        return out
+
+    logger.warning("llm_doc_fallback.failed: исчерпаны попытки (%d)", max_retries + 1)
+    return []
+
+
+def build_escalation_reason(skipped: List[Dict]) -> str:
+    """Человекочитаемая причина эскалации из reason skipped-строк."""
+    rows = [s for s in skipped if isinstance(s, dict)]
+    reasons = [str(s.get("reason", "")) for s in rows]
+    if not reasons:
+        return "нет текстового слоя"
+    if all("м²" in r for r in reasons):
+        return "документ — смета в м² без поканальных размеров"
+    # Строки сметы в м² без поканальных размеров отклоняются процессором по
+    # «Отсутствует размер» (unit сохраняется в skipped) — по единице измерения
+    # это та же смета в м². Порог 1/3: единичная м²-строка в документе,
+    # где основной массив — штучные позиции, эскалацию не определяет.
+    m2_units = ("м2", "м²")
+    m2_rows = sum(
+        1 for s in rows
+        if "м²" in str(s.get("reason", "")) or str(s.get("unit", "")).strip() in m2_units
+    )
+    if m2_rows and m2_rows * 3 >= len(rows):
+        return "документ — смета в м² без поканальных размеров"
+    if all(r.startswith("Покупная позиция") for r in reasons):
+        return "все позиции — перекупное оборудование"
+    most_common = Counter(reasons).most_common(1)[0][0]
+    return f"не распознано {len(reasons)} строк, основная причина: {most_common}"
+
+
+# Дедуп при мерже: «Воздуховод ф125» и ««Воздуховод» «ф125»» — одна позиция,
+# поэтому кавычки-ёлочки из комментариев убираем до сравнения.
+_DEDUP_QUOTES_RE = re.compile(r"[«»]")
+
+
+def _merge_key(row: Dict[str, Any]) -> Tuple[str, Any]:
+    comment = _DEDUP_QUOTES_RE.sub("", str(row.get("comment", ""))).lower().strip()
+    return (comment, row.get("quantity"))
+
+
+def _skip_ratio(skipped_n: int, success_n: int) -> Optional[float]:
+    total = skipped_n + success_n
+    return (skipped_n / total) if total else None
+
+
+def run_doc_fallback(
+    pdf_path: str,
+    success: List[dict],
+    skipped: List[dict],
+    cfg: Optional[Dict] = None,
+) -> Tuple[List[dict], List[dict], Dict[str, Any]]:
+    """Документный LLM-фолбэк: сырой текст PDF → LLM → мердж с детерминированным
+    результатом process_rows.
+
+    Триггер — полный промах (success пуст) или доля skipped выше
+    ``skip_threshold``. Без триггера или при выключенном
+    ``doc_fallback_enabled`` — детерминированный результат без изменений.
+
+    Любой сбой fallback → детерминированный результат без изменений
+    (triggered=True, recovered=0), пайплайн не падает. Исключение — отсутствие
+    текстового слоя при пустом success: эскалация ставится всегда, т.к. иначе
+    документ молча не доедет до менеджера.
+
+    Возвращает (merged_success, merged_skipped, meta); meta всегда содержит
+    triggered, recovered, skip_ratio, skip_ratio_post, escalation. Строкам,
+    восстановленным LLM, в success ставится ``"llm_source": True``.
+    """
+    skip_ratio = _skip_ratio(len(skipped), len(success))
+    threshold = float(get_doc_fallback_config(cfg).get("skip_threshold", 0.3))
+    degraded = (not success) or (skip_ratio is not None and skip_ratio > threshold)
+    if not degraded or not doc_fallback_enabled(cfg):
+        return success, skipped, {
+            "triggered": False,
+            "recovered": 0,
+            "skip_ratio": skip_ratio,
+            "skip_ratio_post": skip_ratio,
+            "escalation": None,
+        }
+
+    logger.info("llm_doc_fallback.triggered: %s (skip_ratio=%s)", pdf_path, skip_ratio)
+    # MERGED cfg (парковочное решение Task 2): command/model из общей секции
+    # llm + timeout/max_retries/max_chars из doc_fallback.
+    merged_cfg = {**llm_size_classifier.get_llm_config(), **get_doc_fallback_config(cfg)}
+    deadline = time.monotonic() + float(merged_cfg.get("timeout") or 180)
+
+    try:
+        text = extract_document_text(
+            pdf_path, max_chars=int(merged_cfg.get("max_chars", DEFAULT_MAX_CHARS))
+        )
+    except Exception as exc:  # noqa: BLE001 — fallback обязан не ронять пайплайн
+        logger.info("llm_doc_fallback.extract_failed: %s", exc)
+        return success, skipped, {
+            "triggered": True,
+            "recovered": 0,
+            "skip_ratio": skip_ratio,
+            "skip_ratio_post": skip_ratio,
+            # документ без текстового слоя не лечится повторами бэкенда —
+            # эскалация детерминирована; при частично загруженном заказе
+            # менеджер и так получит отчёт со skipped-строками
+            "escalation": "нет текстового слоя / OCR не дал результата" if not success else None,
+        }
+    if not text.strip():
+        logger.info("llm_doc_fallback.extract_failed: пустой текст")
+        return success, skipped, {
+            "triggered": True,
+            "recovered": 0,
+            "skip_ratio": skip_ratio,
+            "skip_ratio_post": skip_ratio,
+            "escalation": "нет текстового слоя / OCR не дал результата" if not success else None,
+        }
+    try:
+        llm_rows = parse_document_with_llm(text, cfg=merged_cfg, deadline=deadline)
+        import process_specification_table as pst
+
+        _, extra_skipped, extra_success = pst.process_rows(
+            llm_rows, run_llm_size_classify=False
+        )
+    except Exception as exc:  # noqa: BLE001 — fallback обязан не ронять пайплайн
+        # Сбой парсинга (kimi недоступен/вернул мусор) — эскалацию НЕ шлём:
+        # иначе массовый отказ бэкенда превратится в спам менеджеру
+        logger.info("llm_doc_fallback.failed: %s", exc)
+        return success, skipped, {
+            "triggered": True,
+            "recovered": 0,
+            "skip_ratio": skip_ratio,
+            "skip_ratio_post": skip_ratio,
+            "escalation": None,
+        }
+
+    # Мердж: дедуп по (comment, quantity) — при совпадении приоритет у
+    # детерминированных строк, LLM-дубли отбрасываем. «Воздуховод ф125» и
+    # ««Воздуховод» «ф125»» — одна позиция, поэтому ключ сравнения
+    # нормализуем (снимаем кавычки-ёлочки, lower, strip). Строки не
+    # мутируем: регистр комментария уезжает в 1С и отчёт.
+    merged_success = list(success)
+    seen = {_merge_key(r) for r in merged_success}
+    recovered = 0
+    for row in extra_success:
+        key = _merge_key(row)
+        if key in seen:
+            continue
+        seen.add(key)
+        row["llm_source"] = True
+        merged_success.append(row)
+        recovered += 1
+    merged_skipped = list(skipped) + list(extra_skipped)
+    skip_ratio_post = _skip_ratio(len(merged_skipped), len(merged_success))
+    escalation = build_escalation_reason(merged_skipped) if not merged_success else None
+    if recovered:
+        logger.info("llm_doc_fallback.recovered: %d", recovered)
+    if escalation:
+        logger.info("llm_doc_fallback.escalated: %s", escalation)
+    return merged_success, merged_skipped, {
+        "triggered": True,
+        "recovered": recovered,
+        "skip_ratio": skip_ratio,
+        "skip_ratio_post": skip_ratio_post,
+        "escalation": escalation,
+    }

@@ -24,6 +24,7 @@ SHEET_LOADED = "Загружено"
 SHEET_SKIPPED = "Пропущено"
 SHEET_TRADING = "Перекупное"
 SHEET_ERRORS = "Ошибки 1С"
+SHEET_LLM = "Восстановлено LLM"
 
 TRADING_REASON_PREFIXES = ("Покупная позиция", "Покупная арматура")
 ORDER_NUMBER_LABEL = "Номер заказа"
@@ -45,7 +46,7 @@ EQUIPMENT_PTYPES = {
 
 LOADED_HEADERS = ["Артикул", "A", "B", "D", "Кол-во", "Материал", "Толщина",
                   "Соед. 0", "Соед. 1", "Соед. 2", "Соед. 3",
-                  "Система", "Комментарий"]
+                  "Система", "Комментарий", "ЦенаЕд", "Сумма"]
 SKIPPED_HEADERS = ["Наименование", "Размер", "Кол-во", "Ед.", "Материал",
                    "Толщина", "Причина", "Включить в заказ"]
 TRADING_HEADERS = ["Наименование", "Категория", "Размер", "Материал", "Толщина",
@@ -95,6 +96,7 @@ def _loaded_row(p: dict) -> List[Any]:
         p.get("connection_0", ""), p.get("connection_1", ""),
         p.get("connection_2", ""), p.get("connection_3", ""),
         p.get("system", ""), p.get("comment", ""),
+        p.get("price"), p.get("sum"),
     ]
 
 
@@ -114,11 +116,20 @@ def _trading_row(s: dict) -> List[Any]:
 
 
 def build_excel_report(res: "PipelineResult") -> bytes:
-    """Собрать xlsx-отчёт: Загружено / Пропущено / Перекупное / Ошибки 1С."""
+    """Собрать xlsx-отчёт: Загружено / Пропущено / Перекупное / Ошибки 1С.
+
+    Строки с маркером llm_source дублируются на отдельный лист «Восстановлено
+    LLM» (для внимания менеджера), но остаются и в «Загружено» — round-trip
+    пересоздания заказа читает позиции только с листа «Загружено»."""
     wb = Workbook()
     ws = wb.active
     ws.title = SHEET_LOADED
     _write_sheet(ws, LOADED_HEADERS, [_loaded_row(p) for p in res.loaded])
+
+    llm_rows = [p for p in res.loaded if p.get("llm_source")]
+    if llm_rows:
+        _write_sheet(wb.create_sheet(SHEET_LLM), LOADED_HEADERS,
+                     [_loaded_row(p) for p in llm_rows])
 
     trading = [s for s in res.skipped if is_trading_skip(s)]
     skipped = [s for s in res.skipped if not is_trading_skip(s)]
@@ -133,6 +144,7 @@ def build_excel_report(res: "PipelineResult") -> bytes:
         (ORDER_NUMBER_LABEL, res.order_number or ""),
         ("Файл", res.file_name),
         ("Загружено", len(res.loaded)),
+        ("Восстановлено LLM", len(llm_rows)),
         ("Пропущено", len(skipped)),
         ("Перекупное", len(trading)),
         ("Ошибок 1С", len(res.errors_1c)),

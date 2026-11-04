@@ -189,6 +189,8 @@ PRODUCT_TYPE_PATTERNS = [
     # аспирационных систем, г. Ростов-на-Дону: «Прямик D=280 мм; L=1250 мм»).
     (r"\bпрямик\b", "duct"),
     (r"воздуховод", "duct"),
+    # Сокращение «Возд.» из проектных спецификаций (заявка НИИ Кукурузы).
+    (r"\bвозд\.?\b", "duct"),
     # «Местный отсос AxBxH(h)» — вытяжной зонт над участком (по номенклатуре
     # завода — зонт вытяжной прямоугольного сечения тип 1, арт. 19-2-1).
     (r"\bотсос\b", "hood"),
@@ -692,6 +694,45 @@ def try_parse_ksd(size: str, name: str, material_code: str = "1", thickness: flo
         "system": "",
         "comment": f"КСД адаптер: {name} {size}",
     }
+
+
+# LLM-классы, усыновляемые фасонным путём (только через подтверждение
+# try_parse_fitting реконструированной строкой).
+_LLM_FITTING_CLASSES = ("tee_axbxc", "reducer_pair")
+
+
+def _fmt_mm(value: float) -> str:
+    return str(int(value)) if float(value).is_integer() else str(value)
+
+
+def _llm_fitting_size_candidates(cls) -> List[str]:
+    """Собирает кандидатные строки размера фасонки из dims LLM-класса.
+
+    Порядок кандидатов — от более специфичной грамматики к менее: первая
+    подтверждённая try_parse_fitting строка усыновляется.
+    """
+    dims = cls.dims or {}
+    a0, b0 = dims.get("A0"), dims.get("B0")
+    if cls.format_class == "tee_axbxc":
+        branch = dims.get("C0", dims.get("D2"))
+        if a0 and b0 and branch:
+            # Прямоугольный тройник: ветвь квадратная C0xC0 либо круглая ФC0.
+            main = f"{_fmt_mm(a0)}x{_fmt_mm(b0)}"
+            return [f"{main}-{main}-{_fmt_mm(branch)}x{_fmt_mm(branch)}",
+                    f"{main}-Ф{_fmt_mm(branch)}"]
+        if dims.get("D0") and dims.get("D1") and dims.get("D2"):
+            # Круглый тройник «Dглавн/Dветвь/Dглавн» (грамматика slash-форм).
+            return [f"{_fmt_mm(dims['D0'])}/{_fmt_mm(dims['D1'])}/{_fmt_mm(dims['D2'])}"]
+        return []
+    if cls.format_class == "reducer_pair":
+        if dims.get("D0") and dims.get("D1"):
+            return [f"{_fmt_mm(dims['D0'])}/{_fmt_mm(dims['D1'])}"]
+        if a0 and b0 and dims.get("A1") and dims.get("B1"):
+            return [f"{_fmt_mm(a0)}x{_fmt_mm(b0)}-{_fmt_mm(dims['A1'])}x{_fmt_mm(dims['B1'])}"]
+        if a0 and b0:
+            # Два числа прямоугольного перехода — оба сечения квадратные.
+            return [f"{_fmt_mm(a0)}x{_fmt_mm(a0)}-{_fmt_mm(b0)}x{_fmt_mm(b0)}"]
+    return []
 
 
 def try_parse_fitting(
@@ -1252,8 +1293,10 @@ def normalize_unit_value(unit: str) -> str:
     return unit.strip()
 
 
-def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.SizeClassification"]] = None) -> Tuple[Optional[dict], Optional[dict]]:
+def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.SizeClassification"]] = None, *, run_llm_size_classify: bool = True) -> Tuple[Optional[dict], Optional[dict]]:
     """Преобразует одну строку таблицы в строку для XML или причину пропуска."""
+    if not run_llm_size_classify:
+        llm_cache = None
     name = str(row.get("name", "")).strip()
     size = str(row.get("size", "")).strip()
     unit = normalize_unit_value(str(row.get("unit", "")).strip().lower())
@@ -1439,6 +1482,21 @@ def parse_row(row: dict, defaults: dict, llm_cache: Optional[Dict[str, "lsc.Size
 
     # Попытка распознать фасонное изделие / арматуру (в том числе для м²)
     fitting = try_parse_fitting(name, size, unit, quantity, material_code=material_code, thickness=thickness)
+    if not fitting and llm_cache:
+        # LLM-фолбэк фасонки: tee_axbxc/reducer_pair дают только числа.
+        # Кандидатную строку собираем из dims и усыновляем лишь ту, что
+        # подтверждает фасонный парсер — LLM не формирует фасонные размеры
+        # в обход try_parse_fitting.
+        llm_result = llm_cache.get(size) or llm_cache.get(str(row.get("size", "")).strip()) or None
+        if (llm_result is not None and llm_result.adoptable
+                and llm_result.format_class in _LLM_FITTING_CLASSES):
+            for candidate in _llm_fitting_size_candidates(llm_result):
+                fitting = try_parse_fitting(name, candidate, unit, quantity,
+                                            material_code=material_code, thickness=thickness)
+                if fitting:
+                    logger.info("LLM-фолбэк: фасонка %r усыновлена через %r (%s)",
+                                size, candidate, llm_result.format_class)
+                    break
     if fitting:
         fitting["thickness_explicit"] = thickness_explicit
         fitting["system"] = row.get("system", "")
@@ -1583,6 +1641,8 @@ def process_rows(
     rows: List[dict],
     header: Optional[dict] = None,
     defaults: Optional[dict] = None,
+    *,
+    run_llm_size_classify: bool = True,
 ) -> Tuple[str, List[dict], List[dict]]:
     """Принимает список строк спецификации и возвращает XML-строку, пропущенные и успешные строки.
 
@@ -1590,6 +1650,7 @@ def process_rows(
         rows: список словарей с ключами name, size, unit, quantity, material, thickness.
         header: заголовок заказа для XML (numberDate, numberOrder, INN, ...).
         defaults: значения по умолчанию для material и thickness.
+        run_llm_size_classify: если False — LLM-классификация размеров не запускается.
 
     Returns:
         Кортеж (xml_string, skipped_list, success_rows).
@@ -1611,7 +1672,7 @@ def process_rows(
     skipped: List[dict] = []
 
     llm_cache: Optional[Dict[str, lsc.SizeClassification]] = None
-    if lsc.llm_enabled():
+    if run_llm_size_classify and lsc.llm_enabled():
         candidates = []
         seen = set()
         for row in rows:
@@ -1628,7 +1689,11 @@ def process_rows(
         size = str(row.get("size", "")).strip()
         if not name and not size:
             continue
-        parsed, skip = parse_row(row, defaults, llm_cache=llm_cache)
+        if run_llm_size_classify:
+            parsed, skip = parse_row(row, defaults, llm_cache=llm_cache)
+        else:
+            parsed, skip = parse_row(row, defaults, llm_cache=None,
+                                     run_llm_size_classify=False)
         if parsed:
             if ALLOWED_ARTICLES and parsed["article"] not in ALLOWED_ARTICLES:
                 skipped.append(

@@ -149,6 +149,25 @@ def test_process_specification_file_material_matches_source_marker(tmp_path):
         )
 
 
+def test_spec_candidate_pages_splits_markers_and_scans():
+    """Страницы с маркерами спецификации → таблицы/блоки; пустые (сканы) → OCR.
+    Без маркеров — все страницы (малые документы без заголовков ГОСТ)."""
+    from api import _spec_candidate_pages
+
+    text_by_page = {
+        1: ["Титульный лист проекта без маркеров"] * 3,
+        2: ["Наименование", "Кол-во", "Отвод 100х100", "2"],
+        3: [],
+        4: ["План вентиляции этажа", "размеры осей"] * 3,
+    }
+    markers, scans = _spec_candidate_pages(text_by_page)
+    assert markers == [2]
+    assert scans == [3]
+    # полностью скан без текстового слоя: маркеров нет — все страницы в дело
+    markers, scans = _spec_candidate_pages({1: [], 2: []})
+    assert markers == [] and scans == [1, 2]
+
+
 def test_load_tables_from_pdf_block_fallback(tmp_path):
     """ГОСТ-бланк с многострочными ячейками: find_tables съезжается,
     load_tables_from_pdf должен упасть в разбор текстового слоя блоками."""

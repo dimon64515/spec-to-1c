@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Список{% endblock %}
+{% block content %}
+<section>
+  <table class="grid">
+    <thead>
+      <tr>
+        <th>#</th><th>Файл</th><th>Дата</th><th title="Загружено / Перекупное / Пропущено">Позиции</th>
+        <th class="num" title="Сумма по загруженным и перекупным">Сумма</th><th>Статус</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in requests %}
+      <tr>
+        <td><a href="/r/{{ r.id }}">{{ r.id }}</a></td>
+        <td>{{ r.file_name }}</td>
+        <td>{{ r.created_at[:16].replace("T", " ") }}</td>
+        <td title="Загружено / Перекупное / Пропущено">{{ r.loaded_count }} / {{ r.trading_count }} / {{ r.skipped_count }}</td>
+        <td class="num">{{ "{:,.0f}".format(r.total_sum).replace(",", " ") }}</td>
+        <td><span class="chip chip-{{ r.status }}">{{ r.status }}</span>
+          {% if r.order_number %}<span class="chip chip-order" title="Заказ 1С">{{ r.order_number }}</span>{% endif %}
+          {% if r.meta and r.meta.get("escalation") %}<span class="chip chip-warn" title="{{ r.meta.get("escalation") }}">эскалация</span>{% endif %}
+          {% if r.meta and (r.meta.get("recovered") or r.meta.get("row_fallback_recovered")) %}<span class="chip chip-info" title="Восстановлено LLM">LLM +{{ (r.meta.get("recovered") or 0) + (r.meta.get("row_fallback_recovered") or 0) }}</span>{% endif %}
+          {% if r.meta and r.meta.get("load_error") %}<span class="chip chip-error" title="{{ r.meta.get("load_error") }}">ошибка 1С</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

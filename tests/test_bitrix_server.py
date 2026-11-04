@@ -584,3 +584,31 @@ def test_health(env):
     app = srv.create_app(cfg, client=client, queue=queue, start_worker=False)
     resp = TestClient(app).get("/health")
     assert resp.status_code == 200 and resp.json()["ok"] is True
+
+
+def test_handler_escalation_and_partial_warning_include_file_name(env, monkeypatch):
+    """Fix round 1: эскалация и partial warning содержат имя файла и идут
+    транспортом im.message.add (bot_id=None), а не imbot.message.add."""
+    cfg, client, queue = env
+    fake = PipelineResult(
+        file_name="spec.pdf", order_number=None, loaded=[], skipped=[],
+        errors_1c=[], warnings_1c=[],
+        escalation="документ — смета в м² без поканальных размеров",
+        partial_warning=("Заказ по файлу «spec.pdf» загружен частично: "
+                         "распознано 1 из 10 строк, проверьте отчёт"),
+    )
+    monkeypatch.setattr(srv, "run_pipeline", lambda *a, **kw: fake)
+    job = queue.enqueue(
+        Job(dialog_id="task|42", task_id=42, pdf_path="", file_name="spec.pdf",
+            order_comment="c", bot_id=5),
+        pdf_bytes=b"%PDF",
+    )
+    handler = srv.make_handler(cfg, client)
+    handler(job)
+    escalation_msgs = [m for m in client.messages if "ручная обработка" in m[1]]
+    partial_msgs = [m for m in client.messages if "частично" in m[1]]
+    assert escalation_msgs and "spec.pdf" in escalation_msgs[0][1]
+    assert partial_msgs and "spec.pdf" in partial_msgs[0][1]
+    # критичные уведомления — только im.message.add (bot_id=None):
+    # imbot.message.add падает с APP_ID_ERROR на текущей регистрации бота
+    assert all(m[2] is None for m in escalation_msgs + partial_msgs)

@@ -21,6 +21,29 @@ from typing import Any, Dict, List, Optional, Tuple
 import httpx
 
 
+def _parse_price_tail(text: str) -> List[Dict[str, Any]]:
+    """Построчные цены из хвоста ответа 1С (после ' ## '):
+    'N|артикул|...|цена=<float>|S=<float>|n=<float>'."""
+    prices = []
+    for part in text.split(" ## ")[1:]:
+        seg = part.strip()
+        m = re.match(r"^(\d+)\|([^|]*)\|", seg)
+        if not m:
+            continue
+        fields = dict(re.findall(r"(цена|S|n)=([^|]*)", seg))
+        try:
+            prices.append({
+                "row": int(m.group(1)),
+                "article": m.group(2),
+                "price": float(fields.get("цена", "0") or 0),
+                "area": float(fields.get("S", "0") or 0),
+                "qty": float(fields.get("n", "0") or 0),
+            })
+        except ValueError:
+            continue
+    return prices
+
+
 def parse_1c_result(text: str) -> Dict[str, Any]:
     """Разобрать строку-результат 1С: 'ЗАКАЗ № | строк=N | ошибок=N | предупр=N | ... ## ...'."""
     head = text.split(" ## ")[0]
@@ -50,6 +73,7 @@ def parse_1c_result(text: str) -> Dict[str, Any]:
         "errors": errors,
         "warnings": warnings,
         "raw": text,
+        "prices": _parse_price_tail(text),
     }
 
 
@@ -175,6 +199,19 @@ class HttpServiceTransport:
             segments.append("; ".join(warnings))
         out = parse_1c_result(" | ".join(segments))
         out["raw"] = raw
+        prices = []
+        for i, row in enumerate(data.get("Строки") or [], start=1):
+            try:
+                prices.append({
+                    "row": i,
+                    "article": str(row.get("Артикул", "")),
+                    "price": float(row.get("ЦенаЕд") or 0),
+                    "area": float(row.get("S") or 0),
+                    "qty": float(row.get("Количество") or 0),
+                })
+            except (TypeError, ValueError):
+                continue
+        out["prices"] = prices
         return out
 
 

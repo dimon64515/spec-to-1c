@@ -68,7 +68,8 @@ def test_pipeline_blocks_article_20_family(monkeypatch):
     fake_api.load_tables_from_pdf = lambda b: {"block_rows": [{}]}
     monkeypatch.setitem(sys.modules, "api", fake_api)
 
-    success, skipped = pl.process_pdf_to_positions(b"pdf")
+    success, skipped, meta = pl.process_pdf_to_positions(b"pdf")
+    assert meta["triggered"] is False
     assert [r["article"] for r in success] == ["1-2-1"]
     assert sorted(s["article"] for s in skipped) == ["20-1", "20-2"]
     assert "20-2" in skipped[0]["reason"] or "20-2" in skipped[1]["reason"]

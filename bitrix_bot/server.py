@@ -98,6 +98,26 @@ def make_handler(cfg: BotConfig, client) -> Callable[[Job], None]:
                     client.send_message(job.dialog_id, msg, bot_id=job.bot_id)
                 except Exception:
                     logger.exception("report delivery failed for job %s", job.id)
+        # Эскалация и частичное предупреждение — только через im.message.add
+        # (bot_id=None): imbot.message.add падает с APP_ID_ERROR на текущей
+        # регистрации бота, и критичные уведомления терялись бы молча.
+        if res.escalation:
+            try:
+                client.send_message(
+                    job.dialog_id,
+                    f"⚠ Файл «{res.file_name}» не обработан автоматически: "
+                    f"{res.escalation}. Нужна ручная обработка менеджером.",
+                    bot_id=None,
+                )
+            except Exception:
+                logger.exception("escalation delivery failed for job %s", job.id)
+        if res.partial_warning:
+            try:
+                client.send_message(
+                    job.dialog_id, res.partial_warning, bot_id=None,
+                )
+            except Exception:
+                logger.exception("partial warning delivery failed for job %s", job.id)
     return handle
 
 
@@ -126,13 +146,14 @@ def create_app(
 
             def notify_failure(job: Job, error: str) -> None:
                 # попытки исчерпаны — без ответа пользователь остаётся
-                # с «обрабатываю…» и ничем
+                # с «обрабатываю…» и ничем. Только im.message.add
+                # (bot_id=None): imbot.message.add падает с APP_ID_ERROR.
                 try:
                     client.send_message(
                         job.dialog_id,
                         f"Не смог обработать «{job.file_name}» "
                         f"({MAX_ATTEMPTS} попытки): {error}",
-                        bot_id=job.bot_id,
+                        bot_id=None,
                     )
                 except Exception:
                     logger.exception(

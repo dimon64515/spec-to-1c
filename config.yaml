@@ -40,13 +40,23 @@ middleware:
 # извлекаются детерминированно по spans из исходной строки.
 # Бэкенд kimi-cli использует локальную аутентификацию Kimi Code CLI.
 llm:
-  enabled: false
+  enabled: true
   backend: "kimi-cli"
   command: "kimi"
   model: ""           # опциональный -m alias, "" = модель по умолчанию
   batch_size: 20
   timeout: 120
   max_retries: 2
+  doc_fallback:
+    enabled: true
+    skip_threshold: 0.3
+    max_chars: 60000
+    timeout: 420
+    max_retries: 1
+  row_fallback:
+    enabled: true
+    timeout: 180
+    max_retries: 1
 
 # Автообучение вариантов записи размеров (tools/size_format_mine.py):
 # кластеры нераспознанных размеров из skipped-отчётов → kimi предлагает
