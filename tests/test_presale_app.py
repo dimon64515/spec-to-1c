@@ -136,7 +136,7 @@ def test_login_upload_progress_result_flow(client, igor_bytes):
     assert est_url == "/estimate/1"
     page = client.get(est_url)
     assert page.status_code == 200
-    assert "Сводка" in page.text
+    assert "НАШ РАСЧЁТ" in page.text
     assert "🟢" in page.text or "🔴" in page.text
 
 
@@ -252,7 +252,7 @@ def test_concurrent_edits_both_logged(client, igor_bytes):
     assert edits.status_code == 200
     assert edits.text.count("internal_price") == 2
     assert "Игорь" in edits.text and "Пётр" in edits.text
-    assert "→ 100" in edits.text and "→ 200" in edits.text
+    assert "100</strong>" in edits.text and "200</strong>" in edits.text
     # применена последняя правка
     _, items = client.app.state.db.get_estimate(1)
     item = next(i for i in items if i.row_id == row_id)
@@ -303,7 +303,7 @@ def test_history_lists_estimates_and_overdue(client, db, igor_bytes):
     page = client.get("/")
     assert page.status_code == 200
     assert "Просроч" in page.text and "Обычный" in page.text
-    assert 'class="overdue"' in page.text
+    assert 'row-overdue' in page.text
     # просроченный выше обычного
     assert page.text.index("Просроч") < page.text.index("Обычный")
 

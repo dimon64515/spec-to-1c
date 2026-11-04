@@ -52,3 +52,7 @@ price_search/diag_test.py
 
 # git worktrees
 .worktrees/
+
+# Local agent tooling / knowledge graph
+graphify-out/
+.agents/

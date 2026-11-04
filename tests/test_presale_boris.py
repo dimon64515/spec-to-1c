@@ -109,10 +109,15 @@ def test_overrides_copied_and_coerced_to_decimal():
     assert r.price == Decimal("9000")
 
 
-def test_spiral_kind_not_mapped():
-    """Спирально-навивной L=3000 в v1 не мапится: product_kind='spiral' → None."""
+def test_spiral_kind_mapped_to_spiral_column():
+    """Спирально-навивной L=3000 мапится в колонку спирали круглого прайса."""
     t = BorisPriceTable.from_xlsx(RECT, ROUND)
-    assert t.lookup(material="AISI 304", thickness=Decimal("0.8"), shape="round", product_kind="spiral") is None
+    r = t.lookup(material="AISI 304", thickness=Decimal("0.8"),
+                 shape="round", product_kind="spiral")
+    assert r is not None and r.price == Decimal("860")
+    # прямоугольный прайс спиральной колонки не имеет
+    assert t.lookup(material="AISI 304", thickness=Decimal("0.8"),
+                    shape="rect", product_kind="spiral") is None
 
 
 def test_unknown_kind_returns_none():

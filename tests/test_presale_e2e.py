@@ -209,4 +209,4 @@ def test_overdue_deadline_highlighted(client, db, igor_bytes):
     upload(client, igor_bytes, customer="ООО ЛСР", deadline="2026-11-02")
     page = client.get("/")
     assert page.status_code == 200
-    assert 'class="overdue"' in page.text
+    assert 'row-overdue' in page.text

@@ -2,32 +2,135 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Предрасчёт{% endblock %}</title>
   <style>
-    body { font-family: sans-serif; margin: 2em auto; max-width: 1100px; }
-    nav a { margin-right: 1em; }
-    nav .user { float: right; color: #666; }
-    table { border-collapse: collapse; width: 100%; margin: 1em 0; }
-    th, td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
-    th { background: #f0f0f0; }
-    .overdue { background: #ffe0e0; }
-    .missing { background: #fff3f3; }
-    .num { text-align: right; white-space: nowrap; }
+    :root {
+      --bg: #f3f5f9;
+      --surface: #ffffff;
+      --border: #e5e9f0;
+      --text: #1a2233;
+      --text-dim: #6b7688;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --accent-soft: #eef0ff;
+      --ok: #16a34a; --ok-soft: #e8f7ee;
+      --warn: #d97706; --warn-soft: #fdf3e3;
+      --bad: #dc2626; --bad-soft: #fdecec;
+      --radius: 12px;
+      --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px; line-height: 1.5;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 56px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .brand { font-weight: 700; font-size: 16px; color: var(--text); margin-right: 16px; }
+    .brand:hover { text-decoration: none; }
+    .brand span { color: var(--accent); }
+    .topbar nav { display: flex; gap: 4px; flex: 1; }
+    .topbar nav a {
+      padding: 6px 12px; border-radius: 8px; color: var(--text-dim);
+      font-weight: 500;
+    }
+    .topbar nav a:hover { background: var(--accent-soft); color: var(--accent); text-decoration: none; }
+    .topbar .user { color: var(--text-dim); font-size: 13px; display: flex; gap: 8px; align-items: center; }
+
+    main { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    h2 { font-size: 16px; margin: 24px 0 12px; }
+    .sub { color: var(--text-dim); margin: 0 0 20px; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px;
+    }
+    .card + .card { margin-top: 16px; }
+
+    table { border-collapse: collapse; width: 100%; }
+    .tbl th {
+      text-align: left; font-size: 11px; text-transform: uppercase;
+      letter-spacing: .04em; color: var(--text-dim); font-weight: 600;
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
+      background: var(--surface); position: sticky; top: 56px; z-index: 5;
+    }
+    .tbl td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .tbl tbody tr:hover { background: #f8faff; }
+    .tbl tbody tr:last-child td { border-bottom: none; }
+    .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    .pill {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+    .pill.ok   { background: var(--ok-soft);   color: var(--ok); }
+    .pill.warn { background: var(--warn-soft); color: var(--warn); }
+    .pill.bad  { background: var(--bad-soft);  color: var(--bad); }
+    .pill.neutral { background: var(--accent-soft); color: var(--accent); }
+    tr.row-missing { background: #fff8f8; }
+    tr.row-overdue td { background: var(--bad-soft); }
+
+    .btn {
+      display: inline-block; padding: 8px 16px; border-radius: 8px; border: 1px solid transparent;
+      background: var(--accent); color: #fff; font-weight: 600; font-size: 14px;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn:hover { background: var(--accent-hover); text-decoration: none; }
+    .btn.secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+    .btn.secondary:hover { background: #f6f7fb; }
+    .btn.sm { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
+
+    input, select {
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-size: 14px; font-family: inherit; background: #fff; color: var(--text);
+    }
+    input:focus, select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+    label.field { display: block; margin-bottom: 14px; }
+    label.field span { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; font-weight: 600; }
+
+    .error { color: var(--bad); background: var(--bad-soft); border-radius: 8px; padding: 10px 14px; }
+    .flash { color: var(--ok); background: var(--ok-soft); border-radius: 8px; padding: 10px 14px; }
+    .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0 20px; }
     form.inline { display: inline; }
-    input, select { margin: 2px 0; }
-    .error { color: #b00; }
-    .summary td:first-child { font-weight: bold; }
+    .muted { color: var(--text-dim); }
+    .badge-link {
+      display: inline-block; background: var(--accent-soft); color: var(--accent);
+      padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-right: 6px;
+    }
+    .login-wrap { min-height: calc(100vh - 56px); display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .login-card { width: 100%; max-width: 360px; }
+    .login-card h1 { text-align: center; margin-bottom: 20px; }
+    .login-card .btn { width: 100%; padding: 10px; }
+    .grid { display: grid; gap: 16px; }
+    @media (min-width: 900px) { .grid.cols-4 { grid-template-columns: repeat(4, 1fr); } }
   </style>
 </head>
 <body>
-<nav>
-  <a href="/">История</a>
-  <a href="/upload">Новый расчёт</a>
-  {% if user %}
-    <a href="/admin/prices">Цены</a>
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/">Пред<span>расчёт</span></a>
+    <nav>
+      <a href="/">История</a>
+      <a href="/upload">Новый расчёт</a>
+      {% if user %}<a href="/admin/prices">Цены</a>{% endif %}
+    </nav>
+    {% if user %}
     <span class="user">{{ user.display_name }} · <a href="/logout">Выход</a></span>
-  {% endif %}
-</nav>
+    {% endif %}
+  </div>
+</div>
 {% block content %}{% endblock %}
 </body>
 </html>

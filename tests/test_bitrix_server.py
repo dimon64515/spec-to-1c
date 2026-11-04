@@ -120,6 +120,39 @@ def test_parse_event_marks_reply():
     assert ev2.is_reply is False
 
 
+def test_parse_event_reply_by_reply_id():
+    """Реальная схема reply из группового чата (сверено 24.10.2026):
+    MESSAGE_REPLIED нет — Битрикс шлёт вложенный PARAMS.REPLY_ID
+    и REPLY_MESSAGE-пустышку без файла."""
+    ev = parse_event(_payload(PARAMS={"REPLY_ID": "1364607"},
+                              REPLY_MESSAGE={"ID": "1364607", "MESSAGE": "",
+                                             "AUTHOR_ID": "305"}))
+    assert ev.is_reply is True
+    assert ev.file_url is None
+
+
+def test_webhook_reply_by_reply_id_scans_history(env):
+    """Reply через REPLY_ID без файла в контексте → допустим исторический
+    fallback: файл берётся из последних сообщений диалога, job встаёт в очередь."""
+    cfg, client, queue = env
+    client.dialog_messages = [
+        {"id": 1, "params": {"FILE_URL": "https://b24/disk/download/1&auth=x",
+                             "FILE_NAME": "ОВ2.pdf"}},
+    ]
+    app = srv.create_app(cfg, client=client, queue=queue, start_worker=False)
+    resp = TestClient(app).post(
+        "/webhook/bot",
+        json=_payload(PARAMS={"REPLY_ID": "1364607"},
+                      REPLY_MESSAGE={"ID": "1364607", "MESSAGE": "",
+                                     "AUTHOR_ID": "305"}),
+        headers={"X-Webhook-Token": "tok"},
+    )
+    assert resp.status_code == 200
+    assert queue.stats().get("pending", 0) == 1
+    assert any("Принял" in m[1] and "ОВ2.pdf" in m[1] for m in client.messages)
+    assert not any("заказы в 1С" in m[1] for m in client.messages)
+
+
 def test_webhook_enqueues_and_acks(env):
     cfg, client, queue = env
     client.task_titles[42] = "Шипиловский — ОВ2"
@@ -261,7 +294,7 @@ def test_webhook_welcome_message_form(env):
                if m[0] == "chat|99")
 
 
-def test_webhook_routes_xlsx_to_recreate(monkeypatch):
+def test_webhook_routes_xlsx_to_recreate(tmp_path, monkeypatch):
     """xlsx-вложение доходит до очереди как файл отчёта (file_name сохраняется)."""
     import bitrix_bot.server as server_mod
 
@@ -289,8 +322,13 @@ def test_webhook_routes_xlsx_to_recreate(monkeypatch):
             return b"xlsx-bytes"
 
     from fastapi.testclient import TestClient
-    cfg = BotConfig(execute_code_url="http://x", task_comment_prefix="Задача Битрикс24")
-    app = server_mod.create_app(cfg=cfg, client=_Client(), start_worker=False)
+    # изоляция от боевой очереди: без явного queue create_app создаёт
+    # JobQueue в cfg.tmp_dir, а дефолтный tmp_dir — боевой tmp/bitrix_bot
+    # (pytest на боевом хосте втихую ставил фейковые задания в прод-очередь).
+    cfg = BotConfig(execute_code_url="http://x", task_comment_prefix="Задача Битрикс24",
+                    tmp_dir=str(tmp_path / "tmp"))
+    queue = JobQueue(tmp_path / "jobs.db", tmp_path / "tmp")
+    app = server_mod.create_app(cfg=cfg, client=_Client(), queue=queue, start_worker=False)
     client = TestClient(app)
 
     payload = {

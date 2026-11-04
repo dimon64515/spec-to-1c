@@ -1,18 +1,36 @@
 {% extends "base.html" %}
 {% block title %}История расчётов{% endblock %}
 {% block content %}
-<h1>История расчётов</h1>
-<table>
-  <tr><th>№</th><th>Заказчик</th><th>Тендер</th><th>Дедлайн</th><th>Создан</th><th>Статус</th></tr>
-  {% for est in estimates %}
-  <tr class="{{ 'overdue' if est.overdue }}">
-    <td><a href="/estimate/{{ est.id }}">{{ est.id }}</a></td>
-    <td>{{ est.customer }}</td>
-    <td>{{ est.tender_no }}</td>
-    <td>{{ est.deadline }}</td>
-    <td>{{ est.created_at[:10] }}</td>
-    <td>{{ est.status }}</td>
-  </tr>
-  {% endfor %}
-</table>
+<main>
+  <div class="toolbar" style="justify-content: space-between">
+    <div>
+      <h1>История расчётов</h1>
+      <p class="sub">Все расчёты команды — откройте любой, посмотрите или доработайте</p>
+    </div>
+    <a class="btn" href="/upload">+ Новый расчёт</a>
+  </div>
+  <div class="card" style="padding: 0; overflow: hidden">
+    <table class="tbl">
+      <thead>
+        <tr><th style="width:60px">№</th><th>Заказчик</th><th>Тендер</th><th>Дедлайн</th><th>Создан</th><th>Статус</th></tr>
+      </thead>
+      <tbody>
+      {% for est in estimates %}
+        <tr class="{{ 'row-overdue' if est.overdue }}">
+          <td><a href="/estimate/{{ est.id }}">#{{ est.id }}</a></td>
+          <td>{{ est.customer or '—' }}</td>
+          <td>{{ est.tender_no or '—' }}</td>
+          <td>{{ est.deadline or '—' }}</td>
+          <td class="muted">{{ est.created_at[:10] }}</td>
+          <td>
+            {% if est.status == 'done' %}<span class="pill ok">готов</span>
+            {% elif est.status == 'running' %}<span class="pill neutral">считается…</span>
+            {% else %}<span class="pill bad">ошибка</span>{% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</main>
 {% endblock %}

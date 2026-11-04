@@ -41,6 +41,7 @@ from presale.boris_prices import (
     BorisPriceTable,
 )
 from presale.chatgpt_table import parse_chatgpt_workbook
+from presale.name_extract import enrich_items
 from presale.db import PresaleDB
 from presale.jobs import JobRunner
 from presale.mcp_1c import BackendUnavailableError, OneCPriceBackend
@@ -209,6 +210,13 @@ def create_app(
     signer = TimestampSigner(secret)
 
     app.state.db = db
+    # Расчёты, оставшиеся в «running» после перезапуска процесса (job'ы живут
+    # в памяти и умирают вместе с ним), помечаем ошибкой — иначе висят вечно.
+    with db._connect() as conn:
+        conn.execute(
+            "UPDATE estimates SET status='error' WHERE status='running'"
+        )
+        conn.commit()
     app.state.backend = backend
     app.state.market = market
     app.state.runner = JobRunner(sync=sync_jobs)
@@ -311,7 +319,7 @@ def create_app(
         """
         try:
             set_step("парсинг")
-            items = parse_chatgpt_workbook(content)
+            items = enrich_items(parse_chatgpt_workbook(content))
             set_step("цены")
             try:
                 priced = price_items(
