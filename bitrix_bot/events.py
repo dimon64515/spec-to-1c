@@ -110,7 +110,10 @@ def parse_event(payload: dict) -> Optional[BotEvent]:
     dialog_id = params.get("DIALOG_ID", "")
     if not dialog_id:
         return None
-    # reply-контекст: в некоторых версиях приходит целиком цитируемое сообщение
+    # reply-контекст: Битрикс шлёт его в двух формах — либо цитируемое
+    # сообщение целиком (MESSAGE_REPLIED), либо только ссылку на него:
+    # вложенный PARAMS.REPLY_ID + REPLY_MESSAGE-пустышку без файла
+    # (реальная схема групповых чатов, сверено 24.10.2026).
     replied = params.get("MESSAGE_REPLIED") or params.get("message_replied") or {}
     replied_params = replied.get("params") if isinstance(replied, dict) else None
     file_url, file_name = (None, None)
@@ -118,6 +121,13 @@ def parse_event(payload: dict) -> Optional[BotEvent]:
         file_url, file_name = _first_file(replied_params, exts=(".pdf", ".xlsx"))
     if not file_url:
         file_url, file_name = _first_file(params, exts=(".pdf", ".xlsx"))
+    reply_inner = params.get("PARAMS")
+    reply_id = reply_inner.get("REPLY_ID") if isinstance(reply_inner, dict) else None
+    is_reply = (
+        (isinstance(replied, dict) and bool(replied))
+        or bool(reply_id)
+        or bool(params.get("REPLY_MESSAGE"))
+    )
     user_raw = params.get("FROM_USER_ID") or params.get("from_user_id")
     bot_id = None
     bots = (payload.get("data") or {}).get("BOT") or []
@@ -132,7 +142,7 @@ def parse_event(payload: dict) -> Optional[BotEvent]:
         bot_id=bot_id,
         file_url=file_url,
         file_name=file_name,
-        is_reply=isinstance(replied, dict) and bool(replied),
+        is_reply=is_reply,
     )
 
 
@@ -147,10 +157,14 @@ def find_pdf(client, event: BotEvent, ext: str = ".pdf") -> Tuple[bytes, str]:
     """Скачать файл с расширением ext: из сообщения, иначе из истории."""
     if event.file_url and _looks_like(event.file_name, (ext,)):
         url = event.file_url
-        # голые ссылки disk требуют сессии — берём подписанный URL
+        # голые ссылки disk требуют сессии — берём подписанный URL.
+        # Файлы из чужих чатов вебхук не видит — URL берём от имени бота
+        # (imbot.v2.File.download), для этого нужен bot_id из события.
         m = re.search(r"fileId=(\d+)", url)
         if m and hasattr(client, "resolve_download_url"):
-            url = client.resolve_download_url(int(m.group(1)))
+            url = client.resolve_download_url(
+                int(m.group(1)), bot_id=event.bot_id
+            )
         return client.download_file(url), event.file_name or f"document{ext}"
     for msg in client.get_dialog_messages(event.dialog_id, limit=30):
         url, name = _file_from_message(msg, ext)

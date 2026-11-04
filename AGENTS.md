@@ -13,6 +13,11 @@
 4. Формирует XML-файл для импорта в **1С Sofтвент**.
 5. Исключает ручной ввод данных менеджером.
 
+## Knowledge graph (graphify)
+- Построенный граф проекта лежит в `graphify-out/graph.json` (обновляется автоматически git-хуками после commit/pull; вручную: `graphify update .`).
+- Перед поиском по проекту (`grep`, чтением файлов по одному) для вопросов об архитектуре и связях («что вызывает X», «как устроен Y», «что связано с Z») сначала выполни `graphify query "<вопрос>"` (или `graphify explain "X"` / `graphify path "A" "B"`). Grep/Glob — для точечного поиска строк и имён файлов.
+- Отчёт по архитектуре: `graphify-out/GRAPH_REPORT.md`; интерактивная карта: `graphify-out/graph.html`.
+
 ## Quick usage
 - Run build and tests before making large changes:
   - `./gradlew build`

@@ -30,6 +30,20 @@
   (`jobs.db`) и PDF лягут туда, откуда запущен uvicorn. Поэтому
   запускать нужно из корня проекта (или задать `tmp_dir` абсолютным).
 
+## Дашборд статистики (локально)
+
+    .venv/bin/uvicorn bitrix_bot.dashboard:app --host 127.0.0.1 --port 8091
+
+- Отдельное приложение — боевой бот (порт 8080) не трогает; слушает только
+  loopback, наружу не торчит. Открывать: `http://127.0.0.1:8091` (`?days=30` —
+  глубина периода). Порт 8091: 8081 занят sshd-форвардом, 8090 — CRM.
+- Данные: `journalctl -u bitrix-bot -o short-iso` (события webhook, вызовы
+  1С `NewZakaz` с кодами ответа, ERROR + traceback, рестарты по смене PID)
+  + sqlite-очередь `jobs.db` (read-only). Кэш 60 сек.
+- Ограничение: время обработки заявки из логов не извлекается — бот не
+  логирует старт/финиш задания.
+- Тесты парсера: `tests/test_dashboard.py`.
+
 ## Верификация webhook (опционально)
 
 Сервер сравнивает заголовок `X-Webhook-Token` запроса со значением
@@ -53,12 +67,21 @@ endpoint открыт для всех.
 2. Регистрация чат-бота (выполнить один раз из консоли с токеном приложения):
    `imbot.register` с `EVENT_MESSAGE_ADD` → `https://<домен>/webhook/bot`,
    тип открытый, права im/task/disk. Бот ждёт событие `ONIMBOTMESSAGEADD`.
+   Сейчас обработчик бота привязан к
+   `https://bitrix-wok-ptg.point-clean.ru/webhook/bot`; оба домена
+   (см. раздел «Прод») ведут на один сервер, так что перепривязка
+   не требуется.
 3. Вебхук для REST уже есть (`incoming_webhook` в `bitrix.local.yaml`).
 
-## Прод (VPS 185.253.103.130, домен bitrix-wok-ptg.point-clean.ru)
+## Прод (VPS 185.50.203.136, hostname vpsmaks)
 
-Код живёт в `/opt/xml-to-1c` (git clone). SSH: порт 45022, ключ
-`~/.ssh/xmlto1c_vps_ed25519` (на сервере root; парольный вход выключен).
+Код живёт в `/home/dimon64515/projects/xml-to-1c`. Переезд на VPS
+`185.253.103.130` (документация ниже в разделе истории) **отменён
+22.10.2026**; оба домена — `bitrix-wok.point-clean.ru` и
+`bitrix-wok-ptg.point-clean.ru` — направлены A-записями на
+185.50.203.136. Обработчик событий бота `spec1c_bot` в портале привязан
+к ptg-домену; оба домена обслуживает nginx на этом сервере, у каждого
+свой сертификат Let's Encrypt (авто-продление).
 
 systemd — `/etc/systemd/system/bitrix-bot.service`:
 
@@ -67,26 +90,39 @@ systemd — `/etc/systemd/system/bitrix-bot.service`:
     After=network.target
 
     [Service]
-    WorkingDirectory=/opt/xml-to-1c
-    ExecStart=/opt/xml-to-1c/.venv/bin/uvicorn bitrix_bot.server:app --host 127.0.0.1 --port 8080
+    WorkingDirectory=/home/dimon64515/projects/xml-to-1c
+    ExecStart=/home/dimon64515/projects/xml-to-1c/.venv/bin/uvicorn bitrix_bot.server:app --host 127.0.0.1 --port 8080
     Restart=always
     RestartSec=5
 
     [Install]
     WantedBy=multi-user.target
 
-Ещё юнит `streamlit-webapp.service` (web_app.py на 127.0.0.1:8501,
-baseUrlPath=/ui). nginx (`/etc/nginx/sites-available/bitrix-bot`):
-домен 443 → 8080; `/ui/` → 8501 с basic auth (`/etc/nginx/.htpasswd_spec`).
-HTTPS — certbot (порты 80/443 должны быть открыты на внешнем firewall
-провайдера). Бэкапы: `/root/backup_spec_to_1c.sh` (cron 04:00,
-снапшоты в `/root/backups/spec-to-1c/`, ротация 14 шт.);
-проверка живости: `/root/healthcheck_spec.sh` (cron */5, рестарт при сбое).
+Логи — `journalctl -u bitrix-bot` (юнит пишет в journald). Файловый лог
+`logs/bitrix_bot.log` исторический: заморожен на 20.09.2026, когда
+запуск перенесли под systemd.
 
-1С: основной транспорт — публичный HTTP NewZakaz; MCP execute_code
-(фолбэк) — туннель с машины разработчика:
-`ssh -N -R 6005:127.0.0.1:6005 -p 45022 root@185.253.103.130`
-(порт 6005 на VPS только 127.0.0.1).
+nginx: два vhost в `/etc/nginx/sites-available/`
+(`bitrix-wok.point-clean.ru`, `bitrix-wok-ptg.point-clean.ru`) —
+443 ssl (certbot) → `proxy_pass http://127.0.0.1:8080`.
+
+1С: с 26.10.2026 бот направлен на боевую базу `KA_vok-region` (БСП 3.1.12.297):
+`https://www.1c-woc.ru/KA_vok-region/hs/Zakaz/NewZakaz`. Проверка 26.10:
+прямой вызов только через HTTP (httpx, учётные данные из конфига) создал
+заказ №000001418 (артикул 1-2-1, `Успех: true`, расчёт цен прошёл). Авторизация
+в три слоя: IIS Basic-аутентификация сайта (`order_service_user`/
+`order_service_password` в `bitrix.local.yaml`) → вход в ИБ 1С → ключ
+`X-API-Key` и legacy `key` (одинаковое значение `order_service_key`).
+
+Тестовая база `KA_vok-region_test` (БСП 3.1.11.448) — запасной контур: заказы
+№000000920 (MCP) и №000000921 (HTTP, 24.10). Фолбэк MCP `execute_code` на
+`127.0.0.1:6005` работает и для записи после включения разрешения в форме
+MCP Toolkit. Основной транспорт — HTTP; MCP — запасной и диагностический.
+Хронология инцидента 22–26.10 — в `docs/BACKLOG.md` (раздел «Закрыто»).
+
+⚠️ На этом сервере нет бэкапов и авто-healthcheck (скрипты
+`/root/backup_spec_to_1c.sh`, `/root/healthcheck_spec.sh` остались на
+отменённом VPS). Настроить заново.
 
 `WorkingDirectory` обязателен: конфиги резолвятся от корня проекта, но
 `middleware.tmp_dir` (sqlite-очередь и временные PDF) относителен cwd.
@@ -124,4 +160,5 @@ HTTPS — certbot (порты 80/443 должны быть открыты на �
 
 Тестовая задача с реальным PDF из `examples/customer_projects/` → в чате
 «Принял …, обрабатываю…» → «Заказ 1С: №…» + сводка + списки.
-Заказ в 1С проверить вручную (тестовая база).
+Заказ проверить вручную в базе, на которую указывает `order_service_url`
+(сейчас — боевая `KA_vok-region`).

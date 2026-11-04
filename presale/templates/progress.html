@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Расчёт выполняется{% endblock %}
+{% block content %}
+<main>
+  <div class="card" style="max-width: 560px; margin: 60px auto; text-align: center">
+    <h1 style="font-size: 18px">Расчёт выполняется…</h1>
+    <p class="sub">Шаг: <span id="step">{{ status.step }}</span></p>
+    <p id="msg" class="error" style="display:none"></p>
+  </div>
+<script>
+async function poll() {
+  const r = await fetch('/job/{{ job_id }}');
+  const st = await r.json();
+  document.getElementById('step').textContent = st.step;
+  const msg = document.getElementById('msg');
+  if (st.state === 'done') {
+    window.location = '/estimate/' + st.result_id;
+  } else if (st.state === 'error') {
+    msg.style.display = 'block';
+    msg.textContent = 'Ошибка: ' + st.error;
+    clearInterval(timer);
+  } else if (st.state === 'missing') {
+    msg.style.display = 'block';
+    msg.textContent = 'Задача не найдена (сервер перезапускался). Откройте расчёт в истории — при необходимости загрузите файл заново.';
+    clearInterval(timer);
+  }
+}
+const timer = setInterval(poll, 1000);
+</script>
+</main>
+{% endblock %}

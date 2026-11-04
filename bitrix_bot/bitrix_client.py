@@ -85,8 +85,35 @@ class BitrixClient:
         task = result.get("task") or {}
         return task.get("title") or ""
 
-    def resolve_download_url(self, file_id) -> str:
-        """Подписанный DOWNLOAD_URL файла Диска (scope disk)."""
+    def resolve_download_url(self, file_id, bot_id=None) -> str:
+        """Подписанный URL для скачивания файла чата.
+
+        Файлы чата чужих пользователей вебхук не видит (disk.file.get →
+        403: scope disk действует от имени владельца вебхука, который не
+        состоит в чужих личных чатах бота). Бот состоит — поэтому сначала
+        imbot.v2.File.download (botToken = client_id приложения-владельца
+        бота; верифицировано 03.11.2026 на портале), далее недокументированный
+        im.disk.file.get и наконец disk.file.get (файлы самого владельца
+        вебхука)."""
+        if bot_id and self._client_id:
+            try:
+                result = self.call(
+                    "imbot.v2.File.download",
+                    botId=bot_id, botToken=self._client_id, fileId=file_id,
+                )
+                url = (result.get("downloadUrl") or result.get("DOWNLOAD_URL")
+                       or "") if isinstance(result, dict) else ""
+                if url:
+                    return url
+            except BitrixError:
+                pass
+        try:
+            result = self.call("im.disk.file.get", id=file_id)
+            url = result.get("DOWNLOAD_URL") or ""
+            if url:
+                return url
+        except BitrixError:
+            pass
         result = self.call("disk.file.get", id=file_id)
         return result.get("DOWNLOAD_URL") or ""
 

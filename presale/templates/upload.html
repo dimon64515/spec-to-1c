@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Новый расчёт{% endblock %}
+{% block content %}
+<main>
+  <h1>Новый расчёт</h1>
+  <p class="sub">Загрузите Excel-книгу из ChatGPT (листы «Работы / Материалы / Оборудование»)</p>
+  <div class="card" style="max-width: 560px">
+    <form method="post" action="/upload" enctype="multipart/form-data">
+      <label class="field"><span>Файл (.xlsx)</span>
+        <input type="file" name="file" accept=".xlsx" required style="width:100%"></label>
+      <label class="field"><span>Заказчик</span><input name="customer" style="width:100%"></label>
+      <label class="field"><span>Номер тендера</span><input name="tender_no" style="width:100%"></label>
+      <label class="field"><span>Дедлайн</span><input type="date" name="deadline" style="width:100%"></label>
+      <button class="btn" type="submit">Загрузить и рассчитать</button>
+    </form>
+  </div>
+</main>
+{% endblock %}
