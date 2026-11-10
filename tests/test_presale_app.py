@@ -15,10 +15,11 @@ import openpyxl
 import pytest
 from fastapi.testclient import TestClient
 
-from presale.app import create_app
+from presale.app import _price_per_m2, create_app
 from presale.db import PresaleDB
 from presale.jobs import JobRunner
 from presale.mcp_1c import BackendUnavailableError
+from presale.models import Category, EstimateItem, PriceStatus
 
 FIXTURES = Path(__file__).parent / "fixtures"
 IGOR_XLSX = FIXTURES / "igor" / "ИИ Рыночный_расчёт_ЛСР_26-09-07.xlsx"
@@ -398,3 +399,71 @@ def test_edit_non_finite_value_rejected(client, igor_bytes, db):
     after = next(i for i in items if i.row_id == row_id)
     assert after == before
     assert db.get_edits(1, row_id) == []
+
+
+# ---- массовая правка ----
+
+def test_edit_all_applies_to_every_row(client, igor_bytes, db):
+    login(client)
+    upload(client, igor_bytes)
+    r = client.post("/estimate/1/edit-all",
+                    data={"field": "internal_price", "value": "100"},
+                    follow_redirects=False)
+    assert r.status_code == 303
+    _, items = db.get_estimate(1)
+    assert items and all(i.internal_price == Decimal("100") for i in items)
+    # каждая строка залогирована отдельной записью
+    edits = client.get(f"/estimate/1/item/{items[0].row_id}/edits")
+    assert edits.status_code == 200
+    assert "100" in edits.text
+
+
+def test_edit_all_rejects_bad_value(client, igor_bytes, db):
+    login(client)
+    upload(client, igor_bytes)
+    _, items = db.get_estimate(1)
+    before = list(items)
+    r = client.post("/estimate/1/edit-all",
+                    data={"field": "internal_price", "value": "nan"},
+                    follow_redirects=False)
+    assert r.status_code == 400
+    _, items = db.get_estimate(1)
+    assert items == before
+    assert db.get_edits(1, items[0].row_id) == []
+
+
+def test_edit_all_requires_auth(client, igor_bytes):
+    upload(client, igor_bytes)
+    r = client.post("/estimate/1/edit-all",
+                    data={"field": "internal_price", "value": "100"},
+                    follow_redirects=False)
+    assert r.status_code == 303
+    assert r.headers["location"] == "/login"
+
+
+# ---- цена за м² ----
+
+def test_price_per_m2_helper():
+    """Прайс Бориса — уже ₽/м²; строка с ед. «м²» — своя цена; штучная — None."""
+    boris_item = EstimateItem(
+        row_id="1", category=Category.MATERIALS, name="Переход прямоугольный",
+        unit="шт", qty=Decimal("1"), internal_price=Decimal("1310"),
+        price_source="boris", status=PriceStatus.OK,
+    )
+    assert _price_per_m2(boris_item) == Decimal("1310")
+    m2_item = boris_item.model_copy(update={
+        "price_source": "1c", "unit": "м²", "internal_price": Decimal("500"),
+    })
+    assert _price_per_m2(m2_item) == Decimal("500")
+    pcs_item = boris_item.model_copy(update={"price_source": "1c"})
+    assert _price_per_m2(pcs_item) is None
+    no_price = boris_item.model_copy(update={"internal_price": None})
+    assert _price_per_m2(no_price) is None
+
+
+def test_result_page_shows_per_m2_column_and_bulk_button(client, igor_bytes):
+    login(client)
+    upload(client, igor_bytes)
+    page = client.get("/estimate/1")
+    assert "₽/м²" in page.text
+    assert "Сохранить для всех" in page.text

@@ -11,7 +11,8 @@
 
 Особые случаи: у материала без толщины ГОСТ-таблица не вызывается (нет
 габаритов) — строка остаётся красной с note "не указана толщина";
-спирально-навивные изделия в прайсе Бориса не представлены — note про спираль.
+спирально-навивные изделия в прайсе Бориса не представлены — note про спираль;
+переходы без явного «тип N» в батч-поиске 1С идут как «… тип 1».
 
 Функция чистая: единственное I/O — чтения из PresaleDB (ручные цены,
 расценки работ). Входные строки не мутируются — работа идёт с копиями.
@@ -32,6 +33,20 @@ _SMALL_STUFF_RE = re.compile(
 # Форма воздуховода из имени: «кругл», «Ø» или диаметр «d200» → круглый.
 _SHAPE_ROUND_RE = re.compile(r"(кругл|ø|d\d)")
 _WS_RE = re.compile(r"\s+")
+# Переходы: в номенклатуре 1С бывают «тип 1»/«тип 2» с разными ценами.
+_TRANSITION_RE = re.compile(r"переход", re.IGNORECASE)
+_TYPE_RE = re.compile(r"тип\s*\d", re.IGNORECASE)
+
+
+def _one_c_query_name(name: str) -> str:
+    """Имя для батч-поиска в 1С: переход без явного типа → «… тип 1».
+
+    Дефолт заказчика: все переходы (круглые и прямоугольные) — тип 1.
+    Явный «тип N» в наименовании не трогаем.
+    """
+    if _TRANSITION_RE.search(name) and not _TYPE_RE.search(name):
+        return f"{name} тип 1"
+    return name
 
 
 class PriceBackend(Protocol):
@@ -123,9 +138,11 @@ def price_items(
 
     # Проход 2: батч-запрос 1С по всем неоценённым позициям разом.
     if need_1c:
-        found_1c = backend.search_1c([item.name for item in need_1c])
+        found_1c = backend.search_1c(
+            [_one_c_query_name(item.name) for item in need_1c]
+        )
         for item in need_1c:
-            price = found_1c.get(item.name)
+            price = found_1c.get(_one_c_query_name(item.name))
             if price is not None:
                 item.internal_price = price
                 item.status = PriceStatus.OK
