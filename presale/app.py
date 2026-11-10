@@ -101,6 +101,25 @@ def _money(value: Optional[Decimal]) -> str:
     return str(value)
 
 
+# Единицы, в которых цена строки уже выражена за м².
+_M2_UNITS = {"м2", "м²", "кв.м", "кв.метра", "кв.метр", "м.кв"}
+
+
+def _price_per_m2(item: EstimateItem) -> Optional[Decimal]:
+    """Цена строки за м²: None, если пересчёт невозможен.
+
+    Прайс Бориса изначально в ₽/м² (включая фасонные изделия) — берём
+    как есть; штучные строки (1С/ручные/рынок) без площади изделия
+    не пересчитываем — показываем прочерк.
+    """
+    if item.internal_price is None:
+        return None
+    if item.price_source == "boris":
+        return item.internal_price
+    unit = item.unit.strip().casefold().replace(" ", "")
+    return item.internal_price if unit in _M2_UNITS else None
+
+
 _WORD_RE = re.compile(r"[0-9a-zа-яё]+")
 
 
@@ -225,6 +244,7 @@ def create_app(
         directory=str(Path(__file__).parent / "templates")
     )
     templates.env.globals["money"] = _money
+    templates.env.globals["price_per_m2"] = _price_per_m2
     templates.env.globals["category_label"] = CATEGORY_LABELS.get
     templates.env.globals["status_icon"] = (
         lambda s: STATUS_ICONS.get(s, "")
@@ -458,19 +478,7 @@ def create_app(
         except KeyError:
             raise HTTPException(404, "расчёт не найден")
 
-        new_value: Union[str, Decimal, Category] = value
-        if field in ("internal_price", "qty"):
-            try:
-                new_value = Decimal(value.replace(",", "."))
-            except InvalidOperation:
-                raise HTTPException(400, f"не число: {value!r}")
-            if not new_value.is_finite():
-                raise HTTPException(400, f"не число: {value!r}")
-        elif field == "category":
-            try:
-                new_value = Category(value)
-            except ValueError:
-                raise HTTPException(400, f"нет такой категории: {value!r}")
+        new_value = _parse_edit_value(field, value)
 
         # Обновление + лог — одна транзакция (old value читается внутри неё)
         try:
@@ -478,6 +486,33 @@ def create_app(
                                  new_value)
         except KeyError:
             raise HTTPException(404, "строка не найдена")
+        back = request.query_params.get("back")
+        target = back if back and back.startswith("/estimate/") \
+            else f"/estimate/{estimate_id}"
+        return RedirectResponse(target, status_code=303)
+
+    @app.post("/estimate/{estimate_id}/edit-all")
+    async def edit_all_items(request: Request, estimate_id: int):
+        """Массовая правка: одно поле+значение применяются ко всем строкам.
+
+        Каждая строка логируется отдельной записью (кто/когда/было→стало),
+        транзакция на строку — как в одиночной правке.
+        """
+        user = require_user(request)
+        form = await request.form()
+        field = str(form.get("field", ""))
+        value = str(form.get("value", ""))
+        if field not in EDITABLE_FIELDS:
+            raise HTTPException(400, f"неизвестное поле: {field!r}")
+        try:
+            _, items = db.get_estimate(estimate_id)
+        except KeyError:
+            raise HTTPException(404, "расчёт не найден")
+
+        new_value = _parse_edit_value(field, value)
+        for item in items:
+            db.apply_edit_logged(estimate_id, item.row_id, user["id"],
+                                 field, new_value)
         back = request.query_params.get("back")
         target = back if back and back.startswith("/estimate/") \
             else f"/estimate/{estimate_id}"
@@ -624,6 +659,24 @@ def create_app(
         return RedirectResponse("/admin/prices?saved=1", status_code=303)
 
     return app
+
+
+def _parse_edit_value(field: str, value: str) -> Union[str, Decimal, Category]:
+    """Значение правки из формы → типизированное; нечисло → HTTP 400."""
+    new_value: Union[str, Decimal, Category] = value
+    if field in ("internal_price", "qty"):
+        try:
+            new_value = Decimal(value.replace(",", "."))
+        except InvalidOperation:
+            raise HTTPException(400, f"не число: {value!r}")
+        if not new_value.is_finite():
+            raise HTTPException(400, f"не число: {value!r}")
+    elif field == "category":
+        try:
+            new_value = Category(value)
+        except ValueError:
+            raise HTTPException(400, f"нет такой категории: {value!r}")
+    return new_value
 
 
 # ---- CLI ----

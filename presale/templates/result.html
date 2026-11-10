@@ -53,6 +53,18 @@
     {% else %}
       <a class="btn secondary sm" href="/estimate/{{ meta.id }}?status=missing">Только без цен 🔴</a>
     {% endif %}
+    <form class="inline" method="post" action="/estimate/{{ meta.id }}/edit-all{% if only %}?back=/estimate/{{ meta.id }}%3Fstatus%3Dmissing{% endif %}"
+          style="display:flex; gap:4px; margin-left:auto; align-items:center"
+          onsubmit="return confirm('Применить правку ко ВСЕМ позициям расчёта?')">
+      <span class="muted" style="font-size:12px">Всем позициям:</span>
+      <select name="field" style="padding:4px 6px; font-size:12px">
+        {% for key, label in editable_fields.items() %}
+          <option value="{{ key }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+      <input name="value" size="7" required placeholder="значение" style="padding:4px 6px; font-size:12px">
+      <button class="btn sm" type="submit">Сохранить для всех</button>
+    </form>
   </div>
 
   {% for cat, items in grouped.items() %}
@@ -66,6 +78,7 @@
               <th class="num" style="width:80px">Кол-во</th>
               <th class="num" style="width:100px">Рынок</th>
               <th class="num" style="width:100px">Наша цена</th>
+              <th class="num" style="width:90px">₽/м²</th>
               <th class="num" style="width:110px">Сумма</th>
               <th style="width:160px">Примечание</th><th style="width:230px">Правка</th></tr>
         </thead>
@@ -78,6 +91,7 @@
             <td class="num">{{ money(item.qty) }}</td>
             <td class="num muted">{{ money(item.market_price) }}</td>
             <td class="num" style="font-weight:600">{{ money(item.internal_price) }}</td>
+            <td class="num muted">{{ money(price_per_m2(item)) if price_per_m2(item) is not none else '—' }}</td>
             <td class="num" style="font-weight:600">{{ money(item.computed_total()) }}</td>
             <td class="muted" style="font-size:12px">{{ item.status_note }}</td>
             <td>

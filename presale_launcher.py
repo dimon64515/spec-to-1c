@@ -21,8 +21,8 @@ class _DemoMarket:
 
 app = create_app(
     db_path=ROOT / "tmp/presale_demo/app.db",
-    boris_paths=(ROOT / "tests/fixtures/boris/rect.xlsx",
-                 ROOT / "tests/fixtures/boris/round.xlsx"),
+    boris_paths=(ROOT / "reference/boris_prices/Прайс прямоуголка нз.xlsx",
+                 ROOT / "reference/boris_prices/Прайс кругляк нз.xlsx"),
     execute_url=None,  # 1С не подключена: оборудование уйдёт в 🔴/ручные цены
     market=_DemoMarket(),
 )

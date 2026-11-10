@@ -180,3 +180,61 @@ def test_input_items_not_mutated(stub_backend, stub_market, db, boris):
     out = price_items(items, boris=boris, backend=stub_backend, market=stub_market, db=db)
     assert items[0].internal_price is None and items[0].status == PriceStatus.MISSING
     assert out[0] is not items[0]
+
+
+def test_transition_without_type_searched_as_type1(db, boris, stub_market_empty):
+    """Переход без явного типа ищется в 1С как «… тип 1»; имя строки не меняется."""
+    backend = StubBackend(
+        {"Переход 500x300/Ф400-300 тип 1": Decimal("1955.18")}
+    )
+    items = [_item(category=Category.EQUIPMENT, name="Переход 500x300/Ф400-300")]
+    out = price_items(items, boris=boris, backend=backend,
+                      market=stub_market_empty, db=db)
+    assert backend.called_with[0] == ["Переход 500x300/Ф400-300 тип 1"]
+    assert out[0].internal_price == Decimal("1955.18")
+    assert out[0].price_source == "1c"
+    assert out[0].name == "Переход 500x300/Ф400-300"
+
+
+def test_transition_with_explicit_type_untouched(db, boris, stub_market_empty):
+    """Явный «тип N» в наименовании перехода не перезаписывается дефолтом."""
+    backend = StubBackend({"Переход 500x300/Ф400-300 тип 2": Decimal("2500")})
+    items = [_item(category=Category.EQUIPMENT,
+                   name="Переход 500x300/Ф400-300 тип 2")]
+    out = price_items(items, boris=boris, backend=backend,
+                      market=stub_market_empty, db=db)
+    assert backend.called_with[0] == ["Переход 500x300/Ф400-300 тип 2"]
+    assert out[0].internal_price == Decimal("2500")
+
+
+def test_round_and_rect_transitions_default_type1(db, boris, stub_market_empty):
+    """Дефолт «тип 1» действует на переходы обеих форм (круглые и прямоугольные)."""
+    backend = StubBackend()
+    items = [
+        _item(row_id="1", category=Category.EQUIPMENT,
+              name="Переход с прямоугольного на круглое сечения 672x396/Ф500-300"),
+        _item(row_id="2", category=Category.EQUIPMENT,
+              name="Переход прямоугольного сечения 378x378/500x500-500"),
+    ]
+    price_items(items, boris=boris, backend=backend,
+                market=stub_market_empty, db=db)
+    assert backend.called_with[0] == [
+        "Переход с прямоугольного на круглое сечения 672x396/Ф500-300 тип 1",
+        "Переход прямоугольного сечения 378x378/500x500-500 тип 1",
+    ]
+
+
+def test_non_transition_names_not_modified(db, boris, stub_market_empty):
+    """Обычные позиции идут в 1С с исходным именем (дефолт только для переходов)."""
+    backend = StubBackend()
+    items = [
+        _item(row_id="1", category=Category.EQUIPMENT, name="Решетка LITENED 70-40"),
+        _item(row_id="2", category=Category.EQUIPMENT,
+              name="Зонт вытяжной островной (тип1) 250/350x1000/100"),
+    ]
+    price_items(items, boris=boris, backend=backend,
+                market=stub_market_empty, db=db)
+    assert backend.called_with[0] == [
+        "Решетка LITENED 70-40",
+        "Зонт вытяжной островной (тип1) 250/350x1000/100",
+    ]
